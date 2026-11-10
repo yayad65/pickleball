@@ -120,6 +120,35 @@ select.tosel{width:150px;min-height:46px;border:1px solid var(--edge);border-rad
 .badge{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:15px;font-weight:700;background:var(--line2);color:var(--muted)}
 .top3 .badge{background:var(--red);color:#FFFFFF}
 .namebtn{background:none;border:0;padding:6px 0;text-align:left;font-weight:700;color:var(--ink);cursor:pointer;text-decoration:underline;text-decoration-color:var(--edge);text-underline-offset:4px;overflow-wrap:anywhere}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;-webkit-overflow-scrolling:touch}
+table.st{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums;font-size:17px}
+table.st th,table.st td{padding:0 7px;height:50px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line2);background:var(--surface)}
+table.st thead th{height:44px;border-bottom:1px solid var(--line);font-size:14px}
+table.st tbody tr:last-child th,table.st tbody tr:last-child td{border-bottom:0}
+table.st .txt{text-align:left}
+table.st .pcol{position:sticky;left:0;z-index:1;text-align:left;padding-left:10px;box-shadow:1px 0 0 var(--line)}
+table.st tbody .pcol{display:flex;align-items:center;gap:7px;min-width:112px;max-width:160px;font-weight:700}
+table.st tr.top3 th,table.st tr.top3 td{background:var(--red-soft)}
+.th{background:none;border:0;padding:6px 2px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px;white-space:nowrap}
+.th.on{color:var(--blue)}
+.helpbox{position:relative;background:var(--blue-soft);border-radius:12px;padding:12px 44px 12px 14px;font-size:16px;line-height:1.45}
+.helpbox b{color:var(--blue)}
+.helpbox .x{position:absolute;top:4px;right:4px;width:40px;height:40px;border:0;background:transparent;font-size:24px;color:var(--muted);cursor:pointer}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.chk{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:16px}
+.chk input{width:22px;height:22px;accent-color:var(--blue);flex:none}
+.chk span{min-width:0}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}
+.stats div{display:grid;border-bottom:1px solid var(--line2);padding-bottom:6px}
+.stats dt{font-size:14px;color:var(--muted)}
+.stats dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+details.key summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;font-weight:700;min-height:28px}
+details.key summary::-webkit-details-marker{display:none}
+details.key[open] .chev{transform:rotate(180deg)}
+.keylist{margin:0;display:grid;gap:10px}
+.keylist div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;font-size:16px}
+.keylist dt{font-weight:700;color:var(--blue)}
+.keylist dd{margin:0}
 .games{list-style:none;margin:0;padding:0}
 .games li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
 .games li:last-child{border-bottom:0}
@@ -454,11 +483,42 @@ function viewRounds(){
     }).join('')}`;
 }
 function tally(list){
-  const m={}; const rec=(p,f,a)=>{ const t=m[p]||(m[p]={id:p,w:0,l:0,pf:0,pa:0}); t.pf+=f; t.pa+=a; f>a?t.w++:t.l++; };
-  for(const s of list) for(const r of s.rounds||[]) for(const g of r.games) if(scored(g)&&g.sa!==g.sb){ for(const p of g.a) rec(p,g.sa,g.sb); for(const p of g.b) rec(p,g.sb,g.sa); }
-  return Object.values(m).map(t=>({...t,g:t.w+t.l,pct:t.w/(t.w+t.l),diff:t.pf-t.pa}))
-    .sort((x,y)=>y.pct-x.pct||y.diff-x.diff||y.pf-x.pf||nameOf(x.id).localeCompare(nameOf(y.id)));
+  const m={}, seq={}, part={}, wk={}, sits={};
+  const T=p=>m[p]||(m[p]={id:p,w:0,l:0,pf:0,pa:0});
+  const ordered=list.slice().sort((a,b)=>a.date<b.date?-1:1);
+  for(const s of ordered) (s.rounds||[]).forEach(r=>{
+    const live=r.done||r.games.some(scored);
+    if(live) for(const x of r.sits){ sits[x]=(sits[x]||0)+1; }
+    for(const g of r.games) if(scored(g)&&g.sa!==g.sb){
+      for(const [team,f,a] of [[g.a,g.sa,g.sb],[g.b,g.sb,g.sa]]) team.forEach((p,i)=>{
+        const t=T(p), win=f>a; t.pf+=f; t.pa+=a; win?t.w++:t.l++;
+        (seq[p]=seq[p]||[]).push(win?'W':'L');
+        (wk[p]=wk[p]||new Set()).add(s.date);
+        const mate=team[1-i], pp=(part[p]=part[p]||{}); const q=pp[mate]||(pp[mate]={w:0,d:0}); if(win) q.w++; q.d+=f-a;
+      });
+    }
+  });
+  return Object.values(m).map(t=>{
+    const g=t.w+t.l, sq=seq[t.id]||[]; let n=0; for(let i=sq.length-1;i>=0&&sq[i]===sq[sq.length-1];i--) n++;
+    const bp=Object.entries(part[t.id]||{}).filter(([,q])=>q.w>0).sort((a,b)=>b[1].w-a[1].w||b[1].d-a[1].d)[0];
+    return {...t,g,pct:t.w/g,diff:t.pf-t.pa,avg:(t.pf-t.pa)/g,sits:sits[t.id]||0,weeks:(wk[t.id]||new Set()).size,
+      streak:sq.length?sq[sq.length-1]+n:'',best:bp?{id:bp[0],w:bp[1].w}:null};
+  }).sort((x,y)=>y.pct-x.pct||y.diff-x.diff||y.pf-x.pf||nameOf(x.id).localeCompare(nameOf(y.id)));
 }
+const COLS=[
+  {id:'gp',  abbr:'GP',   name:'Games played', help:'Number of scored games the player played.', def:1, val:t=>t.g},
+  {id:'wl',  abbr:'W–L',  name:'Wins–Losses', help:'Games won and games lost.', def:1, val:t=>`${t.w}–${t.l}`},
+  {id:'pct', abbr:'Win%', name:'Win percentage', help:'Wins divided by games played. 1.000 means every game was won. Standings are ranked by this first.', def:1, val:t=>pctTxt(t.pct)},
+  {id:'pf',  abbr:'PF',   name:'Points for', help:'Total points scored by the player’s teams.', def:1, val:t=>t.pf},
+  {id:'pa',  abbr:'PA',   name:'Points against', help:'Total points scored against the player’s teams.', def:1, val:t=>t.pa},
+  {id:'diff',abbr:'+/−',  name:'Point difference', help:'Points for minus points against. Breaks ties in Win%.', def:1, val:t=>sgn(t.diff)},
+  {id:'avg', abbr:'Avg',  name:'Average margin', help:'Point difference divided by games played. Fairer when people played different numbers of games.', def:0, val:t=>(t.avg>0?'+':t.avg<0?'−':'')+Math.abs(t.avg).toFixed(1)},
+  {id:'sits',abbr:'Sat',  name:'Sit-outs', help:'Rounds the player sat out.', def:0, val:t=>t.sits},
+  {id:'wks', abbr:'Wks',  name:'Weeks played', help:'Weeks with at least one scored game. Most useful in the Whole session view.', def:0, val:t=>t.weeks},
+  {id:'stk', abbr:'Strk', name:'Current streak', help:'Latest run of results, for example W3 means three wins in a row.', def:0, val:t=>t.streak||'–'},
+  {id:'best',abbr:'Best partner', name:'Best partner', help:'The partner they won the most games with, and how many wins together.', def:0, val:t=>t.best?`${esc(nameOf(t.best.id))} (${t.best.w})`:'–', text:1}
+];
+function shownCols(){ const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.def).map(x=>x.id); return COLS.filter(x=>c.includes(x.id)); }
 function ranked(rows){ let rank=0; return rows.map((t,i)=>{ if(i===0||t.pct!==rows[i-1].pct||t.diff!==rows[i-1].diff) rank=i+1; return {...t,rank}; }); }
 const scopeList=()=>ui.scope==='day'?[sessions[sel]].filter(Boolean):seasonWeeks();
 const pctTxt=p=>(p===1?'1.000':p.toFixed(3).replace(/^0/,''));
@@ -478,18 +538,29 @@ function viewStandings(){
   if(ui.player){
     const gs=playerGames(ui.player,list), t=rows.find(r=>r.id===ui.player);
     return `${seg}<button type="button" class="linkrow" data-act="closePlayer" style="color:var(--blue);font-weight:700">${IC.back}Back to standings</button>
-      <div class="card" style="gap:6px"><h2 style="font-size:24px">${esc(nameOf(ui.player))}</h2><p class="note">${t?`${t.w}–${t.l} · points ${sgn(t.diff)} · `:''}${ui.scope==='day'?'this week':esc(S.name)}</p></div>
+      <div class="card" style="gap:10px"><h2 style="font-size:24px">${esc(nameOf(ui.player))}</h2><p class="note">${ui.scope==='day'?'This week':esc(S.name)}${t?` · ranked #${t.rank}`:''}</p>
+        ${t?`<dl class="stats">${COLS.map(c=>`<div><dt>${c.name}</dt><dd>${c.val(t)}</dd></div>`).join('')}</dl>`:''}</div>
       <div class="table"><ul class="games">${gs.length?gs.map(x=>{ const done=x.f!=null&&x.a!=null, w=done&&x.f>x.a;
         return `<li><span class="when">${esc(fmtDate(x.date,{month:'short',day:'numeric'}))} · Round ${x.round}</span><span>with <b>${esc(nameOf(x.partner))}</b> vs ${esc(nameOf(x.opp[0]))} &amp; ${esc(nameOf(x.opp[1]))}</span><span class="res${w?' w':''}">${done?`${x.f}–${x.a} ${w?'W':'L'}`:'—'}</span></li>`; }).join(''):'<li><span class="muted">No games in this range.</span></li>'}</ul></div>`;
   }
   if(!rows.length) return `${seg}<div class="card empty"><h2 style="font-size:22px">No scores yet</h2><p class="muted">${ui.scope==='day'?'Scores entered for this week will show up here.':'Scores from every week of '+esc(S.name)+' add up here.'}</p></div>`;
+  const cols=shownCols(), help= ui.colHelp==='rank' ? {abbr:'#',name:'Rank',help:'Players are ranked by Win%, then by +/−, then by PF. The top three are highlighted.'} : (ui.colHelp&&COLS.find(c=>c.id===ui.colHelp));
+  const picker= ui.cols ? `<div class="card colpick"><div class="cardhead"><h2 style="font-size:19px">Columns to show</h2><button type="button" class="btn ghost small" data-act="colsDone">Done</button></div>
+      <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
+      <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
   return `${seg}
-    <div class="table">
-      <div class="trow head"><span>#</span><span>Player</span><span class="r">W–L</span><span class="r">+/−</span></div>
-      ${rows.map(t=>`<div class="trow${t.rank<=3?' top3':''}"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}">${esc(nameOf(t.id))}</button><span class="r">${t.w}–${t.l}</span><span class="r muted">${sgn(t.diff)}</span></div>`).join('')}
-    </div>
-    <p class="note">Ranked by win percentage, then point difference. Tap a name to see their games.</p>
-    <button type="button" class="btn" data-act="share">${IC.share}Share results with the group</button>`;
+    <div class="cardhead"><p class="note" style="flex:1">Tap a column title to see what it means.</p><button type="button" class="btn ghost small" data-act="cols" aria-expanded="${!!ui.cols}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Columns</button></div>
+    ${picker}
+    ${help?`<div class="helpbox" role="status"><b>${help.abbr}</b>${help.abbr!==help.name?` · ${esc(help.name)}`:''}<br>${esc(help.help)}<button type="button" class="x" data-act="closeHelp" aria-label="Close explanation">×</button></div>`:''}
+    <div class="tablewrap"><table class="st">
+      <thead><tr><th class="pcol" scope="col"><button type="button" class="th" data-help="rank">Player</button></th>${cols.map(c=>`<th scope="col"${c.text?' class="txt"':''}><button type="button" class="th${ui.colHelp===c.id?' on':''}" data-help="${c.id}" title="${esc(c.name)}: ${esc(c.help)}">${c.abbr}</button></th>`).join('')}</tr></thead>
+      <tbody>${rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}">${esc(nameOf(t.id))}</button></th>${cols.map(c=>`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>
+    <p class="note">Ranked by Win%, then +/−. Tap a name to see their games. ${cols.length>4?'Swipe the table sideways to see every column.':''}</p>
+    <button type="button" class="btn" data-act="share">${IC.share}Share results with the group</button>
+    <details class="card key"><summary><span>Key: what each column means</span>${IC.chev}</summary>
+      <dl class="keylist"><div><dt>#</dt><dd>Rank. Players are ranked by Win%, then by +/−, then by PF.</dd></div>${COLS.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
+    </details>`;
 }
 function viewPlayers(){
   const s=sess();
@@ -675,6 +746,7 @@ document.addEventListener('click',e=>{
   if(d.step){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const cur=g[d.s]==null?0:g[d.s];
     const nv=cur+(+d.step); if(nv>maxOf(R)){ toast(R.wb2?`Highest score allowed is ${maxOf(R)}.`:`This round is played to ${targetOf(R)}. Turn on Win by 2 to go higher.`); return; }
     setScore(+d.r,+d.g,d.s,Math.max(0,nv)); render(); return; }
+  if(d.help){ ui.colHelp= ui.colHelp===d.help?null:d.help; render(); return; }
   if(d.wb2!=null){ const s=sess(), R=s.rounds[+d.wb2]; if(!R) return; R.wb2=!R.wb2; saveSession(); render(); toast(`Win by 2 is ${R.wb2?'on':'off'} for Round ${+d.wb2+1}.`); return; }
   if(d.acc!=null){ const i=+d.acc, s=sess(), cur=firstOpen(s), open=ui.open==null?Math.min(cur,s.rounds.length-1):ui.open; ui.open= open===i?-1:i; render(); return; }
   if(d.done!=null){ const s=sess(), i=+d.done; if(s.rounds[i].done){ for(let j=i;j<s.rounds.length;j++) s.rounds[j].done=false; } else { for(let j=0;j<=i;j++) s.rounds[j].done=true; } saveSession(); render(); return; }
@@ -695,6 +767,10 @@ document.addEventListener('click',e=>{
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
     case 'share': shareResults(); return;
     case 'closePlayer': ui.player=null; render(); return;
+    case 'cols': ui.cols=!ui.cols; render(); return;
+    case 'colsDone': ui.cols=false; render(); return;
+    case 'colsReset': cfg.cols=COLS.filter(x=>x.def).map(x=>x.id); saveCfg(); render(); return;
+    case 'closeHelp': ui.colHelp=null; render(); return;
     case 'addLate': addLate(); return;
     case 'subIn': subIn(); return;
     case 'build': {
@@ -725,6 +801,8 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.classList.contains('score')){ setScore(+t.dataset.r,+t.dataset.g,t.dataset.s,t.value===''?null:+t.value); t.blur(); render(); return; }
+  if(t.dataset&&t.dataset.col){ const cur=shownCols().map(c=>c.id); const on=t.checked, id=t.dataset.col;
+    const next=COLS.map(c=>c.id).filter(x=>x===id?on:cur.includes(x)); cfg.cols=next; saveCfg(); render(); return; }
   if(t.classList.contains('tosel')){ const s=sess(), R=s.rounds[+t.dataset.r]; if(!R) return; R.to=+t.value; saveSession(); t.blur(); render(); toast(`Round ${+t.dataset.r+1} is played to ${R.to}.`); return; }
   if(t.id==='seasonPick'){ ui.season=t.value; sel=null; userPicked=false; ui.player=null; t.blur(); render(); return; }
   if(t.id==='startDate'){ if(!t.value) return; season().startDate=t.value; userPicked=false; sel=null; saveCfg(); render(); return; }
