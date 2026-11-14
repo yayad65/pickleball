@@ -149,6 +149,13 @@ details.key[open] .chev{transform:rotate(180deg)}
 .keylist div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;font-size:16px}
 .keylist dt{font-weight:700;color:var(--blue)}
 .keylist dd{margin:0}
+.prizebar{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.prizebar .note{flex:1;min-width:150px;font-size:15px}
+.prizecard{display:flex;align-items:center;gap:12px;background:var(--red-soft);border:1px solid var(--red);border-radius:14px;padding:12px 14px;color:var(--ink)}
+.prizecard svg{color:var(--red);flex:none}
+table.st .prz{background:#FFF7E8;font-weight:700}
+table.st tr.top3 .prz{background:#FBE8D8}
+table.st td.prz.top{color:var(--red)}
 .games{list-style:none;margin:0;padding:0}
 .games li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
 .games li:last-child{border-bottom:0}
@@ -488,7 +495,7 @@ function tally(list){
   const ordered=list.slice().sort((a,b)=>a.date<b.date?-1:1);
   for(const s of ordered) (s.rounds||[]).forEach(r=>{
     const live=r.done||r.games.some(scored);
-    if(live) for(const x of r.sits){ sits[x]=(sits[x]||0)+1; }
+    if(live) for(const x of r.sits){ sits[x]=(sits[x]||0)+1; T(x); }
     for(const g of r.games) if(scored(g)&&g.sa!==g.sb){
       for(const [team,f,a] of [[g.a,g.sa,g.sb],[g.b,g.sb,g.sa]]) team.forEach((p,i)=>{
         const t=T(p), win=f>a; t.pf+=f; t.pa+=a; win?t.w++:t.l++;
@@ -501,14 +508,15 @@ function tally(list){
   return Object.values(m).map(t=>{
     const g=t.w+t.l, sq=seq[t.id]||[]; let n=0; for(let i=sq.length-1;i>=0&&sq[i]===sq[sq.length-1];i--) n++;
     const bp=Object.entries(part[t.id]||{}).filter(([,q])=>q.w>0).sort((a,b)=>b[1].w-a[1].w||b[1].d-a[1].d)[0];
-    return {...t,g,pct:t.w/g,diff:t.pf-t.pa,avg:(t.pf-t.pa)/g,sits:sits[t.id]||0,weeks:(wk[t.id]||new Set()).size,
+    const by=sits[t.id]||0;
+    return {...t,prize:t.w+0.5*by,bye:by,g,pct:g?t.w/g:0,diff:t.pf-t.pa,avg:g?(t.pf-t.pa)/g:0,sits:by,weeks:(wk[t.id]||new Set()).size,
       streak:sq.length?sq[sq.length-1]+n:'',best:bp?{id:bp[0],w:bp[1].w}:null};
   }).sort((x,y)=>y.pct-x.pct||y.diff-x.diff||y.pf-x.pf||nameOf(x.id).localeCompare(nameOf(y.id)));
 }
 const COLS=[
   {id:'gp',  abbr:'GP',   name:'Games played', help:'Number of scored games the player played.', def:1, val:t=>t.g},
-  {id:'wl',  abbr:'W–L',  name:'Wins–Losses', help:'Games won and games lost.', def:1, val:t=>`${t.w}–${t.l}`},
-  {id:'pct', abbr:'Win%', name:'Win percentage', help:'Wins divided by games played. 1.000 means every game was won. Standings are ranked by this first.', def:1, val:t=>pctTxt(t.pct)},
+  {id:'wl',  abbr:'W–L',  name:'Wins–Losses', help:'Games won and games lost.', def:1, val:t=>`${fmtW(t.w)}–${t.l}`},
+  {id:'pct', abbr:'Win%', name:'Win percentage', help:'Games won divided by games played. 1.000 means every game was won. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
   {id:'pf',  abbr:'PF',   name:'Points for', help:'Total points scored by the player’s teams.', def:1, val:t=>t.pf},
   {id:'pa',  abbr:'PA',   name:'Points against', help:'Total points scored against the player’s teams.', def:1, val:t=>t.pa},
   {id:'diff',abbr:'+/−',  name:'Point difference', help:'Points for minus points against. Breaks ties in Win%.', def:1, val:t=>sgn(t.diff)},
@@ -518,8 +526,10 @@ const COLS=[
   {id:'stk', abbr:'Strk', name:'Current streak', help:'Latest run of results, for example W3 means three wins in a row.', def:0, val:t=>t.streak||'–'},
   {id:'best',abbr:'Best partner', name:'Best partner', help:'The partner they won the most games with, and how many wins together.', def:0, val:t=>t.best?`${esc(nameOf(t.best.id))} (${t.best.w})`:'–', text:1}
 ];
+const PRIZE_HELP='Games won today plus half a win (0.5) for each round sat out. Used only to pick the day’s prize winner; it doesn’t count toward any stats or the ranking.';
 function shownCols(){ const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.def).map(x=>x.id); return COLS.filter(x=>c.includes(x.id)); }
 function ranked(rows){ let rank=0; return rows.map((t,i)=>{ if(i===0||t.pct!==rows[i-1].pct||t.diff!==rows[i-1].diff) rank=i+1; return {...t,rank}; }); }
+const fmtW=w=>Number.isInteger(w)?String(w):w.toFixed(1);
 const scopeList=()=>ui.scope==='day'?[sessions[sel]].filter(Boolean):seasonWeeks();
 const pctTxt=p=>(p===1?'1.000':p.toFixed(3).replace(/^0/,''));
 const sgn=n=>n>0?'+'+n:n<0?'−'+Math.abs(n):'0';
@@ -544,22 +554,26 @@ function viewStandings(){
         return `<li><span class="when">${esc(fmtDate(x.date,{month:'short',day:'numeric'}))} · Round ${x.round}</span><span>with <b>${esc(nameOf(x.partner))}</b> vs ${esc(nameOf(x.opp[0]))} &amp; ${esc(nameOf(x.opp[1]))}</span><span class="res${w?' w':''}">${done?`${x.f}–${x.a} ${w?'W':'L'}`:'—'}</span></li>`; }).join(''):'<li><span class="muted">No games in this range.</span></li>'}</ul></div>`;
   }
   if(!rows.length) return `${seg}<div class="card empty"><h2 style="font-size:22px">No scores yet</h2><p class="muted">${ui.scope==='day'?'Scores entered for this week will show up here.':'Scores from every week of '+esc(S.name)+' add up here.'}</p></div>`;
-  const cols=shownCols(), help= ui.colHelp==='rank' ? {abbr:'#',name:'Rank',help:'Players are ranked by Win%, then by +/−, then by PF. The top three are highlighted.'} : (ui.colHelp&&COLS.find(c=>c.id===ui.colHelp));
+  const day=ui.scope==='day', sd=sessions[sel], prizeOn=!!(day&&sd&&sd.halfBye), ptop=prizeOn?Math.max(...rows.map(t=>t.prize)):null;
+  const prizeBar= day&&!readOnly ? `<div class="prizebar"><button type="button" class="wbbtn" data-act="halfBye" aria-pressed="${prizeOn}">${prizeOn?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>':''}½ win for sit-outs</button><span class="note">For today's prize only. Doesn't change any stats.</span></div>` : '';
+  const prizeCard= prizeOn ? `<div class="prizecard"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg><span><b>Most wins today:</b> ${rows.filter(t=>t.prize===ptop).map(t=>esc(nameOf(t.id))).join(', ')} with ${fmtW(ptop)}</span></div>` : '';
+  const cols=shownCols(), help= ui.colHelp==='prize' ? {abbr:'Prize',name:'Prize wins',help:PRIZE_HELP} : ui.colHelp==='rank' ? {abbr:'#',name:'Rank',help:'Players are ranked by Win%, then by +/−, then by PF. The top three are highlighted.'} : (ui.colHelp&&COLS.find(c=>c.id===ui.colHelp));
   const picker= ui.cols ? `<div class="card colpick"><div class="cardhead"><h2 style="font-size:19px">Columns to show</h2><button type="button" class="btn ghost small" data-act="colsDone">Done</button></div>
       <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
   return `${seg}
     <div class="cardhead"><p class="note" style="flex:1">Tap a column title to see what it means.</p><button type="button" class="btn ghost small" data-act="cols" aria-expanded="${!!ui.cols}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Columns</button></div>
     ${picker}
+    ${prizeBar}${prizeCard}
     ${help?`<div class="helpbox" role="status"><b>${help.abbr}</b>${help.abbr!==help.name?` · ${esc(help.name)}`:''}<br>${esc(help.help)}<button type="button" class="x" data-act="closeHelp" aria-label="Close explanation">×</button></div>`:''}
     <div class="tablewrap"><table class="st">
-      <thead><tr><th class="pcol" scope="col"><button type="button" class="th" data-help="rank">Player</button></th>${cols.map(c=>`<th scope="col"${c.text?' class="txt"':''}><button type="button" class="th${ui.colHelp===c.id?' on':''}" data-help="${c.id}" title="${esc(c.name)}: ${esc(c.help)}">${c.abbr}</button></th>`).join('')}</tr></thead>
-      <tbody>${rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}">${esc(nameOf(t.id))}</button></th>${cols.map(c=>`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`).join('')}</tr>`).join('')}</tbody>
+      <thead><tr><th class="pcol" scope="col"><button type="button" class="th" data-help="rank">Player</button></th>${prizeOn?`<th scope="col" class="prz"><button type="button" class="th${ui.colHelp==='prize'?' on':''}" data-help="prize" title="Prize wins: ${esc(PRIZE_HELP)}">Prize</button></th>`:''}${cols.map(c=>`<th scope="col"${c.text?' class="txt"':''}><button type="button" class="th${ui.colHelp===c.id?' on':''}" data-help="${c.id}" title="${esc(c.name)}: ${esc(c.help)}">${c.abbr}</button></th>`).join('')}</tr></thead>
+      <tbody>${rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}">${esc(nameOf(t.id))}</button></th>${prizeOn?`<td class="prz${t.prize===ptop?' top':''}">${fmtW(t.prize)}</td>`:''}${cols.map(c=>`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`).join('')}</tr>`).join('')}</tbody>
     </table></div>
     <p class="note">Ranked by Win%, then +/−. Tap a name to see their games. ${cols.length>4?'Swipe the table sideways to see every column.':''}</p>
     <button type="button" class="btn" data-act="share">${IC.share}Share results with the group</button>
     <details class="card key"><summary><span>Key: what each column means</span>${IC.chev}</summary>
-      <dl class="keylist"><div><dt>#</dt><dd>Rank. Players are ranked by Win%, then by +/−, then by PF.</dd></div>${COLS.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
+      <dl class="keylist"><div><dt>#</dt><dd>Rank. Players are ranked by Win%, then by +/−, then by PF.</dd></div>${prizeOn?`<div><dt>Prize</dt><dd><b>Prize wins.</b> ${esc(PRIZE_HELP)}</dd></div>`:''}${COLS.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
     </details>`;
 }
 function viewPlayers(){
@@ -676,9 +690,13 @@ function schedText(withScores){
 }
 function standText(title,list){ const rows=ranked(tally(list)); if(!rows.length) return [];
   return [title,...rows.map(t=>`${t.rank}. ${nameOf(t.id)}  ${t.w}–${t.l}  (${pctTxt(t.pct)}, ${sgn(t.diff)})`),'']; }
+function prizeText(){ const s=sessions[sel]; if(!s||!s.halfBye) return [];
+  const rows=tally([s]); if(!rows.length) return []; const top=Math.max(...rows.map(t=>t.prize)); const w=rows.filter(t=>t.prize===top);
+  return [`Most wins today, counting each sit-out as ½ win: ${w.map(t=>nameOf(t.id)).join(', ')} (${fmtW(top)})`,'']; }
 function resultsText(){
   const L=schedText(true);
   L.push(...standText(`Standings, ${fmtDate(sel,{month:'short',day:'numeric'})}`,[sessions[sel]].filter(Boolean)));
+  L.push(...prizeText());
   L.push(...standText(season().name+' standings',seasonWeeks()));
   return L.join('\n').trim();
 }
@@ -770,6 +788,7 @@ document.addEventListener('click',e=>{
     case 'cols': ui.cols=!ui.cols; render(); return;
     case 'colsDone': ui.cols=false; render(); return;
     case 'colsReset': cfg.cols=COLS.filter(x=>x.def).map(x=>x.id); saveCfg(); render(); return;
+    case 'halfBye': { const s=sess(); s.halfBye=!s.halfBye; saveSession(); render(); toast(s.halfBye?'Prize column on: sit-outs count as ½ win.':'Prize column off.'); return; }
     case 'closeHelp': ui.colHelp=null; render(); return;
     case 'addLate': addLate(); return;
     case 'subIn': subIn(); return;
