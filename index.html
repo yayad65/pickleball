@@ -351,7 +351,14 @@ function idFor(name){
 }
 const hereIds=s=>s.players.filter(id=>!s.out.includes(id));
 const isSub=(s,id)=>!!(s&&s.subs&&s.subs[id]);
-const nmHtml=(s,id)=>esc(nameOf(id))+(isSub(s,id)?'<span class="subtag">sub</span>':'');
+/* Everyone shows as "First L." on courts and in tables; if two players would look the same, they keep full names. */
+const shortRaw=id=>{ const n=nameOf(id).trim(), p=n.split(/\s+/); return p.length>1?`${p[0]} ${p[p.length-1][0].toUpperCase()}.`:n; };
+function shortName(id){
+  const v=shortRaw(id), low=v.toLowerCase();
+  const clash=Object.keys(cfg.roster).some(o=>o!==id&&shortRaw(o).toLowerCase()===low);
+  return clash?nameOf(id):v;
+}
+const nmHtml=(s,id)=>esc(shortName(id))+(isSub(s,id)?'<span class="subtag">sub</span>':'');
 const nmTxt=(s,id)=>nameOf(id)+(isSub(s,id)?' (sub)':'');
 const totalRounds=()=>Math.max(1,Math.floor((+cfg.session||0)/Math.max(1,+cfg.per||1)));
 const scored=g=>g.sa!=null&&g.sb!=null;
@@ -531,12 +538,7 @@ function shownCols(){ const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.
 function ranked(rows){ let rank=0; return rows.map((t,i)=>{ if(i===0||t.pct!==rows[i-1].pct||t.diff!==rows[i-1].diff) rank=i+1; return {...t,rank}; }); }
 const fmtW=w=>Number.isInteger(w)?String(w):w.toFixed(1);
 /* Table names: long names become "First L." unless that would make two players look the same. */
-function shortNames(ids){
-  const sh=id=>{ const n=nameOf(id).trim(), p=n.split(/\s+/); return (n.length>10&&p.length>1)?`${p[0]} ${p[p.length-1][0].toUpperCase()}.`:n; };
-  const out={}, seen={}; ids.forEach(id=>{ const k=sh(id).toLowerCase(); seen[k]=(seen[k]||0)+1; });
-  ids.forEach(id=>{ const v=sh(id); out[id]= seen[v.toLowerCase()]>1 ? nameOf(id) : v; });
-  return out;
-}
+function shortNames(ids){ const out={}; ids.forEach(id=>{ out[id]=shortName(id); }); return out; }
 const scopeList=()=>ui.scope==='day'?[sessions[sel]].filter(Boolean):seasonWeeks();
 const pctTxt=p=>(p===1?'1.000':p.toFixed(3).replace(/^0/,''));
 const sgn=n=>n>0?'+'+n:n<0?'−'+Math.abs(n):'0';
