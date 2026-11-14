@@ -530,6 +530,13 @@ const PRIZE_HELP='Games won today plus half a win (0.5) for each round sat out. 
 function shownCols(){ const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.def).map(x=>x.id); return COLS.filter(x=>c.includes(x.id)); }
 function ranked(rows){ let rank=0; return rows.map((t,i)=>{ if(i===0||t.pct!==rows[i-1].pct||t.diff!==rows[i-1].diff) rank=i+1; return {...t,rank}; }); }
 const fmtW=w=>Number.isInteger(w)?String(w):w.toFixed(1);
+/* Table names: long names become "First L." unless that would make two players look the same. */
+function shortNames(ids){
+  const sh=id=>{ const n=nameOf(id).trim(), p=n.split(/\s+/); return (n.length>10&&p.length>1)?`${p[0]} ${p[p.length-1][0].toUpperCase()}.`:n; };
+  const out={}, seen={}; ids.forEach(id=>{ const k=sh(id).toLowerCase(); seen[k]=(seen[k]||0)+1; });
+  ids.forEach(id=>{ const v=sh(id); out[id]= seen[v.toLowerCase()]>1 ? nameOf(id) : v; });
+  return out;
+}
 const scopeList=()=>ui.scope==='day'?[sessions[sel]].filter(Boolean):seasonWeeks();
 const pctTxt=p=>(p===1?'1.000':p.toFixed(3).replace(/^0/,''));
 const sgn=n=>n>0?'+'+n:n<0?'−'+Math.abs(n):'0';
@@ -568,7 +575,7 @@ function viewStandings(){
     ${help?`<div class="helpbox" role="status"><b>${help.abbr}</b>${help.abbr!==help.name?` · ${esc(help.name)}`:''}<br>${esc(help.help)}<button type="button" class="x" data-act="closeHelp" aria-label="Close explanation">×</button></div>`:''}
     <div class="tablewrap"><table class="st">
       <thead><tr><th class="pcol" scope="col"><button type="button" class="th" data-help="rank">Player</button></th>${prizeOn?`<th scope="col" class="prz"><button type="button" class="th${ui.colHelp==='prize'?' on':''}" data-help="prize" title="Prize wins: ${esc(PRIZE_HELP)}">Prize</button></th>`:''}${cols.map(c=>`<th scope="col"${c.text?' class="txt"':''}><button type="button" class="th${ui.colHelp===c.id?' on':''}" data-help="${c.id}" title="${esc(c.name)}: ${esc(c.help)}">${c.abbr}</button></th>`).join('')}</tr></thead>
-      <tbody>${rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}">${esc(nameOf(t.id))}</button></th>${prizeOn?`<td class="prz${t.prize===ptop?' top':''}">${fmtW(t.prize)}</td>`:''}${cols.map(c=>`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`).join('')}</tr>`).join('')}</tbody>
+      <tbody>${(()=>{ const SN=shortNames(rows.map(r=>r.id)); return rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}" title="${esc(nameOf(t.id))}" aria-label="${esc(nameOf(t.id))}">${esc(SN[t.id])}</button></th>${prizeOn?`<td class="prz${t.prize===ptop?' top':''}">${fmtW(t.prize)}</td>`:''}${cols.map(c=>`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`).join('')}</tr>`).join(''); })()}</tbody>
     </table></div>
     <p class="note">Ranked by Win%, then +/−. Tap a name to see their games. ${cols.length>4?'Swipe the table sideways to see every column.':''}</p>
     <button type="button" class="btn" data-act="share">${IC.share}Share results with the group</button>
