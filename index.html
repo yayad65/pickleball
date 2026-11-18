@@ -69,7 +69,17 @@ main{max-width:560px;margin:0 auto;padding-block:16px calc(var(--navh) + 28px + 
 .linkrow{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;color:var(--ink);text-decoration:none;cursor:pointer;width:100%;text-align:left}
 .linkrow .go{color:var(--blue);font-weight:700}
 
-.court{background:var(--blue-soft);border-radius:14px;padding:12px;display:grid;gap:8px}
+.court{background:var(--blue-soft);border-radius:14px;padding:10px 10px 12px;display:grid;gap:8px}
+.courthead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.hint{font-size:14px;color:var(--muted)}
+.teambtn{flex:1;min-width:0;min-height:52px;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;border:1px solid var(--edge);background:var(--surface);text-align:left;cursor:pointer;color:var(--ink)}
+.teambtn .team{font-size:17px}
+.teambtn .dot{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;border:2px solid var(--edge);color:#FFFFFF}
+.teambtn.on{border:2px solid var(--blue)}
+.teambtn.on .dot{background:var(--blue);border-color:var(--blue)}
+.wontag{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);flex:none}
+.side.lose .teambtn{background:#F3F7FC}
+select.score.need{border-color:var(--red)}
 .cl{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
 .side{display:flex;align-items:center;gap:8px}
 .team{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}
@@ -156,6 +166,33 @@ details.key[open] .chev{transform:rotate(180deg)}
 table.st .prz{background:#FFF7E8;font-weight:700}
 table.st tr.top3 .prz{background:#FBE8D8}
 table.st td.prz.top{color:var(--red)}
+.dayrow{width:100%;display:flex;align-items:center;gap:10px;min-height:52px;border:0;border-top:1px solid var(--line2);background:transparent;text-align:left;cursor:pointer;color:var(--blue);padding:4px 0}
+.dayrow .wkno{width:58px;font-size:14px;font-weight:700;flex:none}
+.dayrow .dd{flex:1;min-width:0;display:grid;color:var(--ink)}
+.dayrow .dd small{font-size:14px;color:var(--muted)}
+.acchead.hs{align-items:flex-start}
+.hsmain{flex:1;min-width:0;display:grid;gap:2px}
+.hsmain small{font-size:15px;color:var(--muted)}
+.hsname{font-family:var(--display);font-size:20px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hsname .pill{font-family:var(--body);font-size:13px;padding:2px 9px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.kpis div{background:var(--blue-soft);border-radius:10px;padding:8px;display:grid;justify-items:center}
+.kpis b{font-family:var(--display);font-size:20px}
+.kpis small{font-size:13px;color:var(--muted)}
+.scrim{position:fixed;inset:0;background:rgba(21,35,45,.45);z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-width:560px;margin:0 auto;max-height:92vh;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;gap:14px}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--line);justify-self:center}
+.sheet .x{width:44px;height:44px;border:0;background:transparent;font-size:28px;color:var(--muted);cursor:pointer}
+.seg.tall button{min-height:56px;display:grid;align-content:center;line-height:1.2;font-size:15px}
+.seg.tall button small{font-weight:400;font-size:13px}
+.fmt{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);text-align:left;cursor:pointer;color:var(--ink)}
+.fmt[aria-pressed="true"]{border:2px solid var(--blue);background:#F5F8FD}
+.fmt .radio{width:22px;height:22px;border-radius:50%;flex:none;border:2px solid var(--edge)}
+.fmt[aria-pressed="true"] .radio{border:7px solid var(--blue)}
+.fmt .ft{display:grid;flex:1;min-width:0}
+.fmt .ft b{font-size:17px}
+.fmt .ft em{font-style:normal;font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.06em}
+.fmt .ft small{font-size:15px;color:var(--muted)}
 .games{list-style:none;margin:0;padding:0}
 .games li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
 .games li:last-child{border-bottom:0}
@@ -235,6 +272,7 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
     <button type="button" class="tab" data-tab="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Setup</button>
   </div>
 </nav>
+<div id="sheet"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <input id="restoreFile" type="file" accept=".json,application/json" hidden>
 
@@ -422,6 +460,7 @@ const IC={
   plus:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   swap:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg>',
   share:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+  clock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>',
   copy:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>'
 };
 
@@ -442,17 +481,23 @@ function scoreOptions(v,to){
   for(let n=0;n<=top;n++) o+=`<option value="${n}"${v===n?' selected':''}>${n}</option>`;
   return o;
 }
-function courtHTML(s,ri,ci,g,editable,to){
-  to=to||11;
-  const sc=scored(g)&&g.sa!==g.sb, aw=sc&&g.sa>g.sb, bw=sc&&g.sb>g.sa;
-  const side=(team,k,v,win,lose)=>{
-    const label=team.map(id=>nameOf(id)).join(' and ');
-    const ctrl= editable
-      ? `<div class="stepper"><button type="button" class="step" data-step="-1" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="Lower score for ${esc(label)}">−</button><select class="score" id="sc-${ri}-${ci}-${k}" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="Score for ${esc(label)}">${scoreOptions(v,to)}</select><button type="button" class="step plus" data-step="1" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="Raise score for ${esc(label)}">+</button></div>`
-      : `<span class="score ro" aria-label="Score for ${esc(label)}">${v==null?'–':v}</span>`;
-    return `<div class="side${win?' win':lose?' lose':''}"><span class="team">${nmHtml(s,team[0])} &amp; ${nmHtml(s,team[1])}${win?'<span class="won">Won</span>':''}</span>${ctrl}</div>`;
+function courtHTML(s,ri,ci,g,editable,to,target){
+  to=to||11; target=target||11;
+  const winOf=()=>{ if(g.sa!=null&&g.sb!=null) return g.sa>g.sb?'sa':g.sb>g.sa?'sb':null;
+    if(g.sa!=null&&g.sb==null&&g.sa>=target) return 'sa'; if(g.sb!=null&&g.sa==null&&g.sb>=target) return 'sb'; return null; };
+  const W=winOf(), pending= W && g[W==='sa'?'sb':'sa']==null;
+  const hint= !editable ? '' : !W&&g.sa==null&&g.sb==null ? 'Tap the winning team' : pending ? 'Now pick the losing score' : '';
+  const side=(team,k,v)=>{
+    const label=team.map(id=>nameOf(id)).join(' and '), win=W===k, lose=W&&W!==k, need=pending&&lose;
+    const names=`${nmHtml(s,team[0])} &amp; ${nmHtml(s,team[1])}`;
+    if(!editable) return `<div class="side${win?' win':lose?' lose':''}"><span class="team">${names}${win?'<span class="won">Won</span>':''}</span><span class="score ro" aria-label="Score for ${esc(label)}">${v==null?'–':v}</span></div>`;
+    return `<div class="side${win?' win':lose?' lose':''}">
+      <button type="button" class="teambtn${win?' on':''}" data-win="${k}" data-r="${ri}" data-g="${ci}" aria-pressed="${win}" aria-label="${esc(label)} won">
+        <span class="dot" aria-hidden="true">${win?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':''}</span>
+        <span class="team">${names}</span>${win?'<span class="wontag">Won</span>':''}</button>
+      <select class="score${need?' need':''}" id="sc-${ri}-${ci}-${k}" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="Score for ${esc(label)}">${scoreOptions(v,to)}</select></div>`;
   };
-  return `<div class="court"><span class="cl">Court ${ci+1}</span>${side(g.a,'sa',g.sa,aw,bw)}<div class="net"></div>${side(g.b,'sb',g.sb,bw,aw)}</div>`;
+  return `<div class="court"><div class="courthead"><span class="cl">Court ${ci+1}</span>${hint?`<span class="hint">${hint}</span>`:''}</div>${side(g.a,'sa',g.sa)}${editable?'':'<div class="net"></div>'}${side(g.b,'sb',g.sb)}</div>`;
 }
 const sitHTML=(s,R)=>R.sits.length?`<p class="sit">Sitting out: <b>${R.sits.map(x=>nmHtml(s,x)).join(', ')}</b></p>`:'';
 function emptyWeek(){
@@ -469,14 +514,14 @@ function viewToday(){
     return `<div class="card empty"><h2 style="font-size:24px">All ${N} rounds are finished</h2>
       <p class="muted">Nice play. The standings are ready to share.</p>
       <button type="button" class="btn" data-goto="standings">See standings</button>
-      <button type="button" class="btn ghost" data-act="share">${IC.share}Share results</button></div>`;
+      <button type="button" class="btn ghost" data-act="export">${IC.share}Save or share results</button></div>`;
   }
   const R=s.rounds[cur], ed=!readOnly;
   const nextLbl= cur+1<N ? `Save &amp; go to Round ${cur+2}` : 'Save &amp; finish';
   return `<section class="card now">
       <div class="cardhead"><h2>Round ${cur+1} of ${N}</h2><span class="pill now">Up now · ${clock(cur)}</span></div>
       ${R.games.length?toRowHTML(cur,R,ed):''}
-      ${R.games.map((g,ci)=>courtHTML(s,cur,ci,g,ed,maxOf(R))).join('')||'<p class="mini">Not enough players here for a game.</p>'}
+      ${R.games.map((g,ci)=>courtHTML(s,cur,ci,g,ed,maxOf(R),targetOf(R))).join('')||'<p class="mini">Not enough players here for a game.</p>'}
       ${sitHTML(s,R)}
       ${ed?`<button type="button" class="btn" data-act="advance" data-r="${cur}">${nextLbl} ${IC.arrow}</button>
       <button type="button" class="linkrow" data-act="skip" data-r="${cur}" style="justify-content:center;border:0;padding:6px;color:var(--muted);font-size:16px">Skip scores for this round</button>`:''}
@@ -491,7 +536,7 @@ function viewRounds(){
     ${s.rounds.map((R,i)=>{
       const done=R.done, now=i===cur, isOpen=i===open;
       const pill= done?'<span class="pill final">Final</span>':now?'<span class="pill now">Up now</span>':'<span class="pill later">Upcoming</span>';
-      const body= isOpen?`<div class="accbody">${R.games.length?toRowHTML(i,R,!readOnly):''}${R.games.map((g,ci)=>courtHTML(s,i,ci,g,!readOnly,maxOf(R))).join('')||'<p class="mini">Not enough players for a game.</p>'}${sitHTML(s,R)}
+      const body= isOpen?`<div class="accbody">${R.games.length?toRowHTML(i,R,!readOnly):''}${R.games.map((g,ci)=>courtHTML(s,i,ci,g,!readOnly,maxOf(R),targetOf(R))).join('')||'<p class="mini">Not enough players for a game.</p>'}${sitHTML(s,R)}
         ${readOnly?'':`<button type="button" class="btn ghost small" data-done="${i}">${done?'Reopen this round':'Mark as played'}</button>`}</div>`:'';
       return `<div class="acc${now?' now':''}${isOpen?' open':''}"><button type="button" class="acchead" data-acc="${i}" aria-expanded="${isOpen}"><span class="rn">Round ${i+1}</span><span class="t">${clock(i)}</span>${pill}${IC.chev}</button>${body}</div>`;
     }).join('')}`;
@@ -552,8 +597,9 @@ function playerGames(pid,list){
   return out;
 }
 function viewStandings(){
+  if(ui.sub==='history') return viewHistory();
   const list=scopeList(), rows=ranked(tally(list)), S=season();
-  const seg=`<div class="seg" role="group" aria-label="Range"><button type="button" data-scope="day" aria-pressed="${ui.scope==='day'}">This week</button><button type="button" data-scope="season" aria-pressed="${ui.scope==='season'}">Whole session</button></div>`;
+  const seg=`<div class="row2"><button type="button" class="btn ghost small" data-act="history">${IC.clock}History</button><button type="button" class="btn small" data-act="export">${IC.share}Save or share</button></div>`+`<div class="seg" role="group" aria-label="Range"><button type="button" data-scope="day" aria-pressed="${ui.scope==='day'}">This week</button><button type="button" data-scope="season" aria-pressed="${ui.scope==='season'}">Whole session</button></div>`;
   if(ui.player){
     const gs=playerGames(ui.player,list), t=rows.find(r=>r.id===ui.player);
     return `${seg}<button type="button" class="linkrow" data-act="closePlayer" style="color:var(--blue);font-weight:700">${IC.back}Back to standings</button>
@@ -580,7 +626,7 @@ function viewStandings(){
       <tbody>${(()=>{ const SN=shortNames(rows.map(r=>r.id)); return rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}" title="${esc(nameOf(t.id))}" aria-label="${esc(nameOf(t.id))}">${esc(SN[t.id])}</button></th>${prizeOn?`<td class="prz${t.prize===ptop?' top':''}">${fmtW(t.prize)}</td>`:''}${cols.map(c=>`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`).join('')}</tr>`).join(''); })()}</tbody>
     </table></div>
     <p class="note">Ranked by Win%, then +/−. Tap a name to see their games. ${cols.length>4?'Swipe the table sideways to see every column.':''}</p>
-    <button type="button" class="btn" data-act="share">${IC.share}Share results with the group</button>
+    <button type="button" class="btn" data-act="export">${IC.share}Save or share results</button>
     <details class="card key"><summary><span>Key: what each column means</span>${IC.chev}</summary>
       <dl class="keylist"><div><dt>#</dt><dd>Rank. Players are ranked by Win%, then by +/−, then by PF.</dd></div>${prizeOn?`<div><dt>Prize</dt><dd><b>Prize wins.</b> ${esc(PRIZE_HELP)}</dd></div>`:''}${COLS.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
     </details>`;
@@ -666,6 +712,161 @@ function viewSetup(){
       ${restoreData?`<div class="confirm"><span>${esc(restoreInfo)}</span><div class="row2"><button type="button" class="btn danger" data-act="restoreYes">Replace with backup</button><button type="button" class="btn ghost small" data-act="restoreNo">Cancel</button></div></div>`:''}</section>`:''}`;
 }
 
+
+/* ---------- history ---------- */
+const weeksOfSeason=S=>Object.values(sessions).filter(x=>sid(x)===S.id&&(x.rounds||[]).length).sort((a,b)=>a.date<b.date?-1:1);
+function topWins(list,full){ const rows=tally(list); if(!rows.length) return null; const m=Math.max(...rows.map(t=>t.w)); return {names:rows.filter(t=>t.w===m).map(t=>full?nameOf(t.id):shortName(t.id)),w:m}; }
+function viewHistory(){
+  const L=seasonsSorted().slice().reverse(), cur=defaultSeason();
+  const open= ui.histOpen===undefined ? season().id : ui.histOpen;
+  const cards=L.map(S=>{
+    const wk=weeksOfSeason(S), rows=ranked(tally(wk)), lead=rows[0];
+    const played=wk.filter(x=>x.rounds.some(r=>r.games.some(scored))).length;
+    const finished= S.id!==cur.id && (todayISO()>seasonEnd(S));
+    const games=wk.reduce((n,x)=>n+x.rounds.reduce((m,r)=>m+r.games.filter(scored).length,0),0);
+    const players=new Set(); wk.forEach(x=>x.players.forEach(p=>players.add(p)));
+    const isOpen=open===S.id;
+    const days=wk.map(x=>{ const t=topWins([x]); const n=(()=>{ if(x.date<S.startDate) return null; const k=Math.round((new Date(x.date)-new Date(S.startDate))/6048e5)+1; return k<=S.weeks?k:null; })();
+      return `<button type="button" class="dayrow" data-hday="${x.date}" data-hs="${S.id}"><span class="wkno">${n?'Week '+n:'Extra'}</span><span class="dd"><b>${esc(fmtDate(x.date,{weekday:'short',month:'short',day:'numeric'}))}</b><small>${t?`Most wins: ${esc(t.names.join(', '))} (${t.w})`:'No scores yet'}</small></span>${IC.go}</button>`; }).join('');
+    return `<div class="acc${isOpen?' open':''}">
+      <button type="button" class="acchead hs" data-hopen="${S.id}" aria-expanded="${isOpen}">
+        <span class="hsmain"><span class="hsname">${esc(S.name)} <span class="pill ${S.id===cur.id?'now':finished?'final':'later'}">${S.id===cur.id?'Current':finished?'Finished':'Upcoming'}</span></span>
+        <small>${esc(fmtDate(S.startDate,{month:'short',day:'numeric'}))} – ${esc(fmtDate(seasonEnd(S),{month:'short',day:'numeric',year:'numeric'}))} · ${played} of ${S.weeks} weeks played</small>
+        <small>${lead?`${finished?'Champion':'Leading'}: <b style="color:var(--ink)">${esc(shortName(lead.id))} (${lead.w}–${lead.l})</b>`:'No scores yet'}</small></span>${IC.chev}</button>
+      ${isOpen?`<div class="accbody">
+        <div class="kpis"><div><b>${played}</b><small>game days</small></div><div><b>${games}</b><small>games</small></div><div><b>${players.size}</b><small>players</small></div></div>
+        <button type="button" class="btn ghost small" data-hsum="${S.id}">Session summary &amp; standings</button>
+        ${days?`<span class="label" style="margin:4px 0 0">Game days</span><div>${days}</div>`:'<p class="mini">No game days yet.</p>'}
+      </div>`:''}</div>`;
+  }).join('');
+  return `<button type="button" class="linkrow" data-act="closeHistory" style="color:var(--blue);font-weight:700">${IC.back}Back to standings</button>
+    <h2 style="font-size:24px">History</h2>
+    <p class="note">Every session and game day you’ve played. Open a session for its summary, or a day for its games.</p>${cards}`;
+}
+
+/* ---------- save or share ---------- */
+function sheetHTML(){
+  const sc=ui.exScope||'day', f=ui.exFmt||'pdf', S=season();
+  const opt=(id,l,sub)=>`<button type="button" data-exscope="${id}" aria-pressed="${sc===id}"><b>${l}</b><small>${sub}</small></button>`;
+  const fm=(id,l,sub,badge)=>`<button type="button" class="fmt" data-exfmt="${id}" aria-pressed="${f===id}"><span class="radio" aria-hidden="true"></span><span class="ft"><b>${l}${badge?` <em>${badge}</em>`:''}</b><small>${sub}</small></span></button>`;
+  return `<div class="scrim" data-act="closeSheet"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetH">
+    <span class="grab" aria-hidden="true"></span>
+    <div class="cardhead"><h2 id="sheetH" style="font-size:22px">Save or share results</h2><button type="button" class="x" data-act="closeSheet" aria-label="Close">×</button></div>
+    <div><span class="label">What to include</span><div class="seg solid tall" role="group" aria-label="What to include">${opt('day','This day',esc(fmtDate(sel,{month:'short',day:'numeric'})))}${opt('season','Session',esc(S.name))}${opt('all','Everything','All sessions')}</div></div>
+    <div style="display:grid;gap:6px"><span class="label" style="margin:0">Format</span>
+      ${fm('pdf','PDF report','Standings and every game, laid out to print or email','Recommended')}
+      ${fm('xlsx','Excel workbook','Separate sheets: standings, games, days, players')}
+      ${fm('csv','CSV file','Every game in one plain table, for any spreadsheet app')}</div>
+    <button type="button" class="btn" data-act="makeFile"${ui.busy?' disabled':''}>${IC.share}${ui.busy?'Creating…':'Create '+({pdf:'PDF',xlsx:'Excel file',csv:'CSV file'}[f])}</button>
+    <button type="button" class="linkrow" data-act="copyText" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Or copy as plain text</button>
+  </section>`;
+}
+function exportList(scope){
+  if(scope==='day') return [sessions[sel]].filter(x=>x&&x.rounds&&x.rounds.length);
+  if(scope==='season') return seasonWeeks().filter(x=>(x.rounds||[]).length);
+  return Object.values(sessions).filter(x=>(x.rounds||[]).length);
+}
+const seasonById=id=>cfg.seasons.find(x=>x.id===id)||cfg.seasons[0];
+function weekNoIn(S,d){ if(d<S.startDate) return ''; const n=Math.round((new Date(d)-new Date(S.startDate))/6048e5)+1; return n<=S.weeks?n:''; }
+function gameRows(list){
+  const out=[]; list.slice().sort((a,b)=>a.date<b.date?-1:1).forEach(x=>{ const S=seasonById(sid(x));
+    x.rounds.forEach((r,ri)=>r.games.forEach((g,ci)=>{ if(g.sa==null&&g.sb==null) return;
+      const A=g.a.map(nameOf), B=g.b.map(nameOf), w= scored(g)? (g.sa>g.sb?A.join(' & '):g.sb>g.sa?B.join(' & '):'Tie') : '';
+      out.push([x.date,S.name,weekNoIn(S,x.date),ri+1,ci+1,targetOf(r),A[0],A[1],g.sa==null?'':g.sa,g.sb==null?'':g.sb,B[0],B[1],w]); })); });
+  return out;
+}
+const GAME_HEAD=['Date','Session','Week','Round','Court','Playing to','Team 1 player A','Team 1 player B','Team 1 score','Team 2 score','Team 2 player A','Team 2 player B','Winner'];
+function standRows(list,withPrize){
+  return ranked(tally(list)).map(t=>{ const r=[t.rank,nameOf(t.id),t.g,t.w,t.l,t.g?+(t.pct.toFixed(3)):'',t.pf,t.pa,t.diff,t.g?+(t.avg.toFixed(1)):'',t.sits,t.weeks]; if(withPrize) r.splice(2,0,t.prize); return r; });
+}
+const standHead=withPrize=>{ const h=['Rank','Player','GP','W','L','Win%','PF','PA','+/-','Avg margin','Sit-outs','Weeks']; if(withPrize) h.splice(2,0,'Prize wins'); return h; };
+function dayRows(list){
+  return list.slice().sort((a,b)=>a.date<b.date?-1:1).map(x=>{ const S=seasonById(sid(x)), t=topWins([x],true);
+    return [x.date,S.name,weekNoIn(S,x.date),x.players.length,x.rounds.reduce((m,r)=>m+r.games.filter(scored).length,0),t?t.names.join(', '):'',t?t.w:'']; });
+}
+const DAY_HEAD=['Date','Session','Week','Players','Games scored','Most wins','Wins'];
+function exportTitle(scope){
+  const S=season();
+  if(scope==='day') { const n=weekNo(sel); return {title:'Day results',sub:`${S.name}${n?' · Week '+n:''} · ${fmtDate(sel,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}`,file:`pickleball-${sel}`}; }
+  if(scope==='season') return {title:'Session results',sub:`${S.name} · ${fmtDate(S.startDate,{month:'short',day:'numeric'})} – ${fmtDate(seasonEnd(S),{month:'short',day:'numeric',year:'numeric'})}`,file:`pickleball-${S.name.replace(/[^A-Za-z0-9]+/g,'-').toLowerCase()}`};
+  return {title:'All results',sub:`Every session, as of ${fmtDate(todayISO(),{month:'long',day:'numeric',year:'numeric'})}`,file:`pickleball-all-${todayISO()}`};
+}
+const LIBS={
+  pdf:['https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js','https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js'],
+  xlsx:['https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js']
+};
+const loaded={};
+function loadScript(src){ if(loaded[src]) return loaded[src]; return loaded[src]=new Promise((res,rej)=>{ const el=document.createElement('script'); el.src=src; el.onload=res; el.onerror=()=>{ delete loaded[src]; rej(new Error('load')); }; document.head.appendChild(el); }); }
+async function loadLibs(kind){ for(const src of LIBS[kind]) await loadScript(src); }
+const csvCell=v=>{ const t=String(v==null?'':v); return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; };
+const pdfTxt=v=>String(v==null?'':v).replace(/[–−]/g,'-').replace(/[’]/g,"'").replace(/[“”]/g,'"');
+async function buildFile(scope,fmt){
+  const list=exportList(scope); if(!list.length) throw {user:'There are no results to save for this choice yet.'};
+  const T=exportTitle(scope), prize= scope==='day' && list[0].halfBye;
+  if(fmt==='csv'){
+    const lines=[GAME_HEAD,...gameRows(list)].map(r=>r.map(csvCell).join(','));
+    return {name:T.file+'-games.csv', blob:new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv'})};
+  }
+  if(fmt==='xlsx'){
+    await loadLibs('xlsx'); const X=window.XLSX, wb=X.utils.book_new();
+    const add=(name,head,rows,widths)=>{ const ws=X.utils.aoa_to_sheet([head,...rows]); ws['!cols']=(widths||head.map(h=>Math.max(8,String(h).length+2))).map(w=>({wch:w})); X.utils.book_append_sheet(wb,ws,name); };
+    add('Standings',standHead(prize),standRows(list,prize),[6,22,...standHead(prize).slice(2).map(h=>Math.max(7,h.length+2))]);
+    add('Games',GAME_HEAD,gameRows(list),[11,14,6,6,6,9,18,18,9,9,18,18,30]);
+    add('Days',DAY_HEAD,dayRows(list),[11,14,6,8,12,30,6]);
+    const ps={}; list.forEach(x=>x.players.forEach(p=>{ ps[p]=(ps[p]||0)+1; }));
+    add('Players',['Player','Days on the list','Games played','Wins','Losses','Points for','Points against'],Object.keys(ps).sort((a,b)=>nameOf(a).localeCompare(nameOf(b))).map(p=>{ const t=tally(list).find(r=>r.id===p)||{g:0,w:0,l:0,pf:0,pa:0}; return [nameOf(p),ps[p],t.g,t.w,t.l,t.pf,t.pa]; }),[22,16,13,8,8,11,14]);
+    const buf=X.write(wb,{bookType:'xlsx',type:'array'});
+    return {name:T.file+'.xlsx', blob:new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})};
+  }
+  await loadLibs('pdf'); const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'pt',format:'letter'});
+  const W=doc.internal.pageSize.getWidth(), M=48, BLUE=[21,89,176], RED=[197,59,59], INK=[21,35,45], MUTE=[79,95,104], SOFT=[228,238,250];
+  doc.setFillColor(...BLUE); doc.rect(0,0,W,8,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...BLUE); doc.text('PICKLEBALL ROUND ROBIN',M,40);
+  doc.setFontSize(22); doc.setTextColor(...INK); doc.text(T.title,M,64);
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.text(pdfTxt(T.sub),M,82);
+  doc.setDrawColor(...INK); doc.setLineWidth(1.2); doc.line(M,92,W-M,92);
+  let y=110;
+  if(prize){ const t=topWins([list[0]].map(x=>x)); const rows=tally(list), top=Math.max(...rows.map(r=>r.prize)), names=rows.filter(r=>r.prize===top).map(r=>nameOf(r.id));
+    doc.setFillColor(251,236,236); doc.setDrawColor(...RED); doc.roundedRect(M,y,W-2*M,30,6,6,'FD');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...INK); doc.setFontSize(11); doc.text('Most wins today',M+12,y+19);
+    doc.setFont('helvetica','normal'); doc.text(pdfTxt(` (sit-outs count as 1/2 win): ${names.join(', ')}, ${fmtW(top)}`),M+12+doc.getTextWidth('Most wins today'),y+19); y+=46; }
+  const H=(txt)=>{ doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...INK); doc.text(txt,M,y); y+=8; };
+  const tbl=(head,body,opts)=>{ doc.autoTable(Object.assign({startY:y,head:[head],body:body.map(r=>r.map(pdfTxt)),margin:{left:M,right:M},theme:'grid',
+      styles:{font:'helvetica',fontSize:9,cellPadding:4,textColor:INK,lineColor:[220,227,225],lineWidth:0.5},
+      headStyles:{fillColor:SOFT,textColor:INK,fontStyle:'bold'},alternateRowStyles:{fillColor:[247,250,253]}},opts||{})); y=doc.lastAutoTable.finalY+22; };
+  const sh=standHead(prize).filter(h=>!['Avg margin','Weeks'].includes(h) || scope!=='day');
+  const sr=standRows(list,prize).map(r=>{ const full=standHead(prize); return full.map((h,i)=>[h,r[i]]).filter(([h])=>sh.includes(h)).map(([h,v])=>h==='Win%'&&v!==''?Number(v).toFixed(3).replace(/^0/,''):h==='+/-'&&v>0?'+'+v:v); });
+  H('Standings'); tbl(sh,sr,{columnStyles:{1:{fontStyle:'bold'}},didParseCell:d=>{ if(d.section==='body'&&+d.row.raw[0]<=3) d.cell.styles.fillColor=[251,244,244]; }});
+  if(scope!=='day'){ H('Game days'); tbl(DAY_HEAD,dayRows(list)); }
+  H('Games');
+  const gr=gameRows(list).map(r=>[...(scope==='day'?[]:[fmtDate(r[0],{month:'short',day:'numeric'})]),'R'+r[3],r[4],`${r[6]} & ${r[7]}`,`${r[8]}-${r[9]}`,`${r[10]} & ${r[11]}`,r[12]]);
+  const gh=[...(scope==='day'?[]:['Date']),'Round','Court','Team 1','Score','Team 2'];
+  const off=scope==='day'?0:1;
+  tbl(gh,gr.map(r=>r.slice(0,-1)),{columnStyles:{[off+2]:{halign:'right'},[off+3]:{halign:'center',fontStyle:'bold'}},
+    didParseCell:d=>{ if(d.section!=='body') return; const raw=gr[d.row.index], w=raw[raw.length-1]; if((d.column.index===off+2&&w===raw[off+2])||(d.column.index===off+4&&w===raw[off+4])) d.cell.styles.fontStyle='bold'; }});
+  const pages=doc.getNumberOfPages();
+  for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...MUTE);
+    doc.text('Ranked by Win%, then point difference. Winning team in bold.'+(prize?' Prize wins count each sit-out as 1/2 win and do not affect the ranking.':''),M,doc.internal.pageSize.getHeight()-24,{maxWidth:W-2*M-60});
+    doc.text(`Page ${i} of ${pages}`,W-M,doc.internal.pageSize.getHeight()-24,{align:'right'}); }
+  return {name:T.file+'.pdf', blob:doc.output('blob')};
+}
+async function deliver(f){
+  if(mode==='db'&&window.claude&&window.claude.use){
+    const dl=await window.claude.use('downloads').catch(()=>null);
+    if(dl){ try{ await dl.save({filename:f.name,data:f.blob}); toast('Saved'); }catch(e){ if(e&&e.code==='declined') return; toast('This file can’t be saved here.'); } return; }
+  }
+  const file=new File([f.blob],f.name,{type:f.blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:f.name}); return; }catch(e){ if(e&&e.name==='AbortError') return; } }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(f.blob); a.download=f.name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },2000); toast('File saved');
+}
+async function makeFile(){
+  if(ui.busy) return; ui.busy=true; render();
+  try{ const f=await buildFile(ui.exScope||'day',ui.exFmt||'pdf'); ui.busy=false; ui.sheet=false; render(); await deliver(f); }
+  catch(e){ ui.busy=false; render(); toast(e&&e.user?e.user:'Couldn’t create the file. Check your internet connection and try again.'); }
+}
+
 /* ---------- render ---------- */
 let renderWanted=false;
 function typing(){ const a=document.activeElement; return a&&(a.tagName==='TEXTAREA'||a.tagName==='SELECT'||(a.tagName==='INPUT'&&a.type!=='button')); }
@@ -684,6 +885,7 @@ function render(){
   document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.tab===ui.tab) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
   const v={today:viewToday,rounds:viewRounds,standings:viewStandings,players:viewPlayers,setup:viewSetup}[ui.tab];
   $('#view').innerHTML=v();
+  $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
   if(mode==='local') setSync('Saved on this device');
   else if(readOnly) setSync('View only');
 }
@@ -730,7 +932,7 @@ function rebuild(){
   return {f,total};
 }
 function setScore(ri,gi,k,v){ const s=sess(), R=s.rounds[ri], g=R&&R.games[gi]; if(!g) return; g[k]=v; saveSession(); }
-function goTab(t){ ui.tab=t; ui.player=null; ui.form=null; ui.confirm=null; render(); window.scrollTo(0,0); }
+function goTab(t){ ui.tab=t; ui.sub=null; ui.sheet=false; ui.player=null; ui.form=null; ui.confirm=null; render(); window.scrollTo(0,0); }
 function subIn(){
   const outId=$('#subFor').value, n=$('#subName').value.trim().replace(/\s+/g,' ');
   if(!outId){ toast('Choose the player who can’t come.'); return; }
@@ -765,6 +967,7 @@ async function saveBackup(){
 }
 
 document.addEventListener('click',e=>{
+  if(e.target.classList&&e.target.classList.contains('scrim')){ ui.sheet=false; render(); return; }
   const t=e.target.closest('button'); if(!t||t.disabled) return;
   const d=t.dataset;
   if(d.tab){ goTab(d.tab); return; }
@@ -773,6 +976,16 @@ document.addEventListener('click',e=>{
   if(d.step){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const cur=g[d.s]==null?0:g[d.s];
     const nv=cur+(+d.step); if(nv>maxOf(R)){ toast(R.wb2?`Highest score allowed is ${maxOf(R)}.`:`This round is played to ${targetOf(R)}. Turn on Win by 2 to go higher.`); return; }
     setScore(+d.r,+d.g,d.s,Math.max(0,nv)); render(); return; }
+  if(d.win){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const k=d.win, o=k==='sa'?'sb':'sa', T=targetOf(R);
+    const isWin= g[k]!=null && (g[o]==null ? g[k]>=T : g[k]>g[o]);
+    if(isWin){ g[k]=null; }
+    else { if(g[k]==null||g[k]<T) g[k]=T; if(g[o]!=null&&g[o]>=g[k]) g[o]=null; }
+    saveSession(); render(); return; }
+  if(d.hopen){ ui.histOpen= (ui.histOpen===undefined?season().id:ui.histOpen)===d.hopen?null:d.hopen; render(); return; }
+  if(d.hday){ ui.season=d.hs; sel=d.hday; userPicked=true; ui.sub=null; ui.scope='day'; ui.player=null; render(); window.scrollTo(0,0); return; }
+  if(d.hsum){ ui.season=d.hsum; sel=null; userPicked=false; ui.sub=null; ui.scope='season'; ui.player=null; render(); window.scrollTo(0,0); return; }
+  if(d.exscope){ ui.exScope=d.exscope; render(); return; }
+  if(d.exfmt){ ui.exFmt=d.exfmt; render(); return; }
   if(d.help){ ui.colHelp= ui.colHelp===d.help?null:d.help; render(); return; }
   if(d.wb2!=null){ const s=sess(), R=s.rounds[+d.wb2]; if(!R) return; R.wb2=!R.wb2; saveSession(); render(); toast(`Win by 2 is ${R.wb2?'on':'off'} for Round ${+d.wb2+1}.`); return; }
   if(d.acc!=null){ const i=+d.acc, s=sess(), cur=firstOpen(s), open=ui.open==null?Math.min(cur,s.rounds.length-1):ui.open; ui.open= open===i?-1:i; render(); return; }
@@ -793,6 +1006,12 @@ document.addEventListener('click',e=>{
     case 'skip': { const s=sess(); s.rounds[+d.r].done=true; saveSession(); render(); window.scrollTo(0,0); return; }
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
     case 'share': shareResults(); return;
+    case 'history': ui.sub='history'; ui.player=null; render(); window.scrollTo(0,0); return;
+    case 'closeHistory': ui.sub=null; render(); return;
+    case 'export': ui.sheet=true; if(!ui.exScope) ui.exScope=ui.scope==='season'?'season':'day'; render(); return;
+    case 'closeSheet': ui.sheet=false; render(); return;
+    case 'makeFile': makeFile(); return;
+    case 'copyText': copy(resultsText()); return;
     case 'closePlayer': ui.player=null; render(); return;
     case 'cols': ui.cols=!ui.cols; render(); return;
     case 'colsDone': ui.cols=false; render(); return;
