@@ -80,6 +80,15 @@ main{max-width:560px;margin:0 auto;padding-block:16px calc(var(--navh) + 28px + 
 .wontag{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);flex:none}
 .side.lose .teambtn{background:#F3F7FC}
 select.score.need{border-color:var(--red)}
+.court .stepper{gap:4px}
+.court .step{width:36px;height:46px;font-size:22px;border-radius:10px}
+.court select.score{width:56px;padding:0 13px 0 2px;background-position:right 5px center}
+.court .side{gap:6px}
+.teambtn{padding:6px 8px;gap:6px}
+.teambtn .team{font-size:16px;line-height:1.25;overflow-wrap:normal;word-break:normal}
+.teambtn .pn{white-space:nowrap}
+.ver{text-align:center;font-size:12px;color:var(--muted);margin:6px 0 0}
+.ver button{font:inherit;font-weight:700;color:var(--red);background:none;border:0;padding:4px;cursor:pointer;text-decoration:underline}
 .cl{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
 .side{display:flex;align-items:center;gap:8px}
 .team{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}
@@ -361,6 +370,8 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
+const APP_VERSION='2026.11.18-2';
+let updateReady=false;
 let db=null, mode='loading', readOnly=false;
 let cfg=defaultCfg(), sessions={}, sel=null, userPicked=false;
 const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,form:null,confirm:null};
@@ -476,6 +487,10 @@ function toRowHTML(ri,R,editable){
       <button type="button" class="wbbtn" data-wb2="${ri}" aria-pressed="${wb}" title="Lets scores go past ${to}, like ${to+1}–${to-1}">${wb?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>':''}Win by 2</button>
     </div>`;
 }
+function winnerOf(g,target){
+  if(g.sa!=null&&g.sb!=null) return g.sa>g.sb?'sa':g.sb>g.sa?'sb':null;
+  if(g.sa!=null&&g.sb==null&&g.sa>=target) return 'sa'; if(g.sb!=null&&g.sa==null&&g.sb>=target) return 'sb'; return null;
+}
 function scoreOptions(v,to){
   const top=Math.max(to,v==null?0:v); let o=`<option value=""${v==null?' selected':''}>–</option>`;
   for(let n=0;n<=top;n++) o+=`<option value="${n}"${v===n?' selected':''}>${n}</option>`;
@@ -483,9 +498,7 @@ function scoreOptions(v,to){
 }
 function courtHTML(s,ri,ci,g,editable,to,target){
   to=to||11; target=target||11;
-  const winOf=()=>{ if(g.sa!=null&&g.sb!=null) return g.sa>g.sb?'sa':g.sb>g.sa?'sb':null;
-    if(g.sa!=null&&g.sb==null&&g.sa>=target) return 'sa'; if(g.sb!=null&&g.sa==null&&g.sb>=target) return 'sb'; return null; };
-  const W=winOf(), pending= W && g[W==='sa'?'sb':'sa']==null;
+  const W=winnerOf(g,target), pending= W && g[W==='sa'?'sb':'sa']==null;
   const hint= !editable ? '' : !W&&g.sa==null&&g.sb==null ? 'Tap the winning team' : pending ? 'Now pick the losing score' : '';
   const side=(team,k,v)=>{
     const label=team.map(id=>nameOf(id)).join(' and '), win=W===k, lose=W&&W!==k, need=pending&&lose;
@@ -494,8 +507,8 @@ function courtHTML(s,ri,ci,g,editable,to,target){
     return `<div class="side${win?' win':lose?' lose':''}">
       <button type="button" class="teambtn${win?' on':''}" data-win="${k}" data-r="${ri}" data-g="${ci}" aria-pressed="${win}" aria-label="${esc(label)} won">
         <span class="dot" aria-hidden="true">${win?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':''}</span>
-        <span class="team">${names}</span>${win?'<span class="wontag">Won</span>':''}</button>
-      <select class="score${need?' need':''}" id="sc-${ri}-${ci}-${k}" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="Score for ${esc(label)}">${scoreOptions(v,to)}</select></div>`;
+        <span class="team"><span class="pn">${nmHtml(s,team[0])} &amp;</span> <span class="pn">${nmHtml(s,team[1])}</span></span></button>
+      <div class="stepper"><button type="button" class="step" data-step="-1" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="One point less for ${esc(label)}">−</button><select class="score${need?' need':''}" id="sc-${ri}-${ci}-${k}" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="Score for ${esc(label)}">${scoreOptions(v, lose&&g[W]!=null ? Math.min(to, g[W]-1) : to)}</select><button type="button" class="step plus" data-step="1" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="One point more for ${esc(label)}">+</button></div></div>`;
   };
   return `<div class="court"><div class="courthead"><span class="cl">Court ${ci+1}</span>${hint?`<span class="hint">${hint}</span>`:''}</div>${side(g.a,'sa',g.sa)}${editable?'':'<div class="net"></div>'}${side(g.b,'sb',g.sb)}</div>`;
 }
@@ -884,7 +897,7 @@ function render(){
   $('#prevWk').disabled=i<=0; $('#nextWk').disabled=i<0||i>=dates.length-1;
   document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.tab===ui.tab) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
   const v={today:viewToday,rounds:viewRounds,standings:viewStandings,players:viewPlayers,setup:viewSetup}[ui.tab];
-  $('#view').innerHTML=v();
+  $('#view').innerHTML=v()+`<p class="ver">Version ${APP_VERSION}${updateReady?' · <button type="button" data-act="update">New version available. Tap to update</button>':''}</p>`;
   $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
   if(mode==='local') setSync('Saved on this device');
   else if(readOnly) setSync('View only');
@@ -974,8 +987,14 @@ document.addEventListener('click',e=>{
   if(d.goto){ goTab(d.goto); return; }
   if(t.id==='prevWk'||t.id==='nextWk'){ const ds=seasonDates(), i=ds.indexOf(sel), j=i+(t.id==='prevWk'?-1:1); if(ds[j]){ sel=ds[j]; userPicked=true; ui.open=null; ui.player=null; ui.confirm=null; ui.form=null; render(); } return; }
   if(d.step){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const cur=g[d.s]==null?0:g[d.s];
-    const nv=cur+(+d.step); if(nv>maxOf(R)){ toast(R.wb2?`Highest score allowed is ${maxOf(R)}.`:`This round is played to ${targetOf(R)}. Turn on Win by 2 to go higher.`); return; }
-    setScore(+d.r,+d.g,d.s,Math.max(0,nv)); render(); return; }
+    const nv=cur+(+d.step), k=d.s, o=k==='sa'?'sb':'sa', T=targetOf(R), W=winnerOf(g,T);
+    if(nv<0) return;
+    if(+d.step>0 && W===o && g[o]!=null && nv>=g[o]){ toast('The losing score has to be lower than the winner’s. Tap the other team if they won.'); return; }
+    if(nv>maxOf(R)){
+      if(!R.wb2 && nv<=T+10){ R.wb2=true; toast(`Win by 2 turned on for this round, so scores can go past ${T}.`); }
+      else { toast(`Highest score allowed is ${maxOf(R)}.`); return; }
+    }
+    setScore(+d.r,+d.g,k,nv); render(); return; }
   if(d.win){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const k=d.win, o=k==='sa'?'sb':'sa', T=targetOf(R);
     const isWin= g[k]!=null && (g[o]==null ? g[k]>=T : g[k]>g[o]);
     if(isWin){ g[k]=null; }
@@ -1009,6 +1028,7 @@ document.addEventListener('click',e=>{
     case 'history': ui.sub='history'; ui.player=null; render(); window.scrollTo(0,0); return;
     case 'closeHistory': ui.sub=null; render(); return;
     case 'export': ui.sheet=true; if(!ui.exScope) ui.exScope=ui.scope==='season'?'season':'day'; render(); return;
+    case 'update': location.replace(location.pathname+'?v='+Date.now()); return;
     case 'closeSheet': ui.sheet=false; render(); return;
     case 'makeFile': makeFile(); return;
     case 'copyText': copy(resultsText()); return;
@@ -1069,8 +1089,14 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ---------- start ---------- */
+async function checkUpdate(){
+  if(mode!=='local'||!/^https?:$/.test(location.protocol)) return;
+  try{ const r=await fetch(location.pathname+'?check='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const t=await r.text();
+    const m=t.match(/APP_VERSION='([^']+)'/); if(m&&m[1]!==APP_VERSION){ updateReady=true; render(); } }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') checkUpdate(); });
 function startLocal(){
-  mode='local';
+  mode='local'; setTimeout(checkUpdate,1500);
   try{ const v=JSON.parse(localStorage.getItem(LOCAL)); if(v&&v.cfg){ cfg=migrate(v.cfg); sessions=v.sessions||{}; } }catch(e){}
   render();
 }
