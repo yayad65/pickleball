@@ -80,6 +80,9 @@ main{max-width:560px;margin:0 auto;padding-block:16px calc(var(--navh) + 28px + 
 .wontag{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);flex:none}
 .side.lose .teambtn{background:#F3F7FC}
 select.score.need{border-color:var(--red)}
+.quick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin:-2px 0 2px}
+.qk{min-height:42px;border-radius:10px;border:1px solid var(--edge);background:var(--surface);font-family:var(--display);font-size:19px;font-weight:700;color:var(--ink);cursor:pointer}
+.qk:active{background:var(--blue);color:#FFFFFF;border-color:var(--blue)}
 .court .stepper{gap:4px}
 .court .step{width:36px;height:46px;font-size:22px;border-radius:10px}
 .court select.score{width:56px;padding:0 13px 0 2px;background-position:right 5px center}
@@ -370,7 +373,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.18-2';
+const APP_VERSION='2026.11.20-1';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
 let cfg=defaultCfg(), sessions={}, sel=null, userPicked=false;
@@ -510,7 +513,10 @@ function courtHTML(s,ri,ci,g,editable,to,target){
         <span class="team"><span class="pn">${nmHtml(s,team[0])} &amp;</span> <span class="pn">${nmHtml(s,team[1])}</span></span></button>
       <div class="stepper"><button type="button" class="step" data-step="-1" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="One point less for ${esc(label)}">−</button><select class="score${need?' need':''}" id="sc-${ri}-${ci}-${k}" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="Score for ${esc(label)}">${scoreOptions(v, lose&&g[W]!=null ? Math.min(to, g[W]-1) : to)}</select><button type="button" class="step plus" data-step="1" data-r="${ri}" data-g="${ci}" data-s="${k}" aria-label="One point more for ${esc(label)}">+</button></div></div>`;
   };
-  return `<div class="court"><div class="courthead"><span class="cl">Court ${ci+1}</span>${hint?`<span class="hint">${hint}</span>`:''}</div>${side(g.a,'sa',g.sa)}${editable?'':'<div class="net"></div>'}${side(g.b,'sb',g.sb)}</div>`;
+  const quick=(k)=>{ if(!(editable&&pending&&W&&W!==k)) return ''; const top=g[W]-1; let b='';
+    for(let n=0;n<=top;n++) b+=`<button type="button" class="qk" data-quick="${n}" data-r="${ri}" data-g="${ci}" data-s="${k}">${n}</button>`;
+    return `<div class="quick" role="group" aria-label="Losing team's score">${b}</div>`; };
+  return `<div class="court"><div class="courthead"><span class="cl">Court ${ci+1}</span>${hint?`<span class="hint">${hint}</span>`:''}</div>${side(g.a,'sa',g.sa)}${quick('sa')}${editable?'':'<div class="net"></div>'}${side(g.b,'sb',g.sb)}${quick('sb')}</div>`;
 }
 const sitHTML=(s,R)=>R.sits.length?`<p class="sit">Sitting out: <b>${R.sits.map(x=>nmHtml(s,x)).join(', ')}</b></p>`:'';
 function emptyWeek(){
@@ -995,6 +1001,7 @@ document.addEventListener('click',e=>{
       else { toast(`Highest score allowed is ${maxOf(R)}.`); return; }
     }
     setScore(+d.r,+d.g,k,nv); render(); return; }
+  if(d.quick!=null){ setScore(+d.r,+d.g,d.s,+d.quick); render(); return; }
   if(d.win){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const k=d.win, o=k==='sa'?'sb':'sa', T=targetOf(R);
     const isWin= g[k]!=null && (g[o]==null ? g[k]>=T : g[k]>g[o]);
     if(isWin){ g[k]=null; }
