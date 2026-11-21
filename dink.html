@@ -254,6 +254,11 @@ main{grid-template-columns:minmax(0,1fr)}
 .pk .nm{overflow-wrap:anywhere}
 .pk .away{margin-left:auto;font-size:13px;font-weight:600;color:var(--muted)}
 .pk.sub{cursor:default}
+.subrow{border-bottom:1px solid var(--line2);padding-bottom:10px}
+.subrow:last-child{border-bottom:0}
+.subfor{display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;font-weight:600;color:var(--muted)}
+.card .subfor{padding:0}
+.subfor select{flex:1;min-width:0;min-height:44px}
 .pk.sub .subtag{margin-left:auto;font-size:12px}
 .rm{width:44px;height:44px;margin-right:6px;border:0;border-radius:10px;background:var(--red-soft);color:var(--red);font-size:24px;cursor:pointer;flex:none}
 .timer{display:grid;gap:8px;justify-items:center;background:var(--blue-soft);border-radius:14px;padding:12px}
@@ -522,12 +527,12 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-1';
+const APP_VERSION='2026.11.21-2';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
 let cfg=defaultCfg(), sessions={}, sel=null, userPicked=false;
-const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,form:null,confirm:null,pick:{},pickSubs:{},pickMode:false,editList:false,timer:null,wstep:0};
+const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,form:null,confirm:null,pick:{},pickSubs:{},pickFor:{},pickMode:false,editList:false,timer:null,wstep:0};
 let restoreData=null, restoreInfo='';
 
 const seasonsSorted=()=>cfg.seasons.slice().sort((a,b)=>a.startDate<b.startDate?-1:a.startDate>b.startDate?1:0);
@@ -869,12 +874,16 @@ function regularsOf(S){
 function setRegulars(S,ids){ S.regulars=[...new Set(ids)]; saveCfg(); }
 function pickSet(){
   if(!ui.pick[sel]){ const s=sessions[sel];
-    if(s&&s.players.length){ ui.pick[sel]=s.players.filter(id=>!isSub(s,id)); ui.pickSubs[sel]=s.players.filter(id=>isSub(s,id)&&s.subs[id]==='none'); }
-    else { ui.pick[sel]=regularsOf(season()).slice(); ui.pickSubs[sel]=[]; } }
+    if(s&&s.players.length){ ui.pick[sel]=s.players.filter(id=>!isSub(s,id)); ui.pickSubs[sel]=s.players.filter(id=>isSub(s,id));
+      ui.pickFor[sel]=Object.fromEntries(Object.entries(s.subs||{}).filter(([k,v])=>v&&v!=='none'&&s.players.includes(k))); }
+    else { ui.pick[sel]=regularsOf(season()).slice(); ui.pickSubs[sel]=[]; ui.pickFor[sel]={}; } }
   if(!ui.pickSubs[sel]) ui.pickSubs[sel]=[];
+  if(!ui.pickFor[sel]) ui.pickFor[sel]={};
   return ui.pick[sel];
 }
 const pickSubs=()=>{ pickSet(); return ui.pickSubs[sel]; };
+const pickFor=()=>{ pickSet(); return ui.pickFor[sel]; };
+function setSubFor(id,reg){ const fm=pickFor(); Object.keys(fm).forEach(k=>{ if(fm[k]===reg&&k!==id) delete fm[k]; }); if(reg){ fm[id]=reg; const pk=pickSet(), i=pk.indexOf(reg); if(i>=0) pk.splice(i,1); } else delete fm[id]; }
 function recentSubs(){ const regs=new Set(regularsOf(season())), cur=new Set(pickSubs()), seen={};
   Object.values(sessions).sort((a,b)=>a.date<b.date?1:-1).forEach(x=>Object.keys(x.subs||{}).forEach(id=>{ if(!regs.has(id)&&!cur.has(id)&&cfg.roster[id]&&!seen[id]) seen[id]=x.date; }));
   return Object.keys(seen).slice(0,8); }
@@ -884,7 +893,10 @@ function viewPick(){
   const chk='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
   const rows=regs.map(id=>{ const on=pk.includes(id);
     return `<div class="pkrow"><button type="button" class="pk${on?' on':''}" data-pick="${id}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?chk:''}</span><span class="nm">${esc(nameOf(id))}</span>${on?'':'<small class="away">Not coming</small>'}</button>${ui.editList?`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))} from the regular players">×</button>`:''}</div>`; }).join('');
-  const subRows=subs.map(id=>`<div class="pkrow"><span class="pk on sub"><span class="box" aria-hidden="true">${chk}</span><span class="nm">${esc(nameOf(id))}</span><small class="subtag">Sub · this week</small></span><button type="button" class="rm" data-unsub="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button></div>`).join('');
+  const fm=pickFor(), allRegs=regularsOf(S).slice().sort(byName);
+  const forOpts=(cur,ex)=>`<option value="">No one in particular</option>${allRegs.filter(r=>!Object.entries(fm).some(([k,v])=>v===r&&k!==ex)).map(r=>`<option value="${r}"${r===cur?' selected':''}>${esc(nameOf(r))}${pk.includes(r)?'':' (not coming)'}</option>`).join('')}`;
+  const subRows=subs.map(id=>`<div class="subrow"><div class="pkrow" style="border:0"><span class="pk on sub"><span class="box" aria-hidden="true">${chk}</span><span class="nm">${esc(nameOf(id))}</span><small class="subtag">${fm[id]?'Sub for '+esc(shortName(fm[id])):'Sub · this week'}</small></span><button type="button" class="rm" data-unsub="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button></div>
+      <label class="subfor"><span>Subbing for</span><select data-subfor="${id}" aria-label="Who ${esc(nameOf(id))} is subbing for">${forOpts(fm[id]||'',id)}</select></label></div>`).join('');
   const recent=recentSubs();
   const total=pk.length+subs.length;
   return `<div class="cardhead"><h2 style="font-size:23px">Who’s playing?</h2><span class="note">${esc(fmtDate(sel,{weekday:'short',month:'short',day:'numeric'}))}</span></div>
@@ -896,6 +908,7 @@ function viewPick(){
     <span class="label" style="margin:6px 0 -6px">Subs for this week only</span>
     ${subs.length?`<div class="plist">${subRows}</div>`:''}
     <div class="card" style="gap:8px"><div class="inline"><input id="newSub" type="text" autocomplete="off" placeholder="Sub’s name" aria-label="Sub’s name"><button type="button" class="btn small" data-act="addSub">Add sub</button></div>
+      <label class="subfor"><span>Subbing for</span><select id="newSubFor" aria-label="Who the sub is replacing">${forOpts('','')}</select></label>
       ${recent.length?`<div class="pkbar"><span class="note" style="width:100%">Recent subs, tap to add:</span>${recent.map(id=>`<button type="button" class="chipbtn" data-resub="${id}">+ ${esc(nameOf(id))}</button>`).join('')}</div>`:''}
       <p class="note">Subs play this week only. They aren’t added to the regular list and won’t be assumed for next week.</p></div>
     <p class="note" id="plan">${esc(planText(total))}</p>
@@ -1266,7 +1279,7 @@ document.addEventListener('click',e=>{
     setScore(+d.r,+d.g,k,nv); render(); return; }
   if(d.pick){ const pk=pickSet(), i=pk.indexOf(d.pick); if(i>=0) pk.splice(i,1); else pk.push(d.pick); render(); return; }
   if(d.hide){ const S=season(); setRegulars(S,regularsOf(S).filter(x=>x!==d.hide)); const pk=pickSet(), i=pk.indexOf(d.hide); if(i>=0) pk.splice(i,1); render(); toast(`${nameOf(d.hide)} removed from the regular players`); return; }
-  if(d.unsub){ const ps=pickSubs(), i=ps.indexOf(d.unsub); if(i>=0) ps.splice(i,1); render(); return; }
+  if(d.unsub){ const ps=pickSubs(), i=ps.indexOf(d.unsub); if(i>=0) ps.splice(i,1); delete pickFor()[d.unsub]; render(); return; }
   if(d.resub){ const ps=pickSubs(); if(!ps.includes(d.resub)) ps.push(d.resub); render(); toast(`${nameOf(d.resub)} added as a sub for this week`); return; }
   if(d.rnd!=null){ goRound(+d.rnd); return; }
   if(d.rstep){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(+d.rstep), +d.rstep>0?'left':'right'); return; }
@@ -1322,7 +1335,7 @@ document.addEventListener('click',e=>{
       const regs=pickSet().slice(), wsubs=pickSubs().slice(), ids=regs.concat(wsubs.filter(x=>!regs.includes(x))); if(ids.length<4){ toast('Pick at least 4 players.'); return; }
       const s=sess(), keepSubs=s.subs||{}; snap();
       s.players=ids; s.out=s.out.filter(id=>ids.includes(id)); s.subs=Object.fromEntries(Object.entries(keepSubs).filter(([k])=>ids.includes(k)&&!regs.includes(k)));
-      wsubs.forEach(id=>{ if(!s.subs[id]) s.subs[id]='none'; });
+      const fmap=pickFor(); wsubs.forEach(id=>{ s.subs[id]= fmap[id]||s.subs[id]||'none'; });
       s.seasonId=season().id; delete ui.draft[sel]; saveCfg();
       ui.pickMode=false; const {f,total}=rebuild(); toast(f>0?`Rounds ${f+1}–${total} updated`:'Schedule built',true); setTimeout(()=>goTab('today'),600); return; }
     case 'pickMode': ui.pickMode=true; ui.pick[sel]=null; render(); window.scrollTo(0,0); return;
@@ -1334,7 +1347,7 @@ document.addEventListener('click',e=>{
       const id=idFor(n), S=season(); setRegulars(S,regularsOf(S).concat([id])); const pk=pickSet(); if(!pk.includes(id)) pk.push(id); const ps=pickSubs(), j=ps.indexOf(id); if(j>=0) ps.splice(j,1); render(); toast(`${n} added to the regular players`); const f=$('#newPlayer'); if(f) f.focus(); return; }
     case 'addSub': { const n=($('#newSub').value||'').trim().replace(/\s+/g,' '); if(!n){ toast('Type the sub’s name.'); return; }
       const id=idFor(n); if(regularsOf(season()).includes(id)){ toast(`${n} is already a regular. Tick them in the list instead.`); return; }
-      const ps=pickSubs(); if(!ps.includes(id)) ps.push(id); saveCfg(); render(); toast(`${n} added as a sub for this week`); return; }
+      const ps=pickSubs(); if(!ps.includes(id)) ps.push(id); const f=$('#newSubFor').value; if(f) setSubFor(id,f); saveCfg(); render(); toast(`${n} added as a sub${f?' for '+nameOf(f):''} this week`); return; }
     case 'undo': doUndo(); return;
     case 'timerStart': timerStart(+d.r); return;
     case 'timerPause': timerPause(); return;
@@ -1366,6 +1379,7 @@ document.addEventListener('change',e=>{
   if(t.classList.contains('score')){ setScore(+t.dataset.r,+t.dataset.g,t.dataset.s,t.value===''?null:+t.value); t.blur(); render(); return; }
   if(t.dataset&&t.dataset.col){ const cur=shownCols().map(c=>c.id); const on=t.checked, id=t.dataset.col;
     const next=COLS.map(c=>c.id).filter(x=>x===id?on:cur.includes(x)); cfg.cols=next; saveCfg(); render(); return; }
+  if(t.dataset&&t.dataset.subfor){ setSubFor(t.dataset.subfor,t.value); render(); return; }
   if(t.classList.contains('tosel')){ const s=sess(), R=s.rounds[+t.dataset.r]; if(!R) return; R.to=+t.value; saveSession(); t.blur(); render(); toast(`Round ${+t.dataset.r+1} is played to ${R.to}.`); return; }
   if(t.id==='seasonPick'){ ui.season=t.value; sel=null; userPicked=false; ui.player=null; t.blur(); render(); return; }
   if(t.id==='startDate'){ if(!t.value) return; season().startDate=t.value; userPicked=false; sel=null; saveCfg(); render(); return; }
