@@ -343,13 +343,14 @@ th.off .thv{color:var(--muted);opacity:.65}
 th.off .vt{text-decoration:line-through}
 table.st td.off{width:14px;min-width:14px;padding:0;background:repeating-linear-gradient(180deg,var(--line2) 0 2px,transparent 2px 6px)}
 th.vth.off{width:30px}
-.steps{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 4px}
-.steps::-webkit-scrollbar{display:none}
-.stp{flex:0 0 auto;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px 0 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:600;font-size:15px;cursor:pointer}
-.stp .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--line2);font-weight:700;color:var(--ink)}
-.stp.done .n{background:var(--blue-soft);color:var(--blue)}
-.stp.on{background:var(--blue);border-color:var(--blue);color:#FFFFFF}
-.stp.on .n{background:#FFFFFF;color:var(--blue)}
+.steps{display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:4px;padding:6px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.stp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;padding:6px 2px;border:0;border-radius:13px;background:transparent;color:var(--ink);cursor:pointer;min-width:0}
+.stp .ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--blue);background:var(--blue-soft)}
+.stp .ic svg{width:21px;height:21px}
+.stp .l{font-size:12.5px;font-weight:700;line-height:1.1;opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.stp.on{background:var(--blue-soft)}
+.stp.on .ic{background:var(--blue);color:#FFFFFF;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+.stp.on .l{opacity:1;color:var(--blue)}
 .stepnav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
 .stepnav .btn{font-size:16px;min-height:52px}
 /* subtle gradients */
@@ -532,7 +533,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-6';
+const APP_VERSION='2026.11.21-7';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
@@ -638,6 +639,11 @@ const IC={
   swap:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg>',
   share:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
   clock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2"/></svg>',
+  court:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M3 12h18M12 3v6.5M12 14.5V21M3 9.5h18M3 14.5h18"/></svg>',
+  people:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.2 14.1c2.7-.4 4.8 1.7 4.8 4.9"/></svg>',
+  palette:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7h2.1A4.5 4.5 0 0 0 21 10.7C21 6.4 17 3 12 3Z"/><circle cx="7.5" cy="11.5" r="1.2"/><circle cx="10.5" cy="7.5" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>',
+  save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>',
   copy:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>'
 };
 
@@ -999,10 +1005,10 @@ function viewSetup(){
   const P4=`    ${mode==='local'?`<section class="card"><h2 style="font-size:20px">Backup</h2><p class="note">Your sessions are saved on this device only. Save a backup after each week so you can restore it if this app's data is ever cleared.</p>
       <div class="row2"><button type="button" class="btn ghost" data-act="backup">Save backup</button><button type="button" class="btn ghost" data-act="restore">Restore</button></div>
       ${restoreData?`<div class="confirm"><span>${esc(restoreInfo)}</span><div class="row2"><button type="button" class="btn danger" data-act="restoreYes">Replace with backup</button><button type="button" class="btn ghost small" data-act="restoreNo">Cancel</button></div></div>`:''}</section>`:''}`;
-  const steps=[['Session',P1],['Courts & timing',P2],['Regular players',PR]];
-  if(P3.trim()) steps.push(['App look',P3]); if(P4.trim()) steps.push(['Backup',P4]);
+  const steps=[['Session',P1,'Session',IC.cal],['Courts & timing',P2,'Courts',IC.court],['Regular players',PR,'Players',IC.people]];
+  if(P3.trim()) steps.push(['App look',P3,'Look',IC.palette]); if(P4.trim()) steps.push(['Backup',P4,'Backup',IC.save]);
   const k=Math.max(0,Math.min(steps.length-1,ui.setupStep||0));
-  return `<nav class="steps" aria-label="Setup sections">${steps.map(([l],j)=>`<button type="button" class="stp${j===k?' on':j<k?' done':''}" data-sstep="${j}"${j===k?' aria-current="step"':''}><span class="n">${j+1}</span><span class="l">${esc(l)}</span></button>`).join('')}</nav>
+  return `<nav class="steps" style="--n:${steps.length}" aria-label="Setup sections">${steps.map(([l,,sh,ic],j)=>`<button type="button" class="stp${j===k?' on':''}" data-sstep="${j}"${j===k?' aria-current="page"':''} aria-label="${esc(l)}"><span class="ic" aria-hidden="true">${ic}</span><span class="l" aria-hidden="true">${esc(sh)}</span></button>`).join('')}</nav>
     <h2 style="font-size:23px">${esc(steps[k][0])}</h2>
     ${steps[k][1]}
     <div class="stepnav">${k>0?`<button type="button" class="btn ghost" data-sstep="${k-1}">${IC.back}${esc(steps[k-1][0])}</button>`:'<span></span>'}${k<steps.length-1?`<button type="button" class="btn" data-sstep="${k+1}">${esc(steps[k+1][0])} ${IC.go}</button>`:'<span></span>'}</div>`;
@@ -1233,7 +1239,6 @@ function render(){
   $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
   if(ui.tab==='today') requestAnimationFrame(centerRail);
   startBalls();
-  if(ui.tab==='setup') requestAnimationFrame(()=>{ const n=document.querySelector('.steps'), c=n&&n.querySelector('.stp.on'); if(c) n.scrollLeft=c.offsetLeft-n.clientWidth/2+c.clientWidth/2; });
   if(mode==='local') setSync('Saved on phone');
   else if(readOnly) setSync('View only');
 }
