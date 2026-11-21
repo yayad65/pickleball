@@ -38,6 +38,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
 .top-in{max-width:560px;margin:0 auto;padding-block:12px 12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:4px}
 .toprow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.top-in{grid-template-columns:minmax(0,1fr)}
+.toprow .eyebrow{flex:1;min-width:0}
 .eyebrow{font-size:16px;font-weight:700;color:var(--blue);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sync{font-size:15px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .sync.warn{color:var(--warn)}
@@ -48,11 +50,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 main{max-width:560px;margin:0 auto;padding-block:16px calc(var(--navh) + 28px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:14px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:14px;min-width:0}
-.card.now{border:2px solid var(--red)}
+.card.now{border:2px solid var(--blue)}
 .cardhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .cardhead h2{font-size:22px;font-weight:600}
 .pill{font-size:15px;font-weight:700;padding:4px 12px;border-radius:999px;white-space:nowrap}
-.pill.now{background:var(--red);color:#FFFFFF}
+.pill.now{background:var(--blue);color:#FFFFFF}
 .pill.final{background:var(--blue-soft);color:var(--blue)}
 .pill.later{background:var(--line2);color:var(--muted)}
 .muted{color:var(--muted)}
@@ -138,10 +140,10 @@ select.tosel{width:150px;min-height:46px;border:1px solid var(--edge);border-rad
 .trow{display:grid;grid-template-columns:40px minmax(0,1fr) 64px 60px;gap:8px;align-items:center;min-height:50px;padding:0 14px;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums}
 .trow:last-child{border-bottom:0}
 .trow.head{min-height:40px;font-size:14px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line)}
-.trow.top3{background:var(--red-soft)}
+.trow.top3{background:var(--blue-soft)}
 .trow .r{text-align:right}
 .badge{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:15px;font-weight:700;background:var(--line2);color:var(--muted)}
-.top3 .badge{background:var(--red);color:#FFFFFF}
+.top3 .badge{background:var(--blue);color:#FFFFFF}
 .namebtn{background:none;border:0;padding:6px 0;text-align:left;font-weight:700;color:var(--ink);cursor:pointer;text-decoration:underline;text-decoration-color:var(--edge);text-underline-offset:4px;overflow-wrap:anywhere}
 .tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;-webkit-overflow-scrolling:touch}
 table.st{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums;font-size:17px}
@@ -151,7 +153,7 @@ table.st tbody tr:last-child th,table.st tbody tr:last-child td{border-bottom:0}
 table.st .txt{text-align:left}
 table.st .pcol{position:sticky;left:0;z-index:1;text-align:left;padding-left:10px;box-shadow:1px 0 0 var(--line)}
 table.st tbody .pcol{display:flex;align-items:center;gap:7px;min-width:112px;max-width:160px;font-weight:700}
-table.st tr.top3 th,table.st tr.top3 td{background:var(--red-soft)}
+table.st tr.top3 th,table.st tr.top3 td{background:#EEF4FB}
 .th{background:none;border:0;padding:6px 2px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px;white-space:nowrap}
 .th.on{color:var(--blue)}
 .helpbox{position:relative;background:var(--blue-soft);border-radius:12px;padding:12px 44px 12px 14px;font-size:16px;line-height:1.45}
@@ -214,7 +216,7 @@ main{grid-template-columns:minmax(0,1fr)}
 .rchip .rn{font-family:var(--display);font-size:19px;font-weight:700;line-height:1;display:grid;place-items:center;height:22px}
 .rchip .rt{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .rchip.done{background:var(--blue-soft);border-color:transparent;color:var(--blue)}
-.rchip.now{border:2px solid var(--red)}
+.rchip.now{border:2px solid var(--blue)}
 .rchip.sel{background:var(--blue);border-color:var(--blue);color:#FFFFFF;transform:translateY(-2px);box-shadow:0 6px 14px rgba(21,35,45,.18)}
 .rchip.sel .rt{color:#FFFFFF;opacity:.85}
 .rhead{display:flex;align-items:center;gap:8px}
@@ -240,6 +242,30 @@ main{grid-template-columns:minmax(0,1fr)}
 .pod b{font-size:15px;overflow-wrap:anywhere}
 .pod .wl{font-family:var(--display);font-size:20px;font-weight:700;color:var(--blue)}
 .pod small{font-size:12px;color:var(--muted)}
+.pkbar{display:flex;gap:8px;flex-wrap:wrap}
+.chipbtn{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--edge);background:var(--surface);font-weight:700;font-size:15px;color:var(--ink);cursor:pointer}
+.chipbtn.on{background:var(--ink);color:#FFFFFF;border-color:var(--ink)}
+.pkrow{display:flex;align-items:center;border-bottom:1px solid var(--line2)}
+.pkrow:last-child{border-bottom:0}
+.pk{flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:54px;padding:6px 14px;border:0;background:transparent;text-align:left;cursor:pointer;color:var(--muted)}
+.pk .box{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;border:2px solid var(--edge);color:#FFFFFF}
+.pk.on{color:var(--ink);font-weight:700}
+.pk.on .box{background:var(--blue);border-color:var(--blue)}
+.pk .nm{overflow-wrap:anywhere}
+.rm{width:44px;height:44px;margin-right:6px;border:0;border-radius:10px;background:var(--red-soft);color:var(--red);font-size:24px;cursor:pointer;flex:none}
+.timer{display:grid;gap:8px;justify-items:center;background:var(--blue-soft);border-radius:14px;padding:12px}
+.timer .row2{width:100%}
+.timer .tlabel{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue)}
+.timer .tval{font-family:var(--display);font-size:46px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.timer.up{background:var(--red-soft)}
+.timer.up .tlabel,.timer.up .tval{color:var(--red)}
+.welcome{gap:14px}
+.welcome p{margin:0}
+.wlist{margin:0;padding-left:22px;display:grid;gap:6px}
+.wdots{display:flex;gap:6px}
+.wdots i{width:28px;height:6px;border-radius:3px;background:var(--line);display:block}
+.wdots i.on{background:var(--blue)}
+.wdots i.done{background:var(--blue-soft)}
 .games{list-style:none;margin:0;padding:0}
 .games li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
 .games li:last-child{border-bottom:0}
@@ -291,6 +317,8 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--navh) + 16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#FFFFFF;padding:12px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px);z-index:9;text-align:center}
 #toast.show{opacity:1}
+#toast.act{pointer-events:auto}
+#toast button{font:inherit;font-weight:700;color:#9FD3FF;background:none;border:0;padding:4px 6px;margin-left:6px;text-decoration:underline;cursor:pointer}
 @media (prefers-reduced-motion: reduce){#toast,.chev{transition:none}}
 /* ---------- Dink & Drive look (used when the page sets html.dink) ---------- */
 html.dink{--bg:#F3F7F6;--surface:#FFFFFF;--ink:#2E3B3A;--muted:#5B6B69;--line:#E3ECEA;--line2:#EEF3F2;--edge:#C9D8D5;
@@ -433,12 +461,12 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.20-2';
+const APP_VERSION='2026.11.20-3';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
 let cfg=defaultCfg(), sessions={}, sel=null, userPicked=false;
-const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,form:null,confirm:null};
+const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,form:null,confirm:null,pick:{},pickMode:false,editList:false,timer:null,wstep:0};
 let restoreData=null, restoreInfo='';
 
 const seasonsSorted=()=>cfg.seasons.slice().sort((a,b)=>a.startDate<b.startDate?-1:a.startDate>b.startDate?1:0);
@@ -502,7 +530,7 @@ function setSync(t,warn){ const e=$('#sync'); e.textContent=t; e.classList.toggl
 function saveLocal(){ try{ localStorage.setItem(LOCAL,JSON.stringify({cfg,sessions})); }catch(e){} }
 function queueWrite(path,data){
   saveLocal();
-  if(mode!=='db'||readOnly){ if(mode==='local') setSync('Saved on this device'); return; }
+  if(mode!=='db'||readOnly){ if(mode==='local') setSync('Saved on phone'); return; }
   pend[path]=clone(data); clearTimeout(timers[path]); timers[path]=setTimeout(()=>flush(path),500); setSync('Saving…');
 }
 async function flush(path,retried){
@@ -523,8 +551,11 @@ async function flush(path,retried){
 const saveCfg=()=>queueWrite('league/config',cfg);
 const saveSession=()=>{ const s=sess(); queueWrite('sessions/'+s.date,s); };
 
-let toastT;
-function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+let toastT, undoBuf=null;
+function toast(msg,undoable){ const t=$('#toast'); t.innerHTML=esc(msg)+(undoable&&undoBuf?' <button type="button" data-act="undo">Undo</button>':''); t.classList.toggle('act',!!(undoable&&undoBuf)); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>{ t.classList.remove('show','act'); },undoable&&undoBuf?6000:2600); }
+function snap(){ undoBuf={sel, s:sessions[sel]?clone(sessions[sel]):null, cfg:clone(cfg), round:ui.round}; }
+function doUndo(){ if(!undoBuf) return; const u=undoBuf; undoBuf=null; if(u.s) sessions[u.sel]=u.s; else delete sessions[u.sel]; cfg=u.cfg; sel=u.sel; ui.round=u.round;
+  saveCfg(); if(sessions[sel]) saveSession(); else saveLocal(); $('#toast').classList.remove('show','act'); render(); toast('Undone'); }
 
 /* ---------- icons ---------- */
 const IC={
@@ -582,8 +613,8 @@ function courtHTML(s,ri,ci,g,editable,to,target){
 const sitHTML=(s,R)=>R.sits.length?`<p class="sit">Sitting out: <b>${R.sits.map(x=>nmHtml(s,x)).join(', ')}</b></p>`:'';
 function emptyWeek(){
   return `<div class="card empty"><h2 style="font-size:22px">No schedule for this week yet</h2>
-    <p class="muted">${readOnly?'The organizer hasn’t built this week’s rounds yet.':'Add this week’s players and build the rounds in Setup.'}</p>
-    ${readOnly?'':'<button type="button" class="btn" data-goto="setup">Go to Setup</button>'}</div>`;
+    <p class="muted">${readOnly?'The organizer hasn’t built this week’s rounds yet.':'Pick who’s playing this week, then build the rounds.'}</p>
+    ${readOnly?'':'<button type="button" class="btn" data-goto="players">Choose who’s playing</button>'}</div>`;
 }
 
 /* ---------- views ---------- */
@@ -613,10 +644,32 @@ function viewToday(){
       ${R.games.length?toRowHTML(i,R,ed):''}
       ${R.games.map((g,ci)=>courtHTML(s,i,ci,g,ed,maxOf(R),targetOf(R))).join('')||'<p class="mini">Not enough players here for a game.</p>'}
       ${sitHTML(s,R)}
+      ${ed&&isNow&&!done?timerHTML(i):''}
       ${actions}
     </section>
     <div class="railfoot"><span class="note">Swipe the card or tap a round above.</span><button type="button" class="linkrow" data-act="copySched" style="width:auto;border:0;padding:6px 0;color:var(--blue);font-weight:700;font-size:15px">${IC.copy}Copy schedule</button></div>`;
 }
+function fmtT(ms){ const t=Math.max(0,Math.ceil(ms/1000)); return Math.floor(t/60)+':'+pad(t%60); }
+function timerLeft(){ const T=ui.timer; if(!T) return 0; return T.paused!=null?T.paused:T.end-Date.now(); }
+function timerHTML(i){
+  const T=ui.timer&&ui.timer.sel===sel&&ui.timer.round===i?ui.timer:null;
+  if(!T) return `<button type="button" class="btn ghost small" data-act="timerStart" data-r="${i}">${IC.clock}Start ${cfg.per}-minute round timer</button>`;
+  const left=timerLeft(), up=left<=0;
+  return `<div class="timer${up?' up':''}"><span class="tlabel">${up?'Time’s up':T.paused!=null?'Paused':'Time left'}</span><span class="tval" id="tmr">${up?'0:00':fmtT(left)}</span>
+    <div class="row2">${up?'':`<button type="button" class="btn ghost small" data-act="timerPause">${T.paused!=null?'Resume':'Pause'}</button>`}<button type="button" class="btn ghost small" data-act="timerReset"${up?' style="grid-column:1/-1"':''}>${up?'Clear':'Reset'}</button></div></div>`;
+}
+let audioCtx=null, tick=null, wake=null;
+function beep(){ try{ if(!audioCtx) return; [0,0.45,0.9].forEach(t=>{ const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.frequency.value=880; o.connect(g); g.connect(audioCtx.destination);
+  g.gain.setValueAtTime(0.0001,audioCtx.currentTime+t); g.gain.exponentialRampToValueAtTime(0.4,audioCtx.currentTime+t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+t+0.35); o.start(audioCtx.currentTime+t); o.stop(audioCtx.currentTime+t+0.4); }); }catch(e){} }
+function timerStart(i){
+  try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); audioCtx.resume&&audioCtx.resume(); }catch(e){}
+  try{ navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>{ wake=w; }).catch(()=>{}); }catch(e){}
+  ui.timer={sel,round:i,end:Date.now()+cfg.per*60000,paused:null,rang:false}; startTick(); render();
+}
+function timerPause(){ const T=ui.timer; if(!T) return; if(T.paused!=null){ T.end=Date.now()+T.paused; T.paused=null; startTick(); } else { T.paused=T.end-Date.now(); } render(); }
+function startTick(){ clearInterval(tick); tick=setInterval(()=>{ const T=ui.timer; if(!T){ clearInterval(tick); return; } if(T.paused!=null) return;
+  const left=T.end-Date.now(), el=document.getElementById('tmr'); if(el) el.textContent=fmtT(left);
+  if(left<=0&&!T.rang){ T.rang=true; clearInterval(tick); beep(); try{ navigator.vibrate&&navigator.vibrate([300,150,300]); }catch(e){} try{ wake&&wake.release(); }catch(e){} toast(`Time! Round ${T.round+1} is over.`); render(); } },500); }
 function goRound(k,dir){ const s=sess(); const N=s.rounds.length; if(!N) return; k=Math.max(0,Math.min(N-1,k)); const cur= ui.round==null?Math.min(firstOpen(s),N-1):ui.round; if(k===cur) return; ui.slide= dir|| (k>cur?'left':'right'); ui.round=k; render(); centerRail(); }
 function centerRail(){ const r=document.getElementById('rail'); const c=r&&r.querySelector('.sel'); if(c) r.scrollLeft=c.offsetLeft-r.clientWidth/2+c.clientWidth/2; }
 function tally(list){
@@ -694,7 +747,7 @@ function viewStandings(){
   const picker= ui.cols ? `<div class="card colpick"><div class="cardhead"><h2 style="font-size:19px">Columns to show</h2><button type="button" class="btn ghost small" data-act="colsDone">Done</button></div>
       <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
-  const podium= THEME==='dink'&&rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><span class="pr">${t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}–${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
+  const podium= rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><span class="pr">${t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}–${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
   return `${seg}${podium}
     <div class="cardhead"><p class="note" style="flex:1">Tap a column title to see what it means.</p><button type="button" class="btn ghost small" data-act="cols" aria-expanded="${!!ui.cols}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Columns</button></div>
     ${picker}
@@ -710,8 +763,62 @@ function viewStandings(){
       <dl class="keylist"><div><dt>#</dt><dd>Rank. Players are ranked by Win%, then by +/−, then by PF.</dd></div>${prizeOn?`<div><dt>Prize</dt><dd><b>Prize wins.</b> ${esc(PRIZE_HELP)}</dd></div>`:''}${COLS.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
     </details>`;
 }
+function needsWelcome(){ return !readOnly && !cfg.onboarded && !Object.keys(cfg.roster).length && !Object.values(sessions).some(x=>(x.rounds||[]).length); }
+function viewWelcome(){
+  const st=ui.wstep||0, S=season();
+  const dots=`<div class="wdots" aria-hidden="true">${[0,1,2,3].map(k=>`<i class="${k===st?'on':k<st?'done':''}"></i>`).join('')}</div>`;
+  const nav=(next,back)=>`<button type="button" class="btn" data-act="wNext">${next} ${IC.arrow}</button>${back?'<button type="button" class="linkrow" data-act="wBack" style="justify-content:center;border:0;padding:6px;color:var(--blue);font-weight:700">Back</button>':''}`;
+  if(st===0) return `<section class="card welcome">${dots}<h2 style="font-size:28px">Welcome!</h2>
+      <p>Run your doubles round robin in three quick steps. The app pairs partners fairly, rotates sit-outs, keeps scores and standings, and makes reports to share.</p>
+      <ol class="wlist"><li><b>Your session</b> – name and dates</li><li><b>Courts &amp; timing</b></li><li><b>Your players</b></li></ol>
+      ${nav('Get started')}<button type="button" class="linkrow" data-act="wSkip" style="justify-content:center;border:0;padding:6px;color:var(--muted)">Skip, I’ll set it up myself</button></section>`;
+  if(st===1) return `<section class="card welcome">${dots}<span class="note">Step 1 of 3</span><h2 style="font-size:24px">Your session</h2>
+      <div class="field"><label class="label" for="wName">Session name</label><input id="wName" type="text" value="${esc(S.name)}" placeholder="e.g. Winter league"></div>
+      <div class="field"><label class="label" for="wDate">First game day</label><input id="wDate" type="date" value="${S.startDate}"></div>
+      <div class="setrow" style="border:0"><span class="k">Number of weeks</span><button type="button" class="step" data-wk="-1" aria-label="Fewer weeks">−</button><span class="v">${S.weeks}</span><button type="button" class="step plus" data-wk="1" aria-label="More weeks">+</button></div>
+      ${nav('Next',true)}</section>`;
+  if(st===2) return `<section class="card welcome setcard" style="padding:16px">${dots}<span class="note">Step 2 of 3</span><h2 style="font-size:24px">Courts &amp; timing</h2>
+      <div class="setrow"><span class="k" id="wcL">Courts</span><div class="seg solid" role="group" aria-labelledby="wcL"><button type="button" data-c="1" aria-pressed="${cfg.courts===1}">1</button><button type="button" data-c="2" aria-pressed="${cfg.courts===2}">2</button></div></div>
+      <div class="setrow"><label class="k" for="start">Start time</label><input id="start" type="time" value="${cfg.startTime}"></div>
+      <div class="setrow"><span class="k">Play time</span><button type="button" class="step" data-set="session" data-d="-15" aria-label="Less play time">−</button><span class="v">${cfg.session} min</span><button type="button" class="step plus" data-set="session" data-d="15" aria-label="More play time">+</button></div>
+      <div class="setrow"><span class="k">Each round</span><button type="button" class="step" data-set="per" data-d="-1" aria-label="Shorter rounds">−</button><span class="v">${cfg.per} min</span><button type="button" class="step plus" data-set="per" data-d="1" aria-label="Longer rounds">+</button></div>
+      <p class="note">${totalRounds()} rounds per game day.</p>
+      ${nav('Next',true)}</section>`;
+  return `<section class="card welcome">${dots}<span class="note">Step 3 of 3</span><h2 style="font-size:24px">Your players</h2>
+      <div class="field"><label class="label" for="wNames">Type or paste names, one per line</label><textarea id="wNames" spellcheck="false" placeholder="Alex Brown&#10;Beth Green&#10;Carlos Diaz&#10;Dana Moore"></textarea></div>
+      <p class="note"><b id="wCount" style="color:var(--ink)">0 players</b> · You can add more any time on the Players tab.</p>
+      ${nav('Finish',true)}</section>`;
+}
+function welcomeNext(){
+  const st=ui.wstep||0, S=season();
+  if(st===1){ const n=($('#wName').value||'').trim(); if(n) S.name=n; const d=$('#wDate').value; if(d){ S.startDate=d; sel=null; userPicked=false; } saveCfg(); }
+  if(st===3){ const names=parseNames($('#wNames').value); if(names.length<4){ toast('Add at least 4 players to start.'); return; }
+    const ids=names.map(idFor); cfg.onboarded=true; saveCfg(); sel=null; userPicked=false; render(); ui.pick[sel]=ids; ui.tab='players'; render(); window.scrollTo(0,0); toast('All set. Check the list and build your first schedule.'); return; }
+  ui.wstep=st+1; render(); window.scrollTo(0,0);
+}
+function rosterIds(){ const h=cfg.hidden||{}; return Object.keys(cfg.roster).filter(id=>!h[id]).sort((a,b)=>nameOf(a).localeCompare(nameOf(b))); }
+function pickSet(){
+  if(!ui.pick[sel]){ const s=sessions[sel]; let ids=(s&&s.players.length)?s.players.filter(id=>!isSub(s,id)):lastPlayers(sel); if(!ids.length) ids=rosterIds(); ui.pick[sel]=ids.slice(); }
+  return ui.pick[sel];
+}
+function viewPick(){
+  const s=sess(), built=s.rounds.length>0, locked=lockedCount(s), pk=pickSet();
+  const ids=rosterIds(); pk.forEach(id=>{ if(!ids.includes(id)) ids.push(id); });
+  const rows=ids.map(id=>{ const on=pk.includes(id);
+    return `<div class="pkrow"><button type="button" class="pk${on?' on':''}" data-pick="${id}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':''}</span><span class="nm">${esc(nameOf(id))}</span></button>${ui.editList?`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))} from the list">×</button>`:''}</div>`; }).join('');
+  return `<div class="cardhead"><h2 style="font-size:23px">Who’s playing?</h2><span class="note">${esc(fmtDate(sel,{weekday:'short',month:'short',day:'numeric'}))}</span></div>
+    <p class="note">Tap names to include or leave out. <b style="color:var(--ink)">${pk.length} selected.</b></p>
+    <div class="pkbar"><button type="button" class="chipbtn" data-act="pickAll">Select all</button><button type="button" class="chipbtn" data-act="pickNone">Clear</button><button type="button" class="chipbtn${ui.editList?' on':''}" data-act="editList">${ui.editList?'Done editing':'Edit list'}</button></div>
+    ${ids.length?`<div class="plist">${rows}</div>`:'<p class="note">No players yet. Add them below.</p>'}
+    <div class="card" style="gap:8px"><label class="label" for="newPlayer" style="margin:0">Add a player</label><div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="First and last name"><button type="button" class="btn small" data-act="addPlayer">Add</button></div><p class="note">New players are saved to your list for future weeks.</p></div>
+    <p class="note" id="plan">${esc(planText(pk.length))}</p>
+    <button type="button" class="btn" data-act="build">${locked?'Update the remaining rounds':built?'Rebuild this week’s schedule':'Build this week’s schedule'}</button>
+    ${built?`<button type="button" class="linkrow" data-act="pickDone" style="justify-content:center;border:0;padding:6px;color:var(--blue);font-weight:700">Cancel, keep the current schedule</button>`:''}
+    ${locked?(ui.confirm==='reset'?`<div class="confirm"><b>Clear all of this week's rounds and scores?</b><div class="row2"><button type="button" class="btn danger" data-act="resetYes">Clear and rebuild</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Cancel</button></div></div>`:`<button type="button" class="btn danger" data-act="reset">Start this week over</button>`):''}`;
+}
 function viewPlayers(){
   const s=sess();
+  if(!readOnly&&(!s.rounds.length||ui.pickMode)) return viewPick();
   if(!s.rounds.length) return emptyWeek();
   const here=hereIds(s).length;
   const rows=s.players.map(id=>{ const on=!s.out.includes(id);
@@ -726,7 +833,8 @@ function viewPlayers(){
     ${ui.form==='sub'?`<div class="card"><div class="field"><label class="label" for="subFor">Who can't come?</label><select id="subFor"><option value="">Choose a player</option>${hereIds(s).filter(id=>!isSub(s,id)).map(id=>`<option value="${id}">${esc(nameOf(id))}</option>`).join('')}</select></div>
       <div class="field"><label class="label" for="subName">Sub's name</label><input id="subName" type="text" autocomplete="off" placeholder="Name"></div>
       <button type="button" class="btn" data-act="subIn">Swap in the sub</button><p class="note">The sub takes that player's place in every unplayed round. Their scores count for the sub.</p></div>`:''}`;
-  return `<p class="note">${here} playing today. ${readOnly?'':'Tap Here or Out to change. Unplayed rounds update right away.'}</p>
+  return `<div class="cardhead"><h2 style="font-size:23px">Who’s here</h2>${readOnly?'':'<button type="button" class="btn ghost small" data-act="pickMode">Change players</button>'}</div>
+    <p class="note">${here} playing today. ${readOnly?'':'Tap Here or Out to change. Unplayed rounds update right away.'}</p>
     <div class="plist">${rows}</div>${forms}`;
 }
 function parseNames(v){
@@ -753,7 +861,6 @@ function viewSetup(){
   const opts=seasonsSorted().slice().reverse().map(x=>`<option value="${x.id}"${x.id===S.id?' selected':''}>${esc(x.name)} (${esc(fmtDate(x.startDate,{month:'short',day:'numeric'}))} – ${esc(fmtDate(seasonEnd(x),{month:'short',day:'numeric'}))})</option>`).join('');
   const weeks=dates.map(d=>{ const x=sessions[d]; const st=x&&x.rounds&&x.rounds.length; const n=weekNo(d);
     return `<button type="button" class="wk${st?' done':''}" data-date="${d}" aria-pressed="${d===sel}"><b>${n?'Wk '+n:'Extra'}</b><span>${esc(fmtDate(d,{month:'short',day:'numeric'}))}</span></button>`; }).join('');
-  const names=namesText(), n=parseNames(names).length;
   const delOK=!ro&&cfg.seasons.length>1&&!seasonWeeks().some(x=>(x.rounds||[]).length);
   const dis=ro?' disabled':'';
   return `
@@ -768,13 +875,9 @@ function viewSetup(){
       ${delOK?(ui.confirm==='delSeason'?`<div class="confirm"><b>Delete ${esc(S.name)}?</b><div class="row2"><button type="button" class="btn danger" data-act="delSeasonYes">Delete</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Keep it</button></div></div>`:`<button type="button" class="btn danger" data-act="delSeason">Delete this empty session</button>`):''}
     </section>
 
-    <section class="card">
-      <h2 style="font-size:20px">Players for ${esc(fmtDate(sel,{month:'short',day:'numeric'}))}</h2>
-      <div class="field"><label class="label" for="names">One name per line</label><textarea id="names" spellcheck="false" placeholder="Alex&#10;Beth&#10;Carlos&#10;Dana"${dis}>${esc(names)}</textarea>
-      <p class="note" style="margin-top:6px">Names carry over from last week. Use the same spelling every week so totals add up.</p></div>
-      ${has&&!ro?`<button type="button" class="linkrow" data-goto="players" style="background:var(--blue-soft);border-color:transparent"><span style="flex:1"><b>Check in, add or sub players</b><br><span class="muted" style="font-size:16px">Here/Out, late arrivals and subs, on the Players tab</span></span><span class="go">Open</span>${IC.go}</button>`:''}
-    </section>
+    <button type="button" class="linkrow" data-goto="players" style="background:var(--blue-soft);border-color:transparent"><span style="flex:1"><b>This week’s players</b><br><span class="muted" style="font-size:16px">Choose who’s playing and build the rounds on the Players tab</span></span><span class="go">Open</span>${IC.go}</button>
 
+    <h2 style="font-size:20px;margin-top:4px">Courts &amp; timing</h2>
     <section class="card setcard">
       <div class="setrow"><span class="k" id="courtsL">Courts</span><div class="seg solid" role="group" aria-labelledby="courtsL"><button type="button" data-c="1" aria-pressed="${cfg.courts===1}"${dis}>1</button><button type="button" data-c="2" aria-pressed="${cfg.courts===2}"${dis}>2</button></div></div>
       <div class="setrow"><label class="k" for="start">Start time</label><input id="start" type="time" value="${cfg.startTime}"${dis}></div>
@@ -782,9 +885,6 @@ function viewSetup(){
       <div class="setrow"><span class="k">Each round</span><button type="button" class="step" data-set="per" data-d="-1" aria-label="Shorter rounds"${dis}>−</button><span class="v">${cfg.per} min</span><button type="button" class="step plus" data-set="per" data-d="1" aria-label="Longer rounds"${dis}>+</button></div>
     </section>
 
-    <p class="note" id="plan">${esc(planText(n))}</p>
-    ${ro?'':`<button type="button" class="btn" data-act="build">${locked?'Update the remaining rounds':has?'Rebuild this week’s schedule':'Build this week’s schedule'}</button>`}
-    ${!ro&&locked?(ui.confirm==='reset'?`<div class="confirm"><b>Clear all of this week's rounds and scores?</b><div class="row2"><button type="button" class="btn danger" data-act="resetYes">Clear and rebuild</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Cancel</button></div></div>`:`<button type="button" class="btn danger" data-act="reset">Start this week over</button>`):''}
 
     ${mode==='local'&&/^https?:$/.test(location.protocol)?`<section class="card"><h2 style="font-size:20px">App look</h2><p class="note">Both looks use the same saved data.</p>
       <div class="lookswitch">
@@ -971,11 +1071,11 @@ function render(){
   $('#dayH').textContent=fmtDate(sel,{weekday:'short',month:'short',day:'numeric'});
   $('#prevWk').disabled=i<=0; $('#nextWk').disabled=i<0||i>=dates.length-1;
   document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.tab===ui.tab) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
-  const v={today:viewToday,standings:viewStandings,players:viewPlayers,setup:viewSetup}[ui.tab]||viewToday;
+  const v= needsWelcome() ? viewWelcome : ({today:viewToday,standings:viewStandings,players:viewPlayers,setup:viewSetup}[ui.tab]||viewToday);
   $('#view').innerHTML=v()+`<p class="ver">Version ${APP_VERSION}${updateReady?' · <button type="button" data-act="update">New version available. Tap to update</button>':''}</p>`;
   $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
   if(ui.tab==='today') requestAnimationFrame(centerRail);
-  if(mode==='local') setSync('Saved on this device');
+  if(mode==='local') setSync('Saved on phone');
   else if(readOnly) setSync('View only');
 }
 
@@ -1030,7 +1130,7 @@ function subIn(){
   const ex=Object.entries(cfg.roster).find(([,v])=>v.toLowerCase()===n.toLowerCase());
   if(ex&&ex[0]===outId){ toast('The sub needs a different name.'); return; }
   if(ex&&hereIds(s).includes(ex[0])){ toast(`${n} is already playing today.`); return; }
-  const id=idFor(n), f=lockedCount(s);
+  snap(); const id=idFor(n), f=lockedCount(s);
   if(!s.players.includes(id)) s.players.push(id);
   s.out=s.out.filter(x=>x!==id); if(!s.out.includes(outId)) s.out.push(outId);
   s.subs=s.subs||{}; s.subs[id]=outId;
@@ -1038,11 +1138,11 @@ function subIn(){
     for(const g of R.games){ g.a=g.a.map(x=>x===outId?id:x); g.b=g.b.map(x=>x===outId?id:x); }
     R.sits=R.sits.map(x=>x===outId?id:x); }
   ui.form=null; delete ui.draft[sel]; saveCfg(); saveSession(); render();
-  toast(`${n} subs for ${nameOf(outId)}${f<s.rounds.length?` from Round ${f+1}`:''}`);
+  toast(`${n} subs for ${nameOf(outId)}${f<s.rounds.length?` from Round ${f+1}`:''}`,true);
 }
 function addLate(){
   const n=($('#late').value||'').trim().replace(/\s+/g,' '); if(!n){ toast('Enter a name.'); return; }
-  const s=sess(), id=idFor(n); if(!s.players.includes(id)) s.players.push(id); s.out=s.out.filter(x=>x!==id);
+  snap(); const s=sess(), id=idFor(n); if(!s.players.includes(id)) s.players.push(id); s.out=s.out.filter(x=>x!==id);
   ui.form=null; delete ui.draft[sel]; saveCfg();
   const {f,total}=rebuild(); toast(`${n} added${f<total?`. Rounds ${f+1}–${total} updated`:''}`);
 }
@@ -1061,7 +1161,7 @@ document.addEventListener('click',e=>{
   const d=t.dataset;
   if(d.tab){ goTab(d.tab); return; }
   if(d.goto){ goTab(d.goto); return; }
-  if(t.id==='prevWk'||t.id==='nextWk'){ const ds=seasonDates(), i=ds.indexOf(sel), j=i+(t.id==='prevWk'?-1:1); if(ds[j]){ sel=ds[j]; userPicked=true; ui.open=null; ui.round=null; ui.player=null; ui.confirm=null; ui.form=null; render(); } return; }
+  if(t.id==='prevWk'||t.id==='nextWk'){ const ds=seasonDates(), i=ds.indexOf(sel), j=i+(t.id==='prevWk'?-1:1); if(ds[j]){ sel=ds[j]; userPicked=true; ui.open=null; ui.round=null; ui.pickMode=false; ui.player=null; ui.confirm=null; ui.form=null; render(); } return; }
   if(d.step){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const cur=g[d.s]==null?0:g[d.s];
     const nv=cur+(+d.step), k=d.s, o=k==='sa'?'sb':'sa', T=targetOf(R), W=winnerOf(g,T);
     if(nv<0) return;
@@ -1071,6 +1171,8 @@ document.addEventListener('click',e=>{
       else { toast(`Highest score allowed is ${maxOf(R)}.`); return; }
     }
     setScore(+d.r,+d.g,k,nv); render(); return; }
+  if(d.pick){ const pk=pickSet(), i=pk.indexOf(d.pick); if(i>=0) pk.splice(i,1); else pk.push(d.pick); render(); return; }
+  if(d.hide){ cfg.hidden=cfg.hidden||{}; cfg.hidden[d.hide]=true; const pk=pickSet(), i=pk.indexOf(d.hide); if(i>=0) pk.splice(i,1); saveCfg(); render(); toast(`${nameOf(d.hide)} removed from the list`); return; }
   if(d.rnd!=null){ goRound(+d.rnd); return; }
   if(d.rstep){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(+d.rstep), +d.rstep>0?'left':'right'); return; }
   if(d.quick!=null){ setScore(+d.r,+d.g,d.s,+d.quick); render(); return; }
@@ -1087,11 +1189,11 @@ document.addEventListener('click',e=>{
   if(d.help){ ui.colHelp= ui.colHelp===d.help?null:d.help; render(); return; }
   if(d.wb2!=null){ const s=sess(), R=s.rounds[+d.wb2]; if(!R) return; R.wb2=!R.wb2; saveSession(); render(); toast(`Win by 2 is ${R.wb2?'on':'off'} for Round ${+d.wb2+1}.`); return; }
   if(d.acc!=null){ const i=+d.acc, s=sess(), cur=firstOpen(s), open=ui.open==null?Math.min(cur,s.rounds.length-1):ui.open; ui.open= open===i?-1:i; render(); return; }
-  if(d.done!=null){ const s=sess(), i=+d.done; if(s.rounds[i].done){ for(let j=i;j<s.rounds.length;j++) s.rounds[j].done=false; } else { for(let j=0;j<=i;j++) s.rounds[j].done=true; } saveSession(); render(); return; }
+  if(d.done!=null){ snap(); const s=sess(), i=+d.done; if(s.rounds[i].done){ for(let j=i;j<s.rounds.length;j++) s.rounds[j].done=false; } else { for(let j=0;j<=i;j++) s.rounds[j].done=true; } saveSession(); render(); return; }
   if(d.scope){ ui.scope=d.scope; render(); return; }
   if(d.player){ ui.player=d.player; render(); window.scrollTo(0,0); return; }
-  if(d.id&&t.classList.contains('toggle')){ const s=sess(), id=d.id; if(s.out.includes(id)) s.out=s.out.filter(x=>x!==id); else s.out.push(id);
-    const here=!s.out.includes(id), {f,total}=rebuild(); toast(`${nameOf(id)} ${here?'is in':'is out'}${f<total?`. Rounds ${f+1}–${total} updated`:''}`); return; }
+  if(d.id&&t.classList.contains('toggle')){ snap(); const s=sess(), id=d.id; if(s.out.includes(id)) s.out=s.out.filter(x=>x!==id); else s.out.push(id);
+    const here=!s.out.includes(id), {f,total}=rebuild(); toast(`${nameOf(id)} ${here?'is in':'is out'}${f<total?`. Rounds ${f+1}–${total} updated`:''}`,true); return; }
   if(d.form){ ui.form= ui.form===d.form?null:d.form; render(); const f=$(ui.form==='late'?'#late':'#subFor'); if(ui.form&&f) f.focus(); return; }
   if(d.date){ sel=d.date; userPicked=true; ui.open=null; render(); return; }
   if(d.c){ cfg.courts=+d.c; saveCfg(); render(); return; }
@@ -1099,9 +1201,9 @@ document.addEventListener('click',e=>{
   if(d.wk){ const S=season(); S.weeks=Math.max(1,Math.min(52,(S.weeks|0)+(+d.wk))); saveCfg(); render(); return; }
   switch(d.act){
     case 'advance': { const s=sess(), R=s.rounds[+d.r]; if(!R.games.every(scored)){ toast('Enter both scores for every court first.'); return; }
-      R.done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail();
-      const nx=firstOpen(s); toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.'); return; }
-    case 'skip': { const s=sess(); s.rounds[+d.r].done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail(); return; }
+      snap(); R.done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail();
+      const nx=firstOpen(s); toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.',true); return; }
+    case 'skip': { const s=sess(); snap(); s.rounds[+d.r].done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail(); return; }
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
     case 'share': shareResults(); return;
     case 'history': ui.sub='history'; ui.player=null; render(); window.scrollTo(0,0); return;
@@ -1120,13 +1222,27 @@ document.addEventListener('click',e=>{
     case 'addLate': addLate(); return;
     case 'subIn': subIn(); return;
     case 'build': {
-      const names=parseNames($('#names').value); if(names.length<4){ toast('Add at least 4 players.'); return; }
-      const s=sess(), keepSubs=s.subs||{}, ids=names.map(idFor);
+      const ids=pickSet().slice(); if(ids.length<4){ toast('Pick at least 4 players.'); return; }
+      const s=sess(), keepSubs=s.subs||{}; snap();
       s.players=ids; s.out=s.out.filter(id=>ids.includes(id)); s.subs=Object.fromEntries(Object.entries(keepSubs).filter(([k])=>ids.includes(k)));
       s.seasonId=season().id; delete ui.draft[sel]; saveCfg();
-      const {f,total}=rebuild(); toast(f>0?`Rounds ${f+1}–${total} updated`:'Schedule built'); setTimeout(()=>goTab('today'),600); return; }
+      ui.pickMode=false; const {f,total}=rebuild(); toast(f>0?`Rounds ${f+1}–${total} updated`:'Schedule built',true); setTimeout(()=>goTab('today'),600); return; }
+    case 'pickMode': ui.pickMode=true; ui.pick[sel]=null; render(); window.scrollTo(0,0); return;
+    case 'pickDone': ui.pickMode=false; ui.pick[sel]=null; render(); return;
+    case 'pickAll': ui.pick[sel]=rosterIds(); render(); return;
+    case 'pickNone': ui.pick[sel]=[]; render(); return;
+    case 'editList': ui.editList=!ui.editList; render(); return;
+    case 'addPlayer': { const n=($('#newPlayer').value||'').trim().replace(/\s+/g,' '); if(!n){ toast('Type a name first.'); return; }
+      const id=idFor(n); if(cfg.hidden) delete cfg.hidden[id]; const pk=pickSet(); if(!pk.includes(id)) pk.push(id); saveCfg(); render(); toast(`${n} added`); const f=$('#newPlayer'); if(f) f.focus(); return; }
+    case 'undo': doUndo(); return;
+    case 'timerStart': timerStart(+d.r); return;
+    case 'timerPause': timerPause(); return;
+    case 'timerReset': ui.timer=null; render(); return;
+    case 'wNext': welcomeNext(); return;
+    case 'wBack': ui.wstep=Math.max(0,(ui.wstep||0)-1); render(); return;
+    case 'wSkip': cfg.onboarded=true; saveCfg(); render(); return;
     case 'reset': ui.confirm='reset'; render(); return;
-    case 'resetYes': ui.confirm=null; sess().rounds=[]; rebuild(); toast('This week was rebuilt from scratch'); return;
+    case 'resetYes': ui.confirm=null; snap(); sess().rounds=[]; ui.pickMode=false; rebuild(); toast('This week was rebuilt from scratch',true); return;
     case 'cancelConfirm': ui.confirm=null; render(); return;
     case 'newSeason': { const L=seasonsSorted(), last=L[L.length-1];
       let start=last?addDays(seasonEnd(last),7):todayISO(); if(start<todayISO()) start=todayISO();
@@ -1142,7 +1258,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{
   const t=e.target;
-  if(t.id==='names'){ ui.draft[sel]=t.value; const p=$('#plan'); if(p) p.textContent=planText(parseNames(t.value).length); return; }
+  if(t.id==='wNames'){ const c=$('#wCount'); if(c){ const n=parseNames(t.value).length; c.textContent=n+' player'+(n===1?'':'s'); } return; }
 });
 document.addEventListener('change',e=>{
   const t=e.target;
@@ -1163,6 +1279,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter') return;
   if(e.target.id==='late'){ e.preventDefault(); addLate(); }
+  else if(e.target.id==='newPlayer'){ e.preventDefault(); const b=document.querySelector('[data-act="addPlayer"]'); if(b) b.click(); }
   else if(e.target.id==='subName'){ e.preventDefault(); subIn(); }
   else if(e.target.classList&&e.target.classList.contains('score')){ e.preventDefault(); e.target.blur(); }
 });
