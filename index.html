@@ -221,6 +221,9 @@ main{grid-template-columns:minmax(0,1fr)}
 .rhead{display:flex;align-items:center;gap:8px}
 .rtitle{flex:1;min-width:0;display:grid;justify-items:center;gap:4px;text-align:center}
 .rtitle h2{font-size:22px;font-weight:600}
+.rndedit{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rndedit .btn{white-space:nowrap}
+.finished>.btn{margin-top:8px}
 .railfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:-4px}
 .card.finished{background:var(--blue-soft);border-color:transparent;gap:10px}
 .roundcard.slide-left{animation:slideL .22s ease-out}
@@ -526,7 +529,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-3';
+const APP_VERSION='2026.11.21-4';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
@@ -690,7 +693,7 @@ function viewToday(){
   const R=s.rounds[i], ed=!readOnly, isNow=i===cur, done=R.done;
   const rail=s.rounds.map((r,k)=>{ const st=r.done?'done':k===cur?'now':'later';
     return `<button type="button" class="rchip ${st}${k===i?' sel':''}" data-rnd="${k}" aria-label="Round ${k+1}, ${r.done?'final':k===cur?'up now':'upcoming'}"${k===i?' aria-current="true"':''}><span class="rn">${r.done?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>':k+1}</span><span class="rt">${clock(k).replace(/ [AP]M$/,'')}</span></button>`; }).join('');
-  const finished= cur>=N ? `<div class="card finished"><b>All ${N} rounds are finished.</b><div class="row2"><button type="button" class="btn small" data-goto="standings">See standings</button><button type="button" class="btn ghost small" data-act="export">${IC.share}Save or share</button></div></div>` : '';
+  const finished= cur>=N ? `<div class="card finished"><b>All ${N} rounds are finished.</b>${ed?`<button type="button" class="btn ghost small" data-act="addRound">${IC.plus}Play one more round</button>`:''}<div class="row2"><button type="button" class="btn small" data-goto="standings">See standings</button><button type="button" class="btn ghost small" data-act="export">${IC.share}Save or share</button></div></div>` : '';
   const pill= done?'<span class="pill final">Final</span>':isNow?`<span class="pill now">Up now · ${clock(i)}</span>`:`<span class="pill later">Starts ${clock(i)}</span>`;
   const nextLbl= i+1<N ? `Save &amp; go to Round ${i+2}` : 'Save &amp; finish';
   const actions= !ed ? '' : done
@@ -712,6 +715,8 @@ function viewToday(){
       ${ed&&isNow&&!done?timerHTML(i):''}
       ${actions}
     </section>
+    ${ed?(()=>{ const L=s.rounds[N-1], canRm=N>1&&!hasScores(L);
+      return `<div class="rndedit"><button type="button" class="btn ghost small" data-act="addRound">${IC.plus}Add a round</button><button type="button" class="btn ghost small" data-act="rmRound"${canRm?'':' disabled'} aria-label="Remove Round ${N}">− Remove Round ${N}</button></div>${N>1&&!canRm?'<p class="note" style="margin-top:-6px">Only an unscored last round can be removed.</p>':''}`; })():''}
     <div class="railfoot"><span class="note">Swipe the card or tap a round above.</span><button type="button" class="linkrow" data-act="copySched" style="width:auto;border:0;padding:6px 0;color:var(--blue);font-weight:700;font-size:15px">${IC.copy}Copy schedule</button></div>`;
 }
 function fmtT(ms){ const t=Math.max(0,Math.ceil(ms/1000)); return Math.floor(t/60)+':'+pad(t%60); }
@@ -1218,8 +1223,22 @@ async function shareResults(){
 }
 
 /* ---------- actions ---------- */
+const hasScores=R=>R.games.some(g=>g.sa!=null||g.sb!=null);
+function addRound(){
+  const s=sess(), N=s.rounds.length, ids=hereIds(s);
+  if(ids.length<4){ toast('Need at least 4 players for another round.'); return; }
+  snap();
+  const r=schedule(s.rounds.map(toEng),N,N+1,ids,cfg.courts,250,priorPairs(sel))[0];
+  s.rounds.push({games:r.games.map(g=>({a:g[0],b:g[1],sa:null,sb:null})),sits:r.sits,done:false});
+  s.extra=(s.extra||0)+1; ui.round=N; ui.slide='left'; saveSession(); render(); centerRail(); toast(`Round ${N+1} added.`,true);
+}
+function rmRound(){
+  const s=sess(), N=s.rounds.length, L=s.rounds[N-1];
+  if(N<2||hasScores(L)){ toast('Only an unscored last round can be removed.'); return; }
+  snap(); s.rounds.pop(); s.extra=(s.extra||0)-1; ui.round=null; saveSession(); render(); centerRail(); toast(`Round ${N} removed.`,true);
+}
 function rebuild(){
-  const s=sess(), f=lockedCount(s), keep=s.rounds.slice(0,f), total=Math.max(totalRounds(),f), ids=hereIds(s);
+  const s=sess(), f=lockedCount(s), keep=s.rounds.slice(0,f), total=Math.max(1,totalRounds()+(s.extra||0),f), ids=hereIds(s);
   const tail= ids.length>=4 ? schedule(keep.map(toEng),f,total,ids,cfg.courts,350,priorPairs(sel)).map(r=>({games:r.games.map(g=>({a:g[0],b:g[1],sa:null,sb:null})),sits:r.sits,done:false})) : [];
   for(let i=0;i<f;i++) keep[i].done=keep[i].done||keep[i].games.every(scored);
   s.rounds=keep.concat(tail); ui.open=null; saveSession(); render();
@@ -1312,6 +1331,8 @@ document.addEventListener('click',e=>{
     case 'advance': { const s=sess(), R=s.rounds[+d.r]; if(!R.games.every(scored)){ toast('Enter both scores for every court first.'); return; }
       snap(); R.done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail();
       const nx=firstOpen(s); toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.',true); return; }
+    case 'addRound': addRound(); return;
+    case 'rmRound': rmRound(); return;
     case 'skip': { const s=sess(); snap(); s.rounds[+d.r].done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail(); return; }
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
     case 'share': shareResults(); return;
