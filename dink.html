@@ -359,7 +359,7 @@ html.dink{--bg2:#DCEDE9;--btn:linear-gradient(180deg,#3F8A80 0%,#357A71 100%)}
 html.dink .top{background:linear-gradient(110deg,#2C6A62 0%,#3D8279 55%,#4C948A 100%)}
 html.dink body::before{background:#2C6A62}
 /* splash */
-.splash{position:fixed;inset:0;z-index:50;display:grid;place-items:center;cursor:pointer;color:#FFFFFF;transition:opacity .35s ease;
+.splash{position:fixed;inset:0;z-index:50;display:grid;place-items:center;cursor:pointer;color:#FFFFFF;transition:opacity .7s ease;
   background:radial-gradient(120% 70% at 100% 100%,rgba(255,255,255,.22) 0%,rgba(255,255,255,0) 55%),linear-gradient(125deg,#071E3D 0%,#0F3F80 40%,#1559B0 70%,#5B9BE8 100%)}
 html.dink .splash{background:radial-gradient(120% 70% at 100% 100%,rgba(255,255,255,.25) 0%,rgba(255,255,255,0) 55%),linear-gradient(125deg,#0E2E2B 0%,#1F5650 40%,#3D8279 70%,#8FD0C5 100%)}
 .splash.out{opacity:0;pointer-events:none}
@@ -527,7 +527,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-2';
+const APP_VERSION='2026.11.21-3';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
@@ -1412,9 +1412,9 @@ function startLocal(){
   try{ const v=JSON.parse(localStorage.getItem(LOCAL)); if(v&&v.cfg){ cfg=migrate(v.cfg); sessions=v.sessions||{}; } }catch(e){}
   render();
 }
-function hideSplash(){ const sp=document.getElementById('splash'); if(!sp||sp.classList.contains('out')) return; sp.classList.add('out'); setTimeout(()=>sp.remove(),400); }
+function hideSplash(){ const sp=document.getElementById('splash'); if(!sp||sp.classList.contains('out')) return; sp.classList.add('out'); setTimeout(()=>sp.remove(),800); }
 (()=>{ const sp=document.getElementById('splash'); if(!sp) return; if(THEME==='dink') document.getElementById('spName').textContent='Dink & Drive';
-  sp.addEventListener('click',hideSplash); sp.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') hideSplash(); }); setTimeout(hideSplash,1600); })();
+  sp.addEventListener('click',hideSplash); sp.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') hideSplash(); }); setTimeout(hideSplash,4000); })();
 (async()=>{
   sel=pickDefault(); render();
   if(!(window.claude&&window.claude.use)){ startLocal(); return; }
