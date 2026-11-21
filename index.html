@@ -532,7 +532,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-5';
+const APP_VERSION='2026.11.21-6';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
@@ -771,8 +771,8 @@ function tally(list){
 }
 const COLS=[
   {id:'gp',  abbr:'GP',   name:'Games played', help:'Number of scored games the player played.', def:1, val:t=>t.g},
-  {id:'wl',  abbr:'W–L',  name:'Wins–Losses', help:'Games won and games lost.', def:1, val:t=>`${fmtW(t.w)}–${t.l}`},
-  {id:'pct', abbr:'Win%', name:'Win percentage', help:'Games won divided by games played. 1.000 means every game was won. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
+  {id:'wl',  abbr:'W/L',  name:'Wins / Losses', help:'Games won / games lost. 7/1 means 7 wins and 1 loss.', def:1, val:t=>`${fmtW(t.w)}/${t.l}`},
+  {id:'pct', abbr:'Win%', name:'Win percentage', help:'Percent of games won. 100 means every game was won; 87.5 means 7 of 8. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
   {id:'pf',  abbr:'PF',   name:'Points for', help:'Total points scored by the player’s teams.', def:1, val:t=>t.pf},
   {id:'pa',  abbr:'PA',   name:'Points against', help:'Total points scored against the player’s teams.', def:1, val:t=>t.pa},
   {id:'diff',abbr:'+/−',  name:'Point difference', help:'Points for minus points against. Breaks ties in Win%.', def:1, val:t=>sgn(t.diff)},
@@ -789,7 +789,7 @@ const fmtW=w=>Number.isInteger(w)?String(w):w.toFixed(1);
 /* Table names: long names become "First L." unless that would make two players look the same. */
 function shortNames(ids){ const out={}; ids.forEach(id=>{ out[id]=shortName(id); }); return out; }
 const scopeList=()=>ui.scope==='day'?[sessions[sel]].filter(Boolean):seasonWeeks();
-const pctTxt=p=>(p===1?'1.000':p.toFixed(3).replace(/^0/,''));
+const pctTxt=p=>String(Math.round(p*1000)/10);
 const sgn=n=>n>0?'+'+n:n<0?'−'+Math.abs(n):'0';
 function playerGames(pid,list){
   const out=[];
@@ -820,7 +820,7 @@ function viewStandings(){
   const picker= ui.cols ? `<div class="card colpick"><div class="cardhead"><h2 style="font-size:19px">Columns to show</h2><button type="button" class="btn ghost small" data-act="colsDone">Done</button></div>
       <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
-  const podium= rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><canvas class="pball" data-metal="${['gold','silver','bronze'][t.rank-1]||'bronze'}" data-sz="${[58,70,52][k]}" role="img" aria-label="${['Gold','Silver','Bronze'][t.rank-1]||'Bronze'} pickleball"></canvas><span class="prk">${['1st','2nd','3rd'][t.rank-1]||t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}–${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
+  const podium= rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><canvas class="pball" data-metal="${['gold','silver','bronze'][t.rank-1]||'bronze'}" data-sz="${[58,70,52][k]}" role="img" aria-label="${['Gold','Silver','Bronze'][t.rank-1]||'Bronze'} pickleball"></canvas><span class="prk">${['1st','2nd','3rd'][t.rank-1]||t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}/${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
   return `${seg}${podium}
     <p class="note">Tap a column title to show or hide that column. The Key below explains each one.</p>
     ${prizeBar}${prizeCard}
@@ -1028,7 +1028,7 @@ function viewHistory(){
       <button type="button" class="acchead hs" data-hopen="${S.id}" aria-expanded="${isOpen}">
         <span class="hsmain"><span class="hsname">${esc(S.name)} <span class="pill ${S.id===cur.id?'now':finished?'final':'later'}">${S.id===cur.id?'Current':finished?'Finished':'Upcoming'}</span></span>
         <small>${esc(fmtDate(S.startDate,{month:'short',day:'numeric'}))} – ${esc(fmtDate(seasonEnd(S),{month:'short',day:'numeric',year:'numeric'}))} · ${played} of ${S.weeks} weeks played</small>
-        <small>${lead?`${finished?'Champion':'Leading'}: <b style="color:var(--ink)">${esc(shortName(lead.id))} (${lead.w}–${lead.l})</b>`:'No scores yet'}</small></span>${IC.chev}</button>
+        <small>${lead?`${finished?'Champion':'Leading'}: <b style="color:var(--ink)">${esc(shortName(lead.id))} (${lead.w}/${lead.l})</b>`:'No scores yet'}</small></span>${IC.chev}</button>
       ${isOpen?`<div class="accbody">
         <div class="kpis"><div><b>${played}</b><small>game days</small></div><div><b>${games}</b><small>games</small></div><div><b>${players.size}</b><small>players</small></div></div>
         <button type="button" class="btn ghost small" data-hsum="${S.id}">Session summary &amp; standings</button>
@@ -1074,7 +1074,7 @@ function gameRows(list){
 }
 const GAME_HEAD=['Date','Session','Week','Round','Court','Playing to','Team 1 player A','Team 1 player B','Team 1 score','Team 2 score','Team 2 player A','Team 2 player B','Winner'];
 function standRows(list,withPrize){
-  return ranked(tally(list)).map(t=>{ const r=[t.rank,nameOf(t.id),t.g,t.w,t.l,t.g?+(t.pct.toFixed(3)):'',t.pf,t.pa,t.diff,t.g?+(t.avg.toFixed(1)):'',t.sits,t.weeks]; if(withPrize) r.splice(2,0,t.prize); return r; });
+  return ranked(tally(list)).map(t=>{ const r=[t.rank,nameOf(t.id),t.g,t.w,t.l,t.g?Math.round(t.pct*1000)/10:'',t.pf,t.pa,t.diff,t.g?+(t.avg.toFixed(1)):'',t.sits,t.weeks]; if(withPrize) r.splice(2,0,t.prize); return r; });
 }
 const standHead=withPrize=>{ const h=['Rank','Player','GP','W','L','Win%','PF','PA','+/-','Avg margin','Sit-outs','Weeks']; if(withPrize) h.splice(2,0,'Prize wins'); return h; };
 function dayRows(list){
@@ -1132,7 +1132,7 @@ async function buildFile(scope,fmt){
       styles:{font:'helvetica',fontSize:9,cellPadding:4,textColor:INK,lineColor:[220,227,225],lineWidth:0.5},
       headStyles:{fillColor:SOFT,textColor:INK,fontStyle:'bold'},alternateRowStyles:{fillColor:[247,250,253]}},opts||{})); y=doc.lastAutoTable.finalY+22; };
   const sh=standHead(prize).filter(h=>!['Avg margin','Weeks'].includes(h) || scope!=='day');
-  const sr=standRows(list,prize).map(r=>{ const full=standHead(prize); return full.map((h,i)=>[h,r[i]]).filter(([h])=>sh.includes(h)).map(([h,v])=>h==='Win%'&&v!==''?Number(v).toFixed(3).replace(/^0/,''):h==='+/-'&&v>0?'+'+v:v); });
+  const sr=standRows(list,prize).map(r=>{ const full=standHead(prize); return full.map((h,i)=>[h,r[i]]).filter(([h])=>sh.includes(h)).map(([h,v])=>h==='Win%'&&v!==''?String(v):h==='+/-'&&v>0?'+'+v:v); });
   H('Standings'); tbl(sh,sr,{columnStyles:{1:{fontStyle:'bold'}},didParseCell:d=>{ if(d.section==='body'&&+d.row.raw[0]<=3) d.cell.styles.fillColor=[251,244,244]; }});
   if(scope!=='day'){ H('Game days'); tbl(DAY_HEAD,dayRows(list)); }
   H('Games');
@@ -1248,7 +1248,7 @@ function schedText(withScores){
   return L;
 }
 function standText(title,list){ const rows=ranked(tally(list)); if(!rows.length) return [];
-  return [title,...rows.map(t=>`${t.rank}. ${nameOf(t.id)}  ${t.w}–${t.l}  (${pctTxt(t.pct)}, ${sgn(t.diff)})`),'']; }
+  return [title,...rows.map(t=>`${t.rank}. ${nameOf(t.id)}  ${t.w}/${t.l}  (${pctTxt(t.pct)}%, ${sgn(t.diff)})`),'']; }
 function prizeText(){ const s=sessions[sel]; if(!s||!s.halfBye) return [];
   const rows=tally([s]); if(!rows.length) return []; const top=Math.max(...rows.map(t=>t.prize)); const w=rows.filter(t=>t.prize===top);
   return [`Most wins today, counting each sit-out as ½ win: ${w.map(t=>nameOf(t.id)).join(', ')} (${fmtW(top)})`,'']; }
