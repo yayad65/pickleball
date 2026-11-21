@@ -241,6 +241,9 @@ main{grid-template-columns:minmax(0,1fr)}
 .pod{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 6px;display:grid;justify-items:center;gap:3px;text-align:center;cursor:pointer;color:var(--ink)}
 .pod .pr{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;background:var(--line2)}
 .pod.p1 .pr{background:var(--blue);color:#FFFFFF}
+.pball{display:block;margin:-4px auto 0}
+.prk{font-family:var(--display);font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pod.p1 .prk{color:#A87A0E}
 .pod b{font-size:15px;overflow-wrap:anywhere}
 .pod .wl{font-family:var(--display);font-size:20px;font-weight:700;color:var(--blue)}
 .pod small{font-size:12px;color:var(--muted)}
@@ -529,7 +532,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-4';
+const APP_VERSION='2026.11.21-5';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
@@ -817,7 +820,7 @@ function viewStandings(){
   const picker= ui.cols ? `<div class="card colpick"><div class="cardhead"><h2 style="font-size:19px">Columns to show</h2><button type="button" class="btn ghost small" data-act="colsDone">Done</button></div>
       <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
-  const podium= rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><span class="pr">${t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}–${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
+  const podium= rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><canvas class="pball" data-metal="${['gold','silver','bronze'][t.rank-1]||'bronze'}" data-sz="${[58,70,52][k]}" role="img" aria-label="${['Gold','Silver','Bronze'][t.rank-1]||'Bronze'} pickleball"></canvas><span class="prk">${['1st','2nd','3rd'][t.rank-1]||t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}–${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
   return `${seg}${podium}
     <p class="note">Tap a column title to show or hide that column. The Key below explains each one.</p>
     ${prizeBar}${prizeCard}
@@ -1170,6 +1173,51 @@ document.addEventListener('touchend',e=>{ if(swX==null) return; const dx=e.chang
   if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(dx<0?1:-1), dx<0?'left':'right'); } },{passive:true});
 document.addEventListener('focusout',()=>setTimeout(()=>{ if(renderWanted&&!typing()){ renderWanted=false; render(); } },0));
 
+/* ---------- 3D rotating podium pickleballs ---------- */
+const METALS={gold:['#FFF6C4','#F2C230','#B8860B','#5E4206'],silver:['#FFFFFF','#D5DAE1','#9097A1','#3E434B'],bronze:['#FBD9B8','#D08A4A','#94531F','#4A2608']};
+const HOLES=(()=>{ const n=40,out=[],g=Math.PI*(3-Math.sqrt(5)); for(let i=0;i<n;i++){ const y=1-(i+.5)/n*2, r=Math.sqrt(1-y*y), a=i*g; out.push([Math.cos(a)*r,y,Math.sin(a)*r]); } return out; })();
+let ballRAF=null;
+function drawBall(cv,t){
+  const sz=+cv.dataset.sz, dpr=Math.min(3,window.devicePixelRatio||1), W=sz, H=Math.round(sz*1.14);
+  if(cv.width!==W*dpr){ cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px'; }
+  const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
+  const M=METALS[cv.dataset.metal]||METALS.gold, ph=(cv.dataset.metal==='silver'?1.3:cv.dataset.metal==='bronze'?2.6:0);
+  const R=W*0.40, bob=Math.sin(t*2.2+ph)*W*0.045, cx=W/2, cy=R+W*0.08+bob+W*0.045, gy=H-W*0.09;
+  // ground shadow: smaller and darker when the ball is lower
+  const k=1-(bob/(W*0.045))*0.12; c.save(); c.translate(cx,gy); c.scale(1,0.26);
+  const sg=c.createRadialGradient(0,0,0,0,0,R*1.05*k); sg.addColorStop(0,`rgba(0,0,0,${0.38/k})`); sg.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=sg; c.beginPath(); c.arc(0,0,R*1.05*k,0,Math.PI*2); c.fill(); c.restore();
+  // sphere body (light from upper left)
+  const body=c.createRadialGradient(cx-R*.38,cy-R*.42,R*.05,cx,cy,R*1.02);
+  body.addColorStop(0,M[0]); body.addColorStop(.35,M[1]); body.addColorStop(.8,M[2]); body.addColorStop(1,M[3]);
+  c.fillStyle=body; c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.fill();
+  // holes: points on the sphere, spun around a tilted axis
+  const a=t*(1.1)+ph, ca=Math.cos(a), sa=Math.sin(a), tl=0.38, ct=Math.cos(tl), st=Math.sin(tl), hr=R*0.13;
+  c.save(); c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.clip();
+  HOLES.forEach(([x,y,z])=>{ let X=x*ca+z*sa, Z=-x*sa+z*ca, Y=y; const Y2=Y*ct-Z*st, Z2=Y*st+Z*ct; if(Z2<0.08) return;
+    const px=cx+X*R, py=cy+Y2*R, ang=Math.atan2(Y2,X), fade=Math.min(1,(Z2-0.08)/0.35);
+    c.save(); c.translate(px,py); c.rotate(ang); c.scale(Math.max(0.12,Z2),1);
+    const lit=Math.max(0,(-X*0.55-Y2*0.6+Z2*0.6)); // how much the hole faces the light
+    const hg=c.createRadialGradient(-hr*0.25,0,0,0,0,hr); hg.addColorStop(0,M[3]); hg.addColorStop(.75,M[3]); hg.addColorStop(1,M[2]);
+    c.globalAlpha=0.55+0.4*fade; c.fillStyle=hg; c.beginPath(); c.arc(0,0,hr,0,Math.PI*2); c.fill();
+    c.globalAlpha=(0.25+0.5*lit)*fade; c.strokeStyle=M[0]; c.lineWidth=Math.max(0.6,hr*0.18); c.beginPath(); c.arc(0,0,hr*0.98,Math.PI*0.55,Math.PI*1.45); c.stroke();
+    c.restore(); });
+  c.restore(); c.globalAlpha=1;
+  // terminator shading + rim light + specular highlight on top
+  const sh=c.createRadialGradient(cx-R*.3,cy-R*.35,R*.2,cx,cy,R); sh.addColorStop(0,'rgba(0,0,0,0)'); sh.addColorStop(.7,'rgba(0,0,0,.06)'); sh.addColorStop(1,'rgba(0,0,0,.32)');
+  c.fillStyle=sh; c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.fill();
+  const rim=c.createRadialGradient(cx+R*.35,cy+R*.45,R*.6,cx+R*.35,cy+R*.45,R*1.05); rim.addColorStop(0,'rgba(255,255,255,0)'); rim.addColorStop(.85,'rgba(255,255,255,0)'); rim.addColorStop(1,'rgba(255,255,255,.28)');
+  c.save(); c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.clip(); c.fillStyle=rim; c.fillRect(cx-R,cy-R,2*R,2*R); c.restore();
+  const sp=c.createRadialGradient(cx-R*.4,cy-R*.45,0,cx-R*.4,cy-R*.45,R*.42); sp.addColorStop(0,'rgba(255,255,255,.95)'); sp.addColorStop(.35,'rgba(255,255,255,.45)'); sp.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle=sp; c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.fill();
+}
+function startBalls(){
+  if(ballRAF) cancelAnimationFrame(ballRAF); ballRAF=null;
+  const still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const loop=now=>{ const cs=document.querySelectorAll('canvas.pball'); if(!cs.length){ ballRAF=null; return; }
+    cs.forEach(cv=>drawBall(cv,still?0.6:now/1000)); if(!still) ballRAF=requestAnimationFrame(loop); };
+  ballRAF=requestAnimationFrame(loop);
+}
 function render(){
   renderWanted=false;
   if(!sel) sel=pickDefault();
@@ -1184,6 +1232,7 @@ function render(){
   $('#view').innerHTML=v()+`<p class="ver">Version ${APP_VERSION}${updateReady?' · <button type="button" data-act="update">New version available. Tap to update</button>':''}</p>`;
   $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
   if(ui.tab==='today') requestAnimationFrame(centerRail);
+  startBalls();
   if(ui.tab==='setup') requestAnimationFrame(()=>{ const n=document.querySelector('.steps'), c=n&&n.querySelector('.stp.on'); if(c) n.scrollLeft=c.offsetLeft-n.clientWidth/2+c.clientWidth/2; });
   if(mode==='local') setSync('Saved on phone');
   else if(readOnly) setSync('View only');
