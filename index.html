@@ -343,6 +343,27 @@ th.off .thv{color:var(--muted);opacity:.65}
 th.off .vt{text-decoration:line-through}
 table.st td.off{width:14px;min-width:14px;padding:0;background:repeating-linear-gradient(180deg,var(--line2) 0 2px,transparent 2px 6px)}
 th.vth.off{width:30px}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;width:min(440px,calc(100vw - 32px));max-height:90vh;overflow:auto;gap:14px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.dows{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.dows button,.courts button{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;padding:0}
+.dows button[aria-pressed="true"],.courts button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#FFFFFF}
+.courtrow{flex-wrap:wrap;row-gap:8px}
+.courts{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+.courts button{flex:1 1 0;min-width:44px;max-width:64px}
+.courts .addc{color:var(--blue);border-style:dashed;display:grid;place-items:center}
+.wklist{display:flex;flex-direction:column;gap:6px}
+.wkrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line2)}
+.wkrow:first-child{border-top:0}
+.wkrow .wkn{flex:0 0 64px;font-weight:700;font-size:15px}
+.wkrow .wkd{flex:1;display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.wkrow .wk{min-width:62px}
+.wkrow.off .wkn{color:var(--muted)}
+.skipb{flex:0 0 auto;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:700;font-size:14px;cursor:pointer}
+.skipb[disabled]{opacity:.35}
+.setupbar{margin:0;padding:10px 14px;border-radius:14px;background:var(--blue-soft);color:var(--blue);font-size:15px}
+details.more{border-top:1px solid var(--line2);padding-top:10px}
+details.more summary{cursor:pointer;font-weight:700;color:var(--blue);min-height:40px;display:flex;align-items:center}
+details.more[open]{display:flex;flex-direction:column;gap:10px}
 .steps{display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:4px;padding:6px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
 .stp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;padding:6px 2px;border:0;border-radius:13px;background:transparent;color:var(--ink);cursor:pointer;min-width:0}
 .stp .ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--blue);background:var(--blue-soft)}
@@ -438,15 +459,16 @@ html.dink .finished{background:var(--blue-soft)}
 
 <nav class="nav" aria-label="Main">
   <div class="nav-in">
-    <button type="button" class="tab" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rounds</button>
-    <button type="button" class="tab" data-tab="standings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>Standings</button>
-    <button type="button" class="tab" data-tab="players"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>Players</button>
-    <button type="button" class="tab" data-tab="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Setup</button>
+    <button type="button" class="tab" data-tab="today"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rounds</button>
+    <button type="button" class="tab" data-tab="standings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>Standings</button>
+    <button type="button" class="tab" data-tab="players"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>Players</button>
+    <button type="button" class="tab" data-tab="setup"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Setup</button>
   </div>
 </nav>
 <div id="sheet"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <input id="restoreFile" type="file" accept=".json,application/json" hidden>
+<input id="regFileIn" type="file" accept=".xlsx,.xls,.ods,.csv,.tsv,.txt,.vcf,text/plain,text/csv,text/vcard,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" hidden>
 
 <script>
 /*ENGINE*/
@@ -485,6 +507,7 @@ function buildRound(st,ids,courts,r){
     sitSets=combos(pool,k-must.length).map(c=>must.concat(c));
     if(sitSets.length>40) sitSets=shuffle(sitSets).slice(0,40);
   }
+  if(playN>8) return buildRoundBig(st,ids,r,sitSets);
   const arrs=arrangements(playN), pr=st.prior; let best=null,bc=Infinity;
   for(const sits of sitSets){
     let sc=0; for(const s of sits) if(st.lastSat[s]===r-1) sc+=60;
@@ -501,6 +524,29 @@ function buildRound(st,ids,courts,r){
       }
       c+=Math.random();
       if(c<bc){ bc=c; best={games:A.map(([t1,t2])=>[[play[t1[0]],play[t1[1]]],[play[t2[0]],play[t2[1]]]]),sits:sits.slice()}; }
+    }
+  }
+  best.cost=bc; return best;
+}
+/* 3+ courts: too many line-ups to try them all, so start from random line-ups and keep swapping players while it helps. */
+function buildRoundBig(st,ids,r,sitSets){
+  const pr=st.prior; let best=null,bc=Infinity;
+  const gc=(a,b,x,y)=>{ const p1=st.pc.get(key(a,b))||0,p2=st.pc.get(key(x,y))||0;
+    let c=100*(p1+p2)+40*(p1*p1+p2*p2)+8*((st.oc.get(key(a,x))||0)+(st.oc.get(key(a,y))||0)+(st.oc.get(key(b,x))||0)+(st.oc.get(key(b,y))||0));
+    if(pr) c+=12*((pr.get(key(a,b))||0)+(pr.get(key(x,y))||0)); return c; };
+  for(const sits of shuffle(sitSets.slice()).slice(0,8)){
+    let sc=0; for(const x of sits) if(st.lastSat[x]===r-1) sc+=60;
+    const set=new Set(sits), base=ids.filter(id=>!set.has(id));
+    for(let rs=0;rs<8;rs++){
+      const P=shuffle(base.slice()), G=P.length/4, g=i=>gc(P[4*i],P[4*i+1],P[4*i+2],P[4*i+3]);
+      const cost=Array.from({length:G},(_,i)=>g(i)); let tot=cost.reduce((a,b)=>a+b,0), more=true, pass=0;
+      while(more&&pass<12){ more=false; pass++;
+        for(let i=0;i<P.length;i++) for(let j=i+1;j<P.length;j++){ const gi=i>>2,gj=j>>2; if(gi===gj&&((i&2)===(j&2))) continue;
+          const old=gi===gj?cost[gi]:cost[gi]+cost[gj]; [P[i],P[j]]=[P[j],P[i]];
+          const ni=g(gi), nj=gi===gj?0:g(gj), nw=ni+nj;
+          if(nw<old-1e-9){ cost[gi]=ni; if(gi!==gj) cost[gj]=nj; tot+=nw-old; more=true; } else [P[i],P[j]]=[P[j],P[i]]; } }
+      const c=sc+tot+Math.random();
+      if(c<bc){ bc=c; best={games:Array.from({length:G},(_,i)=>[[P[4*i],P[4*i+1]],[P[4*i+2],P[4*i+3]]]),sits:sits.slice()}; }
     }
   }
   best.cost=bc; return best;
@@ -533,7 +579,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-7';
+const APP_VERSION='2026.11.21-8';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
@@ -542,15 +588,30 @@ const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,for
 let restoreData=null, restoreInfo='';
 
 const seasonsSorted=()=>cfg.seasons.slice().sort((a,b)=>a.startDate<b.startDate?-1:a.startDate>b.startDate?1:0);
-const seasonEnd=S=>addDays(S.startDate,7*(Math.max(1,S.weeks|0)-1));
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function dowOf(iso){ const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d).getDay(); }
+const daysOf=S=>(Array.isArray(S.days)&&S.days.length?S.days.slice().sort((a,b)=>a-b):[dowOf(S.startDate)]);
+/* Weeks of a session: each calendar week (Sun–Sat) from the first game day. Skipped weeks don't count toward the number of weeks. */
+function seasonPlan(S){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(S.startDate||'')) return [];
+  const days=daysOf(S), ws=addDays(S.startDate,-dowOf(S.startDate)), skip=new Set(S.skip||[]), want=Math.max(1,Math.min(52,S.weeks|0||1)), rows=[]; let n=0;
+  for(let o=0;n<want&&o<160;o++){
+    const dates=days.map(d=>addDays(ws,7*o+d)).filter(d=>d>=S.startDate);
+    if(!dates.length) continue;
+    if(skip.has(o)) rows.push({o,week:null,dates}); else rows.push({o,week:++n,dates});
+  }
+  return rows;
+}
+const planDates=S=>seasonPlan(S).filter(r=>r.week).flatMap(r=>r.dates.map(date=>({date,week:r.week})));
+const seasonEnd=S=>{ const L=planDates(S); return L.length?L[L.length-1].date:S.startDate; };
 function defaultSeason(){ const t=todayISO(), L=seasonsSorted(); return L.find(S=>t<=seasonEnd(S)&&t>=addDays(S.startDate,-7)) || L.filter(S=>S.startDate<=t).pop() || L[0]; }
 function season(){ return cfg.seasons.find(x=>x.id===ui.season) || defaultSeason(); }
 const sid=x=>x.seasonId||cfg.seasons[0].id;
 const inSeason=x=>sid(x)===season().id;
 const seasonWeeks=()=>Object.values(sessions).filter(inSeason);
 function seasonDates(){
-  const S=season(), w=Math.max(1,Math.min(52,(S.weeks|0)||1)), out=[];
-  if(/^\d{4}-\d{2}-\d{2}$/.test(S.startDate||'')) for(let i=0;i<w;i++){ const d=addDays(S.startDate,7*i); const x=sessions[d]; if(!x||inSeason(x)||!(x.rounds||[]).length) out.push(d); }
+  const S=season(), out=[];
+  for(const {date:d} of planDates(S)){ const x=sessions[d]; if(!x||inSeason(x)||!(x.rounds||[]).length) out.push(d); }
   for(const [d,x] of Object.entries(sessions)) if(!out.includes(d)&&inSeason(x)&&(x.rounds||[]).length) out.push(d);
   return out.sort();
 }
@@ -594,7 +655,7 @@ function lastPlayers(date){
   for(const id of Object.values(subs)) if(id!=='none'&&!out.includes(id)) out.push(id);
   return out;
 }
-function weekNo(d){ const S=season(); if(d<S.startDate) return null; const n=Math.round((new Date(d)-new Date(S.startDate))/6048e5)+1; return n<=S.weeks?n:null; }
+function weekNo(d){ const f=planDates(season()).find(x=>x.date===d); return f?f.week:null; }
 
 /* ---------- saving ---------- */
 const pend={}, busy={}, timers={};
@@ -639,11 +700,11 @@ const IC={
   swap:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg>',
   share:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
   clock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>',
-  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2"/></svg>',
-  court:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M3 12h18M12 3v6.5M12 14.5V21M3 9.5h18M3 14.5h18"/></svg>',
-  people:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.2 14.1c2.7-.4 4.8 1.7 4.8 4.9"/></svg>',
-  palette:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7h2.1A4.5 4.5 0 0 0 21 10.7C21 6.4 17 3 12 3Z"/><circle cx="7.5" cy="11.5" r="1.2"/><circle cx="10.5" cy="7.5" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>',
-  save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>',
+  cal:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2"/></svg>',
+  court:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M3 12h18M12 3v6.5M12 14.5V21M3 9.5h18M3 14.5h18"/></svg>',
+  people:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.2 14.1c2.7-.4 4.8 1.7 4.8 4.9"/></svg>',
+  palette:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7h2.1A4.5 4.5 0 0 0 21 10.7C21 6.4 17 3 12 3Z"/><circle cx="7.5" cy="11.5" r="1.2"/><circle cx="10.5" cy="7.5" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>',
+  save:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>',
   copy:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>'
 };
 
@@ -842,29 +903,34 @@ function viewStandings(){
 }
 function needsWelcome(){ return !readOnly && !cfg.onboarded && !Object.keys(cfg.roster).length && !Object.values(sessions).some(x=>(x.rounds||[]).length); }
 function viewWelcome(){
-  const st=ui.wstep||0, S=season();
-  const dots=`<div class="wdots" aria-hidden="true">${[0,1,2,3].map(k=>`<i class="${k===st?'on':k<st?'done':''}"></i>`).join('')}</div>`;
-  const nav=(next,back)=>`<button type="button" class="btn" data-act="wNext">${next} ${IC.arrow}</button>${back?'<button type="button" class="linkrow" data-act="wBack" style="justify-content:center;border:0;padding:6px;color:var(--blue);font-weight:700">Back</button>':''}`;
-  if(st===0) return `<section class="card welcome">${dots}<h2 style="font-size:28px">Welcome!</h2>
-      <p>Run your doubles round robin in three quick steps. The app pairs partners fairly, rotates sit-outs, keeps scores and standings, and makes reports to share.</p>
-      <ol class="wlist"><li><b>Your session</b> – name and dates</li><li><b>Courts &amp; timing</b></li><li><b>Your players</b></li></ol>
-      ${nav('Get started')}<button type="button" class="linkrow" data-act="wSkip" style="justify-content:center;border:0;padding:6px;color:var(--muted)">Skip, I’ll set it up myself</button></section>`;
-  if(st===1) return `<section class="card welcome">${dots}<span class="note">Step 1 of 3</span><h2 style="font-size:24px">Your session</h2>
-      <div class="field"><label class="label" for="wName">Session name</label><input id="wName" type="text" value="${esc(S.name)}" placeholder="e.g. Winter league"></div>
-      <div class="field"><label class="label" for="wDate">First game day</label><input id="wDate" type="date" value="${S.startDate}"></div>
-      <div class="setrow" style="border:0"><span class="k">Number of weeks</span><button type="button" class="step" data-wk="-1" aria-label="Fewer weeks">−</button><span class="v">${S.weeks}</span><button type="button" class="step plus" data-wk="1" aria-label="More weeks">+</button></div>
-      ${nav('Next',true)}</section>`;
-  if(st===2) return `<section class="card welcome setcard" style="padding:16px">${dots}<span class="note">Step 2 of 3</span><h2 style="font-size:24px">Courts &amp; timing</h2>
-      <div class="setrow"><span class="k" id="wcL">Courts</span><div class="seg solid" role="group" aria-labelledby="wcL"><button type="button" data-c="1" aria-pressed="${cfg.courts===1}">1</button><button type="button" data-c="2" aria-pressed="${cfg.courts===2}">2</button></div></div>
-      <div class="setrow"><label class="k" for="start">Start time</label><input id="start" type="time" value="${cfg.startTime}"></div>
-      <div class="setrow"><span class="k">Play time</span><button type="button" class="step" data-set="session" data-d="-15" aria-label="Less play time">−</button><span class="v">${cfg.session} min</span><button type="button" class="step plus" data-set="session" data-d="15" aria-label="More play time">+</button></div>
-      <div class="setrow"><span class="k">Each round</span><button type="button" class="step" data-set="per" data-d="-1" aria-label="Shorter rounds">−</button><span class="v">${cfg.per} min</span><button type="button" class="step plus" data-set="per" data-d="1" aria-label="Longer rounds">+</button></div>
-      <p class="note">${totalRounds()} rounds per game day.</p>
-      ${nav('Next',true)}</section>`;
-  return `<section class="card welcome">${dots}<span class="note">Step 3 of 3</span><h2 style="font-size:24px">Your players</h2>
-      <div class="field"><label class="label" for="wNames">Type or paste names, one per line</label><textarea id="wNames" spellcheck="false" placeholder="Alex Brown&#10;Beth Green&#10;Carlos Diaz&#10;Dana Moore"></textarea></div>
-      <p class="note"><b id="wCount" style="color:var(--ink)">0 players</b> · You can add more any time on the Players tab.</p>
-      ${nav('Finish',true)}</section>`;
+  return `<section class="card welcome"><h2 style="font-size:28px">Welcome!</h2>
+      <p>Run your doubles round robin in a few quick steps. The app pairs partners fairly, rotates sit-outs, keeps scores and standings, and makes reports to share.</p>
+      <ol class="wlist"><li><b>Your session</b> – name, first day, number of weeks</li><li><b>Game days, courts &amp; timing</b></li><li><b>Your players</b> – paste a list or open a file</li></ol>
+      <button type="button" class="btn" data-act="openNew" data-first="1">Start your first session ${IC.arrow}</button><button type="button" class="linkrow" data-act="wSkip" style="justify-content:center;border:0;padding:6px;color:var(--muted)">Skip, I’ll set it up myself</button></section>`;
+}
+function modalHTML(){
+  const first=ui.modal==='first', L=seasonsSorted(), last=L[L.length-1];
+  let start=todayISO(); if(!first&&last){ const e=addDays(seasonEnd(last),1); if(e>start) start=e; }
+  const name=first?season().name:'Session '+(cfg.seasons.length+1);
+  return `<div class="scrim" data-act="nsCancel"></div>
+  <section class="modal card" role="dialog" aria-modal="true" aria-labelledby="nsT">
+    <h2 id="nsT" style="font-size:24px">${first?'Your first session':'New session'}</h2>
+    <p class="note">Players, game days and courts come next.</p>
+    <div class="field"><label class="label" for="nsName">Session name</label><input id="nsName" type="text" autocomplete="off" value="${esc(name)}" placeholder="e.g. Winter league"></div>
+    <div class="field"><label class="label" for="nsDate">Starting date</label><input id="nsDate" type="date" value="${start}"></div>
+    <div class="setrow" style="border:0;padding:0" role="group" aria-labelledby="nsWL"><span class="k" id="nsWL">Number of weeks</span><button type="button" class="step" data-nsw="-1" aria-label="Fewer weeks">−</button><span class="v" id="nsWeeks">5</span><button type="button" class="step plus" data-nsw="1" aria-label="More weeks">+</button></div>
+    <div class="row2"><button type="button" class="btn ghost" data-act="nsCancel">Cancel</button><button type="button" class="btn" data-act="nsOk">OK</button></div>
+  </section>`;
+}
+function nsOk(){
+  const name=($('#nsName').value||'').trim().replace(/\s+/g,' ')||'Session '+(cfg.seasons.length+1), date=$('#nsDate').value, weeks=+$('#nsWeeks').textContent||5;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){ toast('Pick a starting date.'); return; }
+  let S;
+  if(ui.modal==='first'){ S=season(); Object.assign(S,{name,startDate:date,weeks}); }
+  else { S={id:newId(),name,startDate:date,weeks}; cfg.seasons.push(S); }
+  Object.assign(S,{days:[dowOf(date)],skip:[],regulars:[],setup:true});
+  cfg.onboarded=true; ui.modal=null; ui.season=S.id; sel=null; userPicked=false; ui.player=null; ui.tab='setup'; ui.setupStep=0; ui.regDraft='';
+  saveCfg(); render(); window.scrollTo(0,0); toast(`${name} created. Now choose game days, courts and players.`);
 }
 function welcomeNext(){
   const st=ui.wstep||0, S=season();
@@ -955,6 +1021,42 @@ function parseNames(v){
   for(const line of String(v).split(/\n|,/)){ const n=line.trim().replace(/\s+/g,' '); if(n&&!seen.has(n.toLowerCase())){ seen.add(n.toLowerCase()); out.push(n); } }
   return out;
 }
+function csvRows(text){
+  const lines=String(text).replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim());
+  const sep=lines.some(l=>l.includes('\t'))?'\t':(lines.some(l=>l.includes(','))&&!lines.every(l=>/^[^,]+,\s*[^,]+$/.test(l)&&!/name/i.test(lines[0]))?',':null);
+  if(!sep) return lines.map(l=>[l]);
+  return lines.map(l=>{ const out=[]; let cur='',q=false; for(let i=0;i<l.length;i++){ const ch=l[i];
+    if(q){ if(ch==='"'&&l[i+1]==='"'){ cur+='"'; i++; } else if(ch==='"') q=false; else cur+=ch; }
+    else if(ch==='"') q=true; else if(ch===sep){ out.push(cur); cur=''; } else cur+=ch; } out.push(cur); return out; });
+}
+const looksName=v=>{ v=String(v==null?'':v).trim(); return v.length>1&&v.length<50&&/[a-z]/i.test(v)&&!/@|^\d|https?:/i.test(v); };
+function namesFromRows(rows){
+  rows=rows.map(r=>(r||[]).map(c=>String(c==null?'':c).trim())).filter(r=>r.some(c=>c));
+  if(!rows.length) return [];
+  const H=rows[0].map(c=>c.toLowerCase());
+  const fi=H.findIndex(c=>/first/.test(c)), li=H.findIndex(c=>/last|surname/.test(c)), ni=H.findIndex(c=>/name|player/.test(c)&&!/first|last|user|team|session/.test(c));
+  if(fi>=0||ni>=0){ return rows.slice(1).map(r=> ni>=0&&r[ni] ? r[ni] : [r[fi]||'',li>=0?r[li]||'':''].join(' ').trim()).filter(looksName); }
+  if(rows.every(r=>r.length===1)) return rows.map(r=>r[0]).filter(looksName);
+  const w=rows[0].length; let bestC=0,bestN=-1; for(let c=0;c<w;c++){ const n=rows.filter(r=>looksName(r[c])).length; if(n>bestN){ bestN=n; bestC=c; } }
+  return rows.map(r=>r[bestC]).filter(looksName);
+}
+async function importNamesFile(f){
+  const ext=(f.name.split('.').pop()||'').toLowerCase(); let rows;
+  try{
+    if(ext==='xlsx'||ext==='xls'||ext==='ods'){ await loadLibs('xlsx'); const X=window.XLSX, wb=X.read(await f.arrayBuffer(),{type:'array'}); rows=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false}); }
+    else if(ext==='vcf'){ const t=await f.text(); rows=(t.match(/^FN[^:]*:(.*)$/gmi)||[]).map(l=>[l.replace(/^FN[^:]*:/i,'').trim()]); }
+    else rows=csvRows(await f.text());
+  }catch(e){ toast('Couldn’t read that file. Try a .csv, .txt or Excel file.'); return; }
+  const names=namesFromRows(rows); if(!names.length){ toast('No names found in that file.'); return; }
+  const ta=$('#regNames'); if(!ta) return; const have=parseNames(ta.value), low=new Set(have.map(n=>n.toLowerCase()));
+  const add=names.filter(n=>!low.has(n.toLowerCase())); ta.value=have.concat(add).join('\n'); ui.regDraft=ta.value; countRegs();
+  toast(`${add.length} name${add.length===1?'':'s'} added from ${f.name}. Check the list, then save it.`);
+}
+function countRegs(){ const ta=$('#regNames'), c=$('#regCount'); if(ta&&c){ const n=parseNames(ta.value).length; c.textContent=n+' name'+(n===1?'':'s'); } }
+function applyRegDraft(replace){
+  const ta=$('#regNames'); if(!ta) return true; const names=parseNames(ta.value); if(!names.length) return !replace||regularsOf(season()).length>=4;
+  const S=season(), ids=names.map(idFor); setRegulars(S, replace?ids:regularsOf(S).concat(ids)); ui.regDraft=''; delete ui.pick[sel]; return true;
+}
 function namesText(){
   if(ui.draft[sel]!=null) return ui.draft[sel];
   const s=sessions[sel]; const ids=(s&&s.players.length)?s.players:lastPlayers(sel);
@@ -966,37 +1068,50 @@ function planText(n){
   const sit=n-ec*4, pairs=n*(n-1)/2, need=Math.ceil(pairs/(2*ec));
   let t=`${n} players · ${ec} court${ec>1?'s':''} · ${r} rounds · ${sit?sit+' sit out each round':'nobody sits out'}.`;
   t+= r>=need?' Everyone can partner with everyone.':` A full partner rotation needs ${need} rounds.`;
-  if(cfg.courts===2&&n<8) t+=' Only 1 court is used with fewer than 8 players.';
+  if(ec<cfg.courts) t+=` Only ${ec} court${ec>1?'s are':' is'} used with ${n} players.`;
   return t;
 }
 function viewSetup(){
   const S=season(), s=sessions[sel], has=!!(s&&s.rounds.length), locked=s?lockedCount(s):0, ro=readOnly, dates=seasonDates();
   const opts=seasonsSorted().slice().reverse().map(x=>`<option value="${x.id}"${x.id===S.id?' selected':''}>${esc(x.name)} (${esc(fmtDate(x.startDate,{month:'short',day:'numeric'}))} – ${esc(fmtDate(seasonEnd(x),{month:'short',day:'numeric'}))})</option>`).join('');
-  const weeks=dates.map(d=>{ const x=sessions[d]; const st=x&&x.rounds&&x.rounds.length; const n=weekNo(d);
-    return `<button type="button" class="wk${st?' done':''}" data-date="${d}" aria-pressed="${d===sel}"><b>${n?'Wk '+n:'Extra'}</b><span>${esc(fmtDate(d,{month:'short',day:'numeric'}))}</span></button>`; }).join('');
-  const delOK=!ro&&cfg.seasons.length>1&&!seasonWeeks().some(x=>(x.rounds||[]).length);
   const dis=ro?' disabled':'';
+  const played=d=>{ const x=sessions[d]; return !!(x&&inSeason(x)&&x.rounds&&x.rounds.length); };
+  const chip=d=>`<button type="button" class="wk${played(d)?' done':''}" data-date="${d}" aria-pressed="${d===sel}"><b>${esc(fmtDate(d,{weekday:'short'}))}</b><span>${esc(fmtDate(d,{month:'short',day:'numeric'}))}</span></button>`;
+  const plan=seasonPlan(S), inPlan=new Set(plan.flatMap(r=>r.dates)), extra=dates.filter(d=>!inPlan.has(d));
+  const weeks=plan.map(r=> r.week
+    ? `<div class="wkrow"><span class="wkn">Week ${r.week}</span><div class="wkd">${r.dates.map(chip).join('')}</div>${ro?'':`<button type="button" class="skipb" data-skip="${r.o}"${r.dates.some(played)?' disabled title="This week has scores"':''}>Skip</button>`}</div>`
+    : `<div class="wkrow off"><span class="wkn">Skipped</span><span class="wkd note">Week of ${esc(fmtDate(r.dates[0],{month:'short',day:'numeric'}))}</span>${ro?'':`<button type="button" class="skipb" data-skip="${r.o}">Undo</button>`}</div>`).join('')
+    + (extra.length?`<div class="wkrow"><span class="wkn">Extra</span><div class="wkd">${extra.map(chip).join('')}</div></div>`:'');
+  const dayBtns=`<div class="dows" role="group" aria-label="Game days">${DOW.map((n,k)=>`<button type="button" data-dow="${k}" aria-pressed="${daysOf(S).includes(k)}"${dis}>${n}</button>`).join('')}</div>`;
+  const delOK=!ro&&cfg.seasons.length>1&&!seasonWeeks().some(x=>(x.rounds||[]).length);
   const S2=S, regs=regularsOf(S2).slice().sort(byName);
-  const P1=`    ${ro?'':`<button type="button" class="btn ghost dash" data-act="newSeason">${IC.plus}Start a new session</button>`}
+  const setting=!!S.setup&&!ro;
+  const P1=`    ${ro||setting?'':`<button type="button" class="btn ghost dash" data-act="newSeason">${IC.plus}Start a new session</button>`}
     <section class="card">
-      <h2 style="font-size:20px">Current session</h2>
-      <div class="field"><label class="label" for="seasonPick">Showing</label><select id="seasonPick">${opts}</select></div>
-      <div class="field"><label class="label" for="startDate">First week</label><input id="startDate" type="date" value="${S.startDate}"${dis}></div>
+      ${setting?`<h2 style="font-size:20px">${esc(S.name)}</h2>`:`<h2 style="font-size:20px">Current session</h2>
+      <div class="field"><label class="label" for="seasonPick">Showing</label><select id="seasonPick">${opts}</select></div>`}
+      <div><span class="label">Game days</span>${dayBtns}<p class="note" style="margin-top:6px">Pick one or more days of the week.</p></div>
+      <div class="field"><label class="label" for="startDate">Starting date</label><input id="startDate" type="date" value="${S.startDate}"${dis}></div>
       <div class="setrow" style="border:0;min-height:48px" role="group" aria-labelledby="weeksL"><span class="k" id="weeksL">Number of weeks</span><button type="button" class="step" data-wk="-1" aria-label="Fewer weeks"${dis}>−</button><span class="v">${S.weeks}</span><button type="button" class="step plus" data-wk="1" aria-label="More weeks"${dis}>+</button></div>
       <div class="field"><label class="label" for="seasonName">Session name</label><input id="seasonName" type="text" value="${esc(S.name)}" autocomplete="off"${dis}></div>
-      <div><span class="label">Weeks in this session</span><div class="weeks">${weeks}</div></div>
+      <div><span class="label">Weeks in this session</span><p class="note" style="margin:2px 0 8px">Tap Skip for a week you won't play, like a holiday. The session moves one week later.</p><div class="wklist">${weeks}</div></div>
       ${delOK?(ui.confirm==='delSeason'?`<div class="confirm"><b>Delete ${esc(S.name)}?</b><div class="row2"><button type="button" class="btn danger" data-act="delSeasonYes">Delete</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Keep it</button></div></div>`:`<button type="button" class="btn danger" data-act="delSeason">Delete this empty session</button>`):''}
     </section>`;
   const P2=`    <section class="card setcard">
-      <div class="setrow"><span class="k" id="courtsL">Courts</span><div class="seg solid" role="group" aria-labelledby="courtsL"><button type="button" data-c="1" aria-pressed="${cfg.courts===1}"${dis}>1</button><button type="button" data-c="2" aria-pressed="${cfg.courts===2}"${dis}>2</button></div></div>
+      <div class="setrow courtrow"><span class="k" id="courtsL">Courts</span><div class="courts" role="group" aria-labelledby="courtsL">${Array.from({length:Math.max(4,cfg.courts)},(_,k)=>`<button type="button" data-c="${k+1}" aria-pressed="${cfg.courts===k+1}"${dis}>${k+1}</button>`).join('')}${cfg.courts<12?`<button type="button" class="addc" data-c="${Math.max(4,cfg.courts)+1}" aria-label="More courts"${dis}>${IC.plus}</button>`:''}</div></div>
       <div class="setrow"><label class="k" for="start">Start time</label><input id="start" type="time" value="${cfg.startTime}"${dis}></div>
       <div class="setrow"><span class="k">Play time</span><button type="button" class="step" data-set="session" data-d="-15" aria-label="Less play time"${dis}>−</button><span class="v">${cfg.session} min</span><button type="button" class="step plus" data-set="session" data-d="15" aria-label="More play time"${dis}>+</button></div>
       <div class="setrow"><span class="k">Each round</span><button type="button" class="step" data-set="per" data-d="-1" aria-label="Shorter rounds"${dis}>−</button><span class="v">${cfg.per} min</span><button type="button" class="step plus" data-set="per" data-d="1" aria-label="Longer rounds"${dis}>+</button></div>
-    </section><p class="note">${totalRounds()} rounds per game day.</p>`;
+    </section><p class="note">${totalRounds()} rounds per game day. ${cfg.courts} court${cfg.courts>1?'s need':' needs'} ${cfg.courts*4} players to fill.</p>`;
+  const listBox=(open)=>ro?'':`<div class="field"><label class="label" for="regNames">${regs.length?'Paste more names':'Paste the signup list'}, one per line</label><textarea id="regNames" spellcheck="false" placeholder="Alex Brown&#10;Beth Green&#10;Carlos Diaz&#10;Dana Moore">${esc(ui.regDraft||'')}</textarea></div>
+      <div class="row2"><button type="button" class="btn ghost" data-act="regFile">${IC.save}Open file</button><button type="button" class="btn" data-act="saveRegs">${regs.length?'Add these':'Save list'}</button></div>
+      <p class="note"><b id="regCount" style="color:var(--ink)">${parseNames(ui.regDraft||'').length} names</b> · Files: Excel (.xlsx), .csv, .txt or contact cards (.vcf). A “Name” column, or First and Last columns, are picked up automatically.</p>`;
   const PR=`<section class="card"><p class="note">Signed-up players for <b style="color:var(--ink)">${esc(S2.name)}</b>. They appear on the Players tab every week. Add subs there, one week at a time.</p>
-      ${regs.length?`<div class="plist">${regs.map(id=>`<div class="pkrow"><span class="pk on" style="cursor:default"><span class="nm">${esc(nameOf(id))}</span></span>${ro?'':`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button>`}</div>`).join('')}</div>`:'<p class="note">No regular players yet.</p>'}
-      ${ro?'':`<div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="Add a regular player" aria-label="Add a regular player"><button type="button" class="btn small" data-act="addPlayer">Add</button></div>`}
-      <span class="note">${regs.length} regular player${regs.length===1?'':'s'}</span></section>`;
+      ${!regs.length?listBox():''}
+      ${regs.length?`<div class="plist">${regs.map(id=>`<div class="pkrow"><span class="pk on" style="cursor:default"><span class="nm">${esc(nameOf(id))}</span></span>${ro?'':`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button>`}</div>`).join('')}</div>`:''}
+      ${ro||!regs.length?'':`<div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="Add a regular player" aria-label="Add a regular player"><button type="button" class="btn small" data-act="addPlayer">Add</button></div>`}
+      ${regs.length?`<span class="note">${regs.length} regular player${regs.length===1?'':'s'}</span>`:''}
+      ${regs.length&&!ro?`<details class="more"${ui.regDraft?' open':''}><summary>Paste a list or open a file</summary>${listBox()}</details>`:''}</section>`;
   const P3=`    ${mode==='local'&&/^https?:$/.test(location.protocol)?`<section class="card"><h2 style="font-size:20px">App look</h2><p class="note">Both looks use the same saved data.</p>
       <div class="lookswitch">
         <a class="lookopt" href="index.html"${THEME==='classic'?' aria-current="true"':''}><span class="sw"><i style="background:#1559B0"></i><i style="background:#C53B3B"></i></span>Classic</a>
@@ -1005,13 +1120,13 @@ function viewSetup(){
   const P4=`    ${mode==='local'?`<section class="card"><h2 style="font-size:20px">Backup</h2><p class="note">Your sessions are saved on this device only. Save a backup after each week so you can restore it if this app's data is ever cleared.</p>
       <div class="row2"><button type="button" class="btn ghost" data-act="backup">Save backup</button><button type="button" class="btn ghost" data-act="restore">Restore</button></div>
       ${restoreData?`<div class="confirm"><span>${esc(restoreInfo)}</span><div class="row2"><button type="button" class="btn danger" data-act="restoreYes">Replace with backup</button><button type="button" class="btn ghost small" data-act="restoreNo">Cancel</button></div></div>`:''}</section>`:''}`;
-  const steps=[['Session',P1,'Session',IC.cal],['Courts & timing',P2,'Courts',IC.court],['Regular players',PR,'Players',IC.people]];
-  if(P3.trim()) steps.push(['App look',P3,'Look',IC.palette]); if(P4.trim()) steps.push(['Backup',P4,'Backup',IC.save]);
+  const steps=[[setting?'Game days & weeks':'Session',P1,setting?'Days':'Session',IC.cal],['Courts & timing',P2,'Courts',IC.court],['Regular players',PR,'Players',IC.people]];
+  if(!setting){ if(P3.trim()) steps.push(['App look',P3,'Look',IC.palette]); if(P4.trim()) steps.push(['Backup',P4,'Backup',IC.save]); }
   const k=Math.max(0,Math.min(steps.length-1,ui.setupStep||0));
-  return `<nav class="steps" style="--n:${steps.length}" aria-label="Setup sections">${steps.map(([l,,sh,ic],j)=>`<button type="button" class="stp${j===k?' on':''}" data-sstep="${j}"${j===k?' aria-current="page"':''} aria-label="${esc(l)}"><span class="ic" aria-hidden="true">${ic}</span><span class="l" aria-hidden="true">${esc(sh)}</span></button>`).join('')}</nav>
+  return `${setting?`<p class="setupbar"><b>Setting up ${esc(S.name)}</b> · step ${k+1} of 3</p>`:''}<nav class="steps" style="--n:${steps.length}" aria-label="Setup sections">${steps.map(([l,,sh,ic],j)=>`<button type="button" class="stp${j===k?' on':''}" data-sstep="${j}"${j===k?' aria-current="page"':''} aria-label="${esc(l)}"><span class="ic" aria-hidden="true">${ic}</span><span class="l" aria-hidden="true">${esc(sh)}</span></button>`).join('')}</nav>
     <h2 style="font-size:23px">${esc(steps[k][0])}</h2>
     ${steps[k][1]}
-    <div class="stepnav">${k>0?`<button type="button" class="btn ghost" data-sstep="${k-1}">${IC.back}${esc(steps[k-1][0])}</button>`:'<span></span>'}${k<steps.length-1?`<button type="button" class="btn" data-sstep="${k+1}">${esc(steps[k+1][0])} ${IC.go}</button>`:'<span></span>'}</div>`;
+    <div class="stepnav">${k>0?`<button type="button" class="btn ghost" data-sstep="${k-1}">${IC.back}${esc(steps[k-1][2])}</button>`:'<span></span>'}${k<steps.length-1?`<button type="button" class="btn" data-sstep="${k+1}">${esc(steps[k+1][2])} ${IC.go}</button>`:setting?`<button type="button" class="btn" data-act="finishSetup">Finish ${IC.go}</button>`:'<span></span>'}</div>`;
 }
 
 
@@ -1028,7 +1143,7 @@ function viewHistory(){
     const games=wk.reduce((n,x)=>n+x.rounds.reduce((m,r)=>m+r.games.filter(scored).length,0),0);
     const players=new Set(); wk.forEach(x=>x.players.forEach(p=>players.add(p)));
     const isOpen=open===S.id;
-    const days=wk.map(x=>{ const t=topWins([x]); const n=(()=>{ if(x.date<S.startDate) return null; const k=Math.round((new Date(x.date)-new Date(S.startDate))/6048e5)+1; return k<=S.weeks?k:null; })();
+    const days=wk.map(x=>{ const t=topWins([x]); const n=weekNoIn(S,x.date)||null;
       return `<button type="button" class="dayrow" data-hday="${x.date}" data-hs="${S.id}"><span class="wkno">${n?'Week '+n:'Extra'}</span><span class="dd"><b>${esc(fmtDate(x.date,{weekday:'short',month:'short',day:'numeric'}))}</b><small>${t?`Most wins: ${esc(t.names.join(', '))} (${t.w})`:'No scores yet'}</small></span>${IC.go}</button>`; }).join('');
     return `<div class="acc${isOpen?' open':''}">
       <button type="button" class="acchead hs" data-hopen="${S.id}" aria-expanded="${isOpen}">
@@ -1070,7 +1185,7 @@ function exportList(scope){
   return Object.values(sessions).filter(x=>(x.rounds||[]).length);
 }
 const seasonById=id=>cfg.seasons.find(x=>x.id===id)||cfg.seasons[0];
-function weekNoIn(S,d){ if(d<S.startDate) return ''; const n=Math.round((new Date(d)-new Date(S.startDate))/6048e5)+1; return n<=S.weeks?n:''; }
+function weekNoIn(S,d){ const f=planDates(S).find(x=>x.date===d); return f?f.week:''; }
 function gameRows(list){
   const out=[]; list.slice().sort((a,b)=>a.date<b.date?-1:1).forEach(x=>{ const S=seasonById(sid(x));
     x.rounds.forEach((r,ri)=>r.games.forEach((g,ci)=>{ if(g.sa==null&&g.sb==null) return;
@@ -1236,7 +1351,7 @@ function render(){
   document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.tab===ui.tab) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
   const v= needsWelcome() ? viewWelcome : ({today:viewToday,standings:viewStandings,players:viewPlayers,setup:viewSetup}[ui.tab]||viewToday);
   $('#view').innerHTML=v()+`<p class="ver">Version ${APP_VERSION}${updateReady?' · <button type="button" data-act="update">New version available. Tap to update</button>':''}</p>`;
-  $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
+  $('#sheet').innerHTML=ui.modal?modalHTML():ui.sheet?sheetHTML():'';
   if(ui.tab==='today') requestAnimationFrame(centerRail);
   startBalls();
   if(mode==='local') setSync('Saved on phone');
@@ -1334,7 +1449,7 @@ async function saveBackup(){
 }
 
 document.addEventListener('click',e=>{
-  if(e.target.classList&&e.target.classList.contains('scrim')){ ui.sheet=false; render(); return; }
+  if(e.target.classList&&e.target.classList.contains('scrim')){ ui.sheet=false; ui.modal=null; render(); return; }
   const t=e.target.closest('button'); if(!t||t.disabled) return;
   const d=t.dataset;
   if(d.tab){ goTab(d.tab); return; }
@@ -1380,6 +1495,9 @@ document.addEventListener('click',e=>{
   if(d.date){ sel=d.date; userPicked=true; ui.open=null; render(); return; }
   if(d.c){ cfg.courts=+d.c; saveCfg(); render(); return; }
   if(d.set){ const k=d.set, lo=k==='session'?30:5, hi=k==='session'?480:60; cfg[k]=Math.max(lo,Math.min(hi,(+cfg[k]||0)+(+d.d))); saveCfg(); render(); return; }
+  if(d.nsw){ const e=$('#nsWeeks'); if(e) e.textContent=Math.max(1,Math.min(52,(+e.textContent||5)+(+d.nsw))); return; }
+  if(d.dow!=null){ const S=season(), k=+d.dow, cur=daysOf(S); S.days= cur.includes(k)? (cur.length>1?cur.filter(x=>x!==k):cur) : cur.concat([k]).sort((a,b)=>a-b); if(cur.length===1&&cur[0]===k) toast('Keep at least one game day.'); sel=null; userPicked=false; saveCfg(); render(); return; }
+  if(d.skip!=null){ const S=season(), o=+d.skip, sk=new Set(S.skip||[]); if(sk.has(o)) sk.delete(o); else sk.add(o); S.skip=[...sk].sort((a,b)=>a-b); sel=null; userPicked=false; saveCfg(); render(); toast(sk.has(o)?'Week skipped. The session now ends a week later.':'Week added back.'); return; }
   if(d.wk){ const S=season(); S.weeks=Math.max(1,Math.min(52,(S.weeks|0)+(+d.wk))); saveCfg(); render(); return; }
   switch(d.act){
     case 'advance': { const s=sess(), R=s.rounds[+d.r]; if(!R.games.every(scored)){ toast('Enter both scores for every court first.'); return; }
@@ -1432,10 +1550,14 @@ document.addEventListener('click',e=>{
     case 'reset': ui.confirm='reset'; render(); return;
     case 'resetYes': ui.confirm=null; snap(); sess().rounds=[]; ui.pickMode=false; rebuild(); toast('This week was rebuilt from scratch',true); return;
     case 'cancelConfirm': ui.confirm=null; render(); return;
-    case 'newSeason': { const L=seasonsSorted(), last=L[L.length-1];
-      let start=last?addDays(seasonEnd(last),7):todayISO(); if(start<todayISO()) start=todayISO();
-      const S={id:newId(),name:'Session '+(cfg.seasons.length+1),startDate:start,weeks:5,regulars:last?regularsOf(last).slice():[]};
-      cfg.seasons.push(S); ui.season=S.id; sel=null; userPicked=false; ui.player=null; saveCfg(); render(); window.scrollTo(0,0); toast(`${S.name} created. Set its name and first week.`); return; }
+    case 'newSeason': ui.modal='new'; render(); setTimeout(()=>{ const f=$('#nsName'); if(f){ f.focus(); f.select(); } },50); return;
+    case 'openNew': ui.modal=d.first?'first':'new'; render(); return;
+    case 'nsCancel': ui.modal=null; render(); return;
+    case 'nsOk': nsOk(); return;
+    case 'regFile': $('#regFileIn').click(); return;
+    case 'saveRegs': { const n=parseNames(($('#regNames')||{}).value||'').length; if(!n){ toast('Paste names or open a file first.'); return; } const had=regularsOf(season()).length; applyRegDraft(!had); render(); toast(had?`${n} added to the regular players`:`${n} players saved`); return; }
+    case 'finishSetup': { const S=season(); applyRegDraft(true); const n=regularsOf(S).length; if(n<4){ ui.setupStep=2; render(); toast('Add at least 4 players to finish.'); return; }
+      delete S.setup; saveCfg(); sel=null; userPicked=false; ui.tab='players'; render(); window.scrollTo(0,0); toast(`${S.name} is ready with ${n} players. Check who's here and build the schedule.`); return; }
     case 'delSeason': ui.confirm='delSeason'; render(); return;
     case 'delSeasonYes': { const id=season().id; cfg.seasons=cfg.seasons.filter(x=>x.id!==id); ui.season=null; ui.confirm=null; sel=null; userPicked=false; saveCfg(); render(); toast('Session deleted'); return; }
     case 'backup': saveBackup(); return;
@@ -1446,6 +1568,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{
   const t=e.target;
+  if(t.id==='regNames'){ ui.regDraft=t.value; countRegs(); return; }
   if(t.id==='wNames'){ const c=$('#wCount'); if(c){ const n=parseNames(t.value).length; c.textContent=n+' player'+(n===1?'':'s'); } return; }
 });
 document.addEventListener('change',e=>{
@@ -1459,6 +1582,7 @@ document.addEventListener('change',e=>{
   if(t.id==='startDate'){ if(!t.value) return; season().startDate=t.value; userPicked=false; sel=null; saveCfg(); render(); return; }
   if(t.id==='seasonName'){ const v=t.value.trim(); if(!v){ render(); return; } season().name=v; saveCfg(); render(); return; }
   if(t.id==='start'){ cfg.startTime=t.value||'09:00'; saveCfg(); render(); return; }
+  if(t.id==='regFileIn'){ const f=t.files&&t.files[0]; t.value=''; if(f) importNamesFile(f); return; }
   if(t.id==='restoreFile'){ const f=t.files&&t.files[0]; t.value=''; if(!f) return;
     f.text().then(txt=>{ const v=JSON.parse(txt); if(!v||typeof v.cfg!=='object'||typeof v.sessions!=='object') throw 0;
       const c=migrate(clone(v.cfg)), wk=Object.values(v.sessions).filter(x=>(x.rounds||[]).length).length;
