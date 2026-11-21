@@ -205,6 +205,40 @@ table.st td.prz.top{color:var(--red)}
 .fmt .ft b{font-size:17px}
 .fmt .ft em{font-style:normal;font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.06em}
 .fmt .ft small{font-size:15px;color:var(--muted)}
+.railwrap{margin:0 -16px;min-width:0}
+main{grid-template-columns:minmax(0,1fr)}
+.rail{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 6px;scroll-behavior:smooth;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.rail::-webkit-scrollbar{display:none}
+.rchip{flex:0 0 auto;width:56px;min-height:60px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:grid;justify-items:center;align-content:center;gap:2px;cursor:pointer;color:var(--ink);padding:4px 0}
+.rchip .rn{font-family:var(--display);font-size:19px;font-weight:700;line-height:1;display:grid;place-items:center;height:22px}
+.rchip .rt{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rchip.done{background:var(--blue-soft);border-color:transparent;color:var(--blue)}
+.rchip.now{border:2px solid var(--red)}
+.rchip.sel{background:var(--blue);border-color:var(--blue);color:#FFFFFF;transform:translateY(-2px);box-shadow:0 6px 14px rgba(21,35,45,.18)}
+.rchip.sel .rt{color:#FFFFFF;opacity:.85}
+.rhead{display:flex;align-items:center;gap:8px}
+.rtitle{flex:1;min-width:0;display:grid;justify-items:center;gap:4px;text-align:center}
+.rtitle h2{font-size:22px;font-weight:600}
+.railfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:-4px}
+.card.finished{background:var(--blue-soft);border-color:transparent;gap:10px}
+.roundcard.slide-left{animation:slideL .22s ease-out}
+.roundcard.slide-right{animation:slideR .22s ease-out}
+@keyframes slideL{from{transform:translateX(36px);opacity:.3}to{transform:none;opacity:1}}
+@keyframes slideR{from{transform:translateX(-36px);opacity:.3}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.roundcard.slide-left,.roundcard.slide-right{animation:none}}
+.brandrow{display:none}
+.lookswitch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lookopt{display:grid;gap:4px;justify-items:center;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:700;font-size:15px;cursor:pointer}
+.lookopt[aria-current="true"]{border:2px solid var(--blue)}
+.lookopt .sw{display:flex;gap:4px}
+.lookopt .sw i{width:18px;height:18px;border-radius:50%;display:block}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end}
+.pod{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 6px;display:grid;justify-items:center;gap:3px;text-align:center;cursor:pointer;color:var(--ink)}
+.pod .pr{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;background:var(--line2)}
+.pod.p1 .pr{background:var(--blue);color:#FFFFFF}
+.pod b{font-size:15px;overflow-wrap:anywhere}
+.pod .wl{font-family:var(--display);font-size:20px;font-weight:700;color:var(--blue)}
+.pod small{font-size:12px;color:var(--muted)}
 .games{list-style:none;margin:0;padding:0}
 .games li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
 .games li:last-child{border-bottom:0}
@@ -249,7 +283,7 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 .empty .btn{width:100%}
 
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
-.nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:6px 4px 8px}
+.nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:6px 4px 8px}
 .tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border:0;background:transparent;color:var(--muted);font-size:14px;cursor:pointer;min-height:58px}
 .tab[aria-current="page"]{color:var(--blue);font-weight:700}
 .tab svg{width:26px;height:26px}
@@ -257,6 +291,31 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--navh) + 16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#FFFFFF;padding:12px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px);z-index:9;text-align:center}
 #toast.show{opacity:1}
 @media (prefers-reduced-motion: reduce){#toast,.chev{transition:none}}
+/* ---------- Dink & Drive look (used when the page sets html.dink) ---------- */
+html.dink{--bg:#F3F7F6;--surface:#FFFFFF;--ink:#2E3B3A;--muted:#5B6B69;--line:#E3ECEA;--line2:#EEF3F2;--edge:#C9D8D5;
+  --blue:#357A71;--blue-dark:#2A635C;--blue-soft:#E6F2F0;--red:#C2694A;--red-soft:#FBEDE7;
+  --display:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;--body:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif}
+html.dink body{font-size:17px}
+html.dink body::before{background:#3D8279}
+html.dink .top{background:#3D8279;color:#FFFFFF;border-bottom:0;border-radius:0 0 26px 26px}
+html.dink .brandrow{display:flex;justify-content:center;margin-bottom:2px}
+html.dink .brand{font-family:"Dancing Script",cursive;font-size:32px;font-weight:700;line-height:1.1;color:#FFFFFF}
+html.dink .eyebrow{color:#FFFFFF}
+html.dink .sync,html.dink .sync.warn{color:rgba(255,255,255,.9)}
+html.dink .top .arrow{background:rgba(255,255,255,.18);border-color:transparent;color:#FFFFFF}
+html.dink .top .arrow:disabled{opacity:.4}
+html.dink .weekbar h1{text-align:center;font-weight:600}
+html.dink .card,html.dink .acc,html.dink .table,html.dink .plist,html.dink .tablewrap,html.dink .linkrow,html.dink .pod,html.dink .rchip:not(.sel):not(.done){border-color:transparent;box-shadow:0 8px 20px rgba(46,59,58,.08)}
+html.dink .card.now{border:2px solid var(--blue)}
+html.dink .pill.now{background:var(--blue)}
+html.dink .rchip.now{border:2px solid var(--blue);box-shadow:none}
+html.dink .court{background:#F1F7F6}
+html.dink .btn{border-radius:10px}
+html.dink .btn.ghost,html.dink .btn.danger{border-radius:10px}
+html.dink .teambtn{border-radius:10px}
+html.dink table.st tr.top3 th,html.dink table.st tr.top3 td{background:#EEF6F4}
+html.dink .top3 .badge{background:var(--blue)}
+html.dink .finished{background:var(--blue-soft)}
 </style>
 </head>
 <body>
@@ -264,6 +323,7 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 
 <header class="top">
   <div class="top-in">
+    <div class="brandrow"><span class="brand">Dink &amp; Drive</span></div>
     <div class="toprow"><span class="eyebrow" id="eyebrow"></span><span class="sync" id="sync">Loading…</span></div>
     <div class="weekbar">
       <button type="button" class="arrow" id="prevWk" aria-label="Previous week"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
@@ -277,8 +337,7 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 
 <nav class="nav" aria-label="Main">
   <div class="nav-in">
-    <button type="button" class="tab" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Today</button>
-    <button type="button" class="tab" data-tab="rounds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rounds</button>
+    <button type="button" class="tab" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rounds</button>
     <button type="button" class="tab" data-tab="standings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>Standings</button>
     <button type="button" class="tab" data-tab="players"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>Players</button>
     <button type="button" class="tab" data-tab="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Setup</button>
@@ -373,7 +432,8 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.20-1';
+const APP_VERSION='2026.11.20-2';
+const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
 let cfg=defaultCfg(), sessions={}, sel=null, userPicked=false;
@@ -528,38 +588,36 @@ function emptyWeek(){
 /* ---------- views ---------- */
 function viewToday(){
   const s=sess(); if(!s.rounds.length) return emptyWeek();
-  const cur=firstOpen(s), N=s.rounds.length;
-  if(cur>=N){
-    return `<div class="card empty"><h2 style="font-size:24px">All ${N} rounds are finished</h2>
-      <p class="muted">Nice play. The standings are ready to share.</p>
-      <button type="button" class="btn" data-goto="standings">See standings</button>
-      <button type="button" class="btn ghost" data-act="export">${IC.share}Save or share results</button></div>`;
-  }
-  const R=s.rounds[cur], ed=!readOnly;
-  const nextLbl= cur+1<N ? `Save &amp; go to Round ${cur+2}` : 'Save &amp; finish';
-  return `<section class="card now">
-      <div class="cardhead"><h2>Round ${cur+1} of ${N}</h2><span class="pill now">Up now · ${clock(cur)}</span></div>
-      ${R.games.length?toRowHTML(cur,R,ed):''}
-      ${R.games.map((g,ci)=>courtHTML(s,cur,ci,g,ed,maxOf(R),targetOf(R))).join('')||'<p class="mini">Not enough players here for a game.</p>'}
+  const N=s.rounds.length, cur=firstOpen(s);
+  let i= ui.round==null ? Math.min(cur,N-1) : Math.max(0,Math.min(N-1,ui.round));
+  const R=s.rounds[i], ed=!readOnly, isNow=i===cur, done=R.done;
+  const rail=s.rounds.map((r,k)=>{ const st=r.done?'done':k===cur?'now':'later';
+    return `<button type="button" class="rchip ${st}${k===i?' sel':''}" data-rnd="${k}" aria-label="Round ${k+1}, ${r.done?'final':k===cur?'up now':'upcoming'}"${k===i?' aria-current="true"':''}><span class="rn">${r.done?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>':k+1}</span><span class="rt">${clock(k).replace(/ [AP]M$/,'')}</span></button>`; }).join('');
+  const finished= cur>=N ? `<div class="card finished"><b>All ${N} rounds are finished.</b><div class="row2"><button type="button" class="btn small" data-goto="standings">See standings</button><button type="button" class="btn ghost small" data-act="export">${IC.share}Save or share</button></div></div>` : '';
+  const pill= done?'<span class="pill final">Final</span>':isNow?`<span class="pill now">Up now · ${clock(i)}</span>`:`<span class="pill later">Starts ${clock(i)}</span>`;
+  const nextLbl= i+1<N ? `Save &amp; go to Round ${i+2}` : 'Save &amp; finish';
+  const actions= !ed ? '' : done
+    ? `<button type="button" class="btn ghost small" data-done="${i}">Reopen this round</button>`
+    : `<button type="button" class="btn" data-act="advance" data-r="${i}">${nextLbl} ${IC.arrow}</button>
+       <button type="button" class="linkrow" data-act="skip" data-r="${i}" style="justify-content:center;border:0;padding:6px;color:var(--muted);font-size:16px">Skip scores for this round</button>`;
+  const anim= ui.slide ? ` slide-${ui.slide}` : ''; ui.slide=null;
+  return `${finished}
+    <div class="railwrap"><div class="rail" id="rail" role="group" aria-label="Rounds">${rail}</div></div>
+    <section class="card roundcard${isNow&&!done?' now':''}${anim}" id="swipe">
+      <div class="rhead">
+        <button type="button" class="arrow" data-rstep="-1" aria-label="Previous round"${i===0?' disabled':''}>${IC.back}</button>
+        <div class="rtitle"><h2>Round ${i+1} <span class="muted" style="font-weight:500">of ${N}</span></h2>${pill}</div>
+        <button type="button" class="arrow" data-rstep="1" aria-label="Next round"${i===N-1?' disabled':''}>${IC.go}</button>
+      </div>
+      ${R.games.length?toRowHTML(i,R,ed):''}
+      ${R.games.map((g,ci)=>courtHTML(s,i,ci,g,ed,maxOf(R),targetOf(R))).join('')||'<p class="mini">Not enough players here for a game.</p>'}
       ${sitHTML(s,R)}
-      ${ed?`<button type="button" class="btn" data-act="advance" data-r="${cur}">${nextLbl} ${IC.arrow}</button>
-      <button type="button" class="linkrow" data-act="skip" data-r="${cur}" style="justify-content:center;border:0;padding:6px;color:var(--muted);font-size:16px">Skip scores for this round</button>`:''}
+      ${actions}
     </section>
-    ${cur+1<N?`<button type="button" class="linkrow" data-goto="rounds"><span style="flex:1">Next: <b>Round ${cur+2}</b> at ${clock(cur+1)}</span><span class="go">All rounds</span>${IC.go}</button>`:''}`;
+    <div class="railfoot"><span class="note">Swipe the card or tap a round above.</span><button type="button" class="linkrow" data-act="copySched" style="width:auto;border:0;padding:6px 0;color:var(--blue);font-weight:700;font-size:15px">${IC.copy}Copy schedule</button></div>`;
 }
-function viewRounds(){
-  const s=sess(); if(!s.rounds.length) return emptyWeek();
-  const cur=firstOpen(s); const open= ui.open==null ? Math.min(cur,s.rounds.length-1) : ui.open;
-  return `<div class="cardhead"><h2 style="font-size:24px">All rounds</h2><button type="button" class="btn ghost small" data-act="copySched">${IC.copy}Copy schedule</button></div>
-    <p class="note">Tap a round to open it. You can fix any score here.</p>
-    ${s.rounds.map((R,i)=>{
-      const done=R.done, now=i===cur, isOpen=i===open;
-      const pill= done?'<span class="pill final">Final</span>':now?'<span class="pill now">Up now</span>':'<span class="pill later">Upcoming</span>';
-      const body= isOpen?`<div class="accbody">${R.games.length?toRowHTML(i,R,!readOnly):''}${R.games.map((g,ci)=>courtHTML(s,i,ci,g,!readOnly,maxOf(R),targetOf(R))).join('')||'<p class="mini">Not enough players for a game.</p>'}${sitHTML(s,R)}
-        ${readOnly?'':`<button type="button" class="btn ghost small" data-done="${i}">${done?'Reopen this round':'Mark as played'}</button>`}</div>`:'';
-      return `<div class="acc${now?' now':''}${isOpen?' open':''}"><button type="button" class="acchead" data-acc="${i}" aria-expanded="${isOpen}"><span class="rn">Round ${i+1}</span><span class="t">${clock(i)}</span>${pill}${IC.chev}</button>${body}</div>`;
-    }).join('')}`;
-}
+function goRound(k,dir){ const s=sess(); const N=s.rounds.length; if(!N) return; k=Math.max(0,Math.min(N-1,k)); const cur= ui.round==null?Math.min(firstOpen(s),N-1):ui.round; if(k===cur) return; ui.slide= dir|| (k>cur?'left':'right'); ui.round=k; render(); centerRail(); }
+function centerRail(){ const r=document.getElementById('rail'); const c=r&&r.querySelector('.sel'); if(c) r.scrollLeft=c.offsetLeft-r.clientWidth/2+c.clientWidth/2; }
 function tally(list){
   const m={}, seq={}, part={}, wk={}, sits={};
   const T=p=>m[p]||(m[p]={id:p,w:0,l:0,pf:0,pa:0});
@@ -635,7 +693,8 @@ function viewStandings(){
   const picker= ui.cols ? `<div class="card colpick"><div class="cardhead"><h2 style="font-size:19px">Columns to show</h2><button type="button" class="btn ghost small" data-act="colsDone">Done</button></div>
       <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
-  return `${seg}
+  const podium= THEME==='dink'&&rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><span class="pr">${t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}–${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
+  return `${seg}${podium}
     <div class="cardhead"><p class="note" style="flex:1">Tap a column title to see what it means.</p><button type="button" class="btn ghost small" data-act="cols" aria-expanded="${!!ui.cols}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Columns</button></div>
     ${picker}
     ${prizeBar}${prizeCard}
@@ -726,6 +785,11 @@ function viewSetup(){
     ${ro?'':`<button type="button" class="btn" data-act="build">${locked?'Update the remaining rounds':has?'Rebuild this week’s schedule':'Build this week’s schedule'}</button>`}
     ${!ro&&locked?(ui.confirm==='reset'?`<div class="confirm"><b>Clear all of this week's rounds and scores?</b><div class="row2"><button type="button" class="btn danger" data-act="resetYes">Clear and rebuild</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Cancel</button></div></div>`:`<button type="button" class="btn danger" data-act="reset">Start this week over</button>`):''}
 
+    ${mode==='local'&&/^https?:$/.test(location.protocol)?`<section class="card"><h2 style="font-size:20px">App look</h2><p class="note">Both looks use the same saved data.</p>
+      <div class="lookswitch">
+        <a class="lookopt" href="index.html"${THEME==='classic'?' aria-current="true"':''}><span class="sw"><i style="background:#1559B0"></i><i style="background:#C53B3B"></i></span>Classic</a>
+        <a class="lookopt" href="dink.html"${THEME==='dink'?' aria-current="true"':''}><span class="sw"><i style="background:#458F86"></i><i style="background:#F3F7F6;border:1px solid #C9D8D5"></i></span>Dink &amp; Drive</a>
+      </div></section>`:''}
     ${mode==='local'?`<section class="card"><h2 style="font-size:20px">Backup</h2><p class="note">Your sessions are saved on this device only. Save a backup after each week so you can restore it if this app's data is ever cleared.</p>
       <div class="row2"><button type="button" class="btn ghost" data-act="backup">Save backup</button><button type="button" class="btn ghost" data-act="restore">Restore</button></div>
       ${restoreData?`<div class="confirm"><span>${esc(restoreInfo)}</span><div class="row2"><button type="button" class="btn danger" data-act="restoreYes">Replace with backup</button><button type="button" class="btn ghost small" data-act="restoreNo">Cancel</button></div></div>`:''}</section>`:''}`;
@@ -890,6 +954,10 @@ async function makeFile(){
 let renderWanted=false;
 function typing(){ const a=document.activeElement; return a&&(a.tagName==='TEXTAREA'||a.tagName==='SELECT'||(a.tagName==='INPUT'&&a.type!=='button')); }
 function scheduleRender(){ if(typing()) renderWanted=true; else render(); }
+let swX=null, swY=null;
+document.addEventListener('touchstart',e=>{ const c=e.target.closest&&e.target.closest('#swipe'); if(!c||e.target.closest('select')){ swX=null; return; } swX=e.touches[0].clientX; swY=e.touches[0].clientY; },{passive:true});
+document.addEventListener('touchend',e=>{ if(swX==null) return; const dx=e.changedTouches[0].clientX-swX, dy=e.changedTouches[0].clientY-swY; swX=null;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(dx<0?1:-1), dx<0?'left':'right'); } },{passive:true});
 document.addEventListener('focusout',()=>setTimeout(()=>{ if(renderWanted&&!typing()){ renderWanted=false; render(); } },0));
 
 function render(){
@@ -902,9 +970,10 @@ function render(){
   $('#dayH').textContent=fmtDate(sel,{weekday:'short',month:'short',day:'numeric'});
   $('#prevWk').disabled=i<=0; $('#nextWk').disabled=i<0||i>=dates.length-1;
   document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.tab===ui.tab) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
-  const v={today:viewToday,rounds:viewRounds,standings:viewStandings,players:viewPlayers,setup:viewSetup}[ui.tab];
+  const v={today:viewToday,standings:viewStandings,players:viewPlayers,setup:viewSetup}[ui.tab]||viewToday;
   $('#view').innerHTML=v()+`<p class="ver">Version ${APP_VERSION}${updateReady?' · <button type="button" data-act="update">New version available. Tap to update</button>':''}</p>`;
   $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
+  if(ui.tab==='today') requestAnimationFrame(centerRail);
   if(mode==='local') setSync('Saved on this device');
   else if(readOnly) setSync('View only');
 }
@@ -951,7 +1020,7 @@ function rebuild(){
   return {f,total};
 }
 function setScore(ri,gi,k,v){ const s=sess(), R=s.rounds[ri], g=R&&R.games[gi]; if(!g) return; g[k]=v; saveSession(); }
-function goTab(t){ ui.tab=t; ui.sub=null; ui.sheet=false; ui.player=null; ui.form=null; ui.confirm=null; render(); window.scrollTo(0,0); }
+function goTab(t){ if(t==='rounds') t='today'; ui.tab=t; ui.round=null; ui.sub=null; ui.sheet=false; ui.player=null; ui.form=null; ui.confirm=null; render(); window.scrollTo(0,0); }
 function subIn(){
   const outId=$('#subFor').value, n=$('#subName').value.trim().replace(/\s+/g,' ');
   if(!outId){ toast('Choose the player who can’t come.'); return; }
@@ -991,7 +1060,7 @@ document.addEventListener('click',e=>{
   const d=t.dataset;
   if(d.tab){ goTab(d.tab); return; }
   if(d.goto){ goTab(d.goto); return; }
-  if(t.id==='prevWk'||t.id==='nextWk'){ const ds=seasonDates(), i=ds.indexOf(sel), j=i+(t.id==='prevWk'?-1:1); if(ds[j]){ sel=ds[j]; userPicked=true; ui.open=null; ui.player=null; ui.confirm=null; ui.form=null; render(); } return; }
+  if(t.id==='prevWk'||t.id==='nextWk'){ const ds=seasonDates(), i=ds.indexOf(sel), j=i+(t.id==='prevWk'?-1:1); if(ds[j]){ sel=ds[j]; userPicked=true; ui.open=null; ui.round=null; ui.player=null; ui.confirm=null; ui.form=null; render(); } return; }
   if(d.step){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const cur=g[d.s]==null?0:g[d.s];
     const nv=cur+(+d.step), k=d.s, o=k==='sa'?'sb':'sa', T=targetOf(R), W=winnerOf(g,T);
     if(nv<0) return;
@@ -1001,6 +1070,8 @@ document.addEventListener('click',e=>{
       else { toast(`Highest score allowed is ${maxOf(R)}.`); return; }
     }
     setScore(+d.r,+d.g,k,nv); render(); return; }
+  if(d.rnd!=null){ goRound(+d.rnd); return; }
+  if(d.rstep){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(+d.rstep), +d.rstep>0?'left':'right'); return; }
   if(d.quick!=null){ setScore(+d.r,+d.g,d.s,+d.quick); render(); return; }
   if(d.win){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const k=d.win, o=k==='sa'?'sb':'sa', T=targetOf(R);
     const isWin= g[k]!=null && (g[o]==null ? g[k]>=T : g[k]>g[o]);
@@ -1027,9 +1098,9 @@ document.addEventListener('click',e=>{
   if(d.wk){ const S=season(); S.weeks=Math.max(1,Math.min(52,(S.weeks|0)+(+d.wk))); saveCfg(); render(); return; }
   switch(d.act){
     case 'advance': { const s=sess(), R=s.rounds[+d.r]; if(!R.games.every(scored)){ toast('Enter both scores for every court first.'); return; }
-      R.done=true; saveSession(); render(); window.scrollTo(0,0);
+      R.done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail();
       const nx=firstOpen(s); toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.'); return; }
-    case 'skip': { const s=sess(); s.rounds[+d.r].done=true; saveSession(); render(); window.scrollTo(0,0); return; }
+    case 'skip': { const s=sess(); s.rounds[+d.r].done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail(); return; }
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
     case 'share': shareResults(); return;
     case 'history': ui.sub='history'; ui.player=null; render(); window.scrollTo(0,0); return;
