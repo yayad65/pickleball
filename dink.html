@@ -252,6 +252,9 @@ main{grid-template-columns:minmax(0,1fr)}
 .pk.on{color:var(--ink);font-weight:700}
 .pk.on .box{background:var(--blue);border-color:var(--blue)}
 .pk .nm{overflow-wrap:anywhere}
+.pk .away{margin-left:auto;font-size:13px;font-weight:600;color:var(--muted)}
+.pk.sub{cursor:default}
+.pk.sub .subtag{margin-left:auto;font-size:12px}
 .rm{width:44px;height:44px;margin-right:6px;border:0;border-radius:10px;background:var(--red-soft);color:var(--red);font-size:24px;cursor:pointer;flex:none}
 .timer{display:grid;gap:8px;justify-items:center;background:var(--blue-soft);border-radius:14px;padding:12px}
 .timer .row2{width:100%}
@@ -320,13 +323,58 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 #toast.act{pointer-events:auto}
 #toast button{font:inherit;font-weight:700;color:#9FD3FF;background:none;border:0;padding:4px 6px;margin-left:6px;text-decoration:underline;cursor:pointer}
 @media (prefers-reduced-motion: reduce){#toast,.chev{transition:none}}
+
+table.st thead th.vth{height:auto;padding:8px 2px 6px;vertical-align:bottom;text-align:center}
+table.st thead .pcol{vertical-align:bottom;padding-bottom:10px;color:var(--muted)}
+.thv{background:none;border:0;padding:4px 6px;cursor:pointer;font:inherit;font-weight:700;color:var(--ink);border-radius:8px}
+.thv:hover{background:var(--line2)}
+.vt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;display:inline-block;font-size:14px;letter-spacing:.02em}
+th.off .thv{color:var(--muted);opacity:.65}
+th.off .vt{text-decoration:line-through}
+table.st td.off{width:14px;min-width:14px;padding:0;background:repeating-linear-gradient(180deg,var(--line2) 0 2px,transparent 2px 6px)}
+th.vth.off{width:30px}
+.steps{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 4px}
+.steps::-webkit-scrollbar{display:none}
+.stp{flex:0 0 auto;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px 0 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:600;font-size:15px;cursor:pointer}
+.stp .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--line2);font-weight:700;color:var(--ink)}
+.stp.done .n{background:var(--blue-soft);color:var(--blue)}
+.stp.on{background:var(--blue);border-color:var(--blue);color:#FFFFFF}
+.stp.on .n{background:#FFFFFF;color:var(--blue)}
+.stepnav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
+.stepnav .btn{font-size:16px;min-height:52px}
+/* subtle gradients */
+:root{--bg2:#E2EBF8;--hdr:linear-gradient(180deg,#FFFFFF 0%,#F6F9FE 100%);--btn:linear-gradient(180deg,#1E68C6 0%,#1559B0 100%)}
+html,body{background:linear-gradient(180deg,var(--bg2) 0px,var(--bg) 420px) no-repeat,var(--bg)}
+.top{background:var(--hdr)}
+.btn:not(.ghost):not(.danger){background:var(--btn)}
+.btn:not(.ghost):not(.danger):hover{filter:brightness(.94)}
+.card.now{background:linear-gradient(180deg,var(--blue-soft) 0,var(--surface) 110px)}
+.pod.p1{background:linear-gradient(180deg,var(--blue-soft) 0,var(--surface) 70%)}
+html.dink{--bg2:#DCEDE9;--btn:linear-gradient(180deg,#3F8A80 0%,#357A71 100%)}
+html.dink .top{background:linear-gradient(110deg,#2C6A62 0%,#3D8279 55%,#4C948A 100%)}
+html.dink body::before{background:#2C6A62}
+/* splash */
+.splash{position:fixed;inset:0;z-index:50;display:grid;place-items:center;cursor:pointer;color:#FFFFFF;transition:opacity .35s ease;
+  background:radial-gradient(120% 70% at 100% 100%,rgba(255,255,255,.22) 0%,rgba(255,255,255,0) 55%),linear-gradient(125deg,#071E3D 0%,#0F3F80 40%,#1559B0 70%,#5B9BE8 100%)}
+html.dink .splash{background:radial-gradient(120% 70% at 100% 100%,rgba(255,255,255,.25) 0%,rgba(255,255,255,0) 55%),linear-gradient(125deg,#0E2E2B 0%,#1F5650 40%,#3D8279 70%,#8FD0C5 100%)}
+.splash.out{opacity:0;pointer-events:none}
+.sp-in{display:grid;justify-items:center;gap:14px;text-align:center;padding:24px}
+.sp-ball{width:132px;height:132px;filter:drop-shadow(0 18px 24px rgba(0,0,0,.35));animation:spBounce 1.1s cubic-bezier(.3,.7,.4,1) both}
+.sp-name{font-family:var(--display);font-size:34px;font-weight:800;line-height:1.1;letter-spacing:-.01em;animation:spFade .6s .25s both}
+html.dink .sp-name{font-family:"Dancing Script",cursive;font-size:54px;font-weight:700}
+.sp-sub{font-size:16px;opacity:.85;letter-spacing:.14em;text-transform:uppercase;animation:spFade .6s .4s both}
+.sp-tap{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;font-size:13px;opacity:.6}
+@keyframes spBounce{0%{transform:translateY(-60px) scale(.8);opacity:0}55%{transform:translateY(8px) scale(1.02);opacity:1}75%{transform:translateY(-6px)}100%{transform:none}}
+@keyframes spFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.sp-ball,.sp-name,.sp-sub{animation:none}.splash{transition:none}}
+
 /* ---------- Dink & Drive look (used when the page sets html.dink) ---------- */
 html.dink{--bg:#F3F7F6;--surface:#FFFFFF;--ink:#2E3B3A;--muted:#5B6B69;--line:#E3ECEA;--line2:#EEF3F2;--edge:#C9D8D5;
   --blue:#357A71;--blue-dark:#2A635C;--blue-soft:#E6F2F0;--red:#C2694A;--red-soft:#FBEDE7;
   --display:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;--body:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif}
 html.dink body{font-size:17px}
 html.dink body::before{background:#3D8279}
-html.dink .top{background:#3D8279;color:#FFFFFF;border-bottom:0;border-radius:0 0 26px 26px}
+html.dink .top{background:linear-gradient(110deg,#2C6A62 0%,#3D8279 55%,#4C948A 100%);color:#FFFFFF;border-bottom:0;border-radius:0 0 26px 26px}
 html.dink .brandrow{display:flex;justify-content:center;margin-bottom:2px}
 html.dink .brand{font-family:"Dancing Script",cursive;font-size:32px;font-weight:700;line-height:1.1;color:#FFFFFF}
 html.dink .eyebrow{color:#FFFFFF}
@@ -350,6 +398,19 @@ html.dink .finished{background:var(--blue-soft)}
 <body>
 
 
+<div id="splash" class="splash" role="button" tabindex="0" aria-label="Open the app">
+  <div class="sp-in">
+    <svg class="sp-ball" viewBox="0 0 120 120" aria-hidden="true">
+      <defs><radialGradient id="spg" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#FFF6A8"/><stop offset=".55" stop-color="#F2D63B"/><stop offset="1" stop-color="#C9A417"/></radialGradient></defs>
+      <circle cx="60" cy="60" r="56" fill="url(#spg)"/>
+      <g fill="#A8870F" opacity=".55"><circle cx="60" cy="22" r="6"/><circle cx="34" cy="34" r="6"/><circle cx="86" cy="34" r="6"/><circle cx="22" cy="60" r="6"/><circle cx="60" cy="60" r="6.5"/><circle cx="98" cy="60" r="6"/><circle cx="34" cy="86" r="6"/><circle cx="86" cy="86" r="6"/><circle cx="60" cy="98" r="6"/><circle cx="46" cy="47" r="4"/><circle cx="74" cy="47" r="4"/><circle cx="46" cy="73" r="4"/><circle cx="74" cy="73" r="4"/></g>
+      <ellipse cx="44" cy="30" rx="16" ry="9" fill="#FFFFFF" opacity=".35" transform="rotate(-25 44 30)"/>
+    </svg>
+    <div class="sp-name" id="spName">Pickleball Round Robin</div>
+    <div class="sp-sub">Round robin made easy</div>
+  </div>
+  <div class="sp-tap">Tap to start</div>
+</div>
 <header class="top">
   <div class="top-in">
     <div class="brandrow"><span class="brand">Dink &amp; Drive</span></div>
@@ -461,12 +522,12 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.20-3';
+const APP_VERSION='2026.11.21-1';
 const THEME= window.__THEME==='dink' ? 'dink' : 'classic';
 let updateReady=false;
 let db=null, mode='loading', readOnly=false;
 let cfg=defaultCfg(), sessions={}, sel=null, userPicked=false;
-const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,form:null,confirm:null,pick:{},pickMode:false,editList:false,timer:null,wstep:0};
+const ui={tab:'today',scope:'day',player:null,draft:{},season:null,open:null,form:null,confirm:null,pick:{},pickSubs:{},pickMode:false,editList:false,timer:null,wstep:0};
 let restoreData=null, restoreInfo='';
 
 const seasonsSorted=()=>cfg.seasons.slice().sort((a,b)=>a.startDate<b.startDate?-1:a.startDate>b.startDate?1:0);
@@ -519,7 +580,7 @@ function lastPlayers(date){
   const prev=seasonWeeks().filter(s=>s.date<date&&s.players&&s.players.length).sort((a,b)=>a.date<b.date?1:-1)[0];
   if(!prev) return [];
   const subs=prev.subs||{}, out=prev.players.filter(id=>!subs[id]);
-  for(const id of Object.values(subs)) if(!out.includes(id)) out.push(id);
+  for(const id of Object.values(subs)) if(id!=='none'&&!out.includes(id)) out.push(id);
   return out;
 }
 function weekNo(d){ const S=season(); if(d<S.startDate) return null; const n=Math.round((new Date(d)-new Date(S.startDate))/6048e5)+1; return n<=S.weeks?n:null; }
@@ -707,7 +768,7 @@ const COLS=[
   {id:'sits',abbr:'Sat',  name:'Sit-outs', help:'Rounds the player sat out.', def:0, val:t=>t.sits},
   {id:'wks', abbr:'Wks',  name:'Weeks played', help:'Weeks with at least one scored game. Most useful in the Whole session view.', def:0, val:t=>t.weeks},
   {id:'stk', abbr:'Strk', name:'Current streak', help:'Latest run of results, for example W3 means three wins in a row.', def:0, val:t=>t.streak||'–'},
-  {id:'best',abbr:'Best partner', name:'Best partner', help:'The partner they won the most games with, and how many wins together.', def:0, val:t=>t.best?`${esc(nameOf(t.best.id))} (${t.best.w})`:'–', text:1}
+  {id:'best',abbr:'Best partner',short:'Partner', name:'Best partner', help:'The partner they won the most games with, and how many wins together.', def:0, val:t=>t.best?`${esc(nameOf(t.best.id))} (${t.best.w})`:'–', text:1}
 ];
 const PRIZE_HELP='Games won today plus half a win (0.5) for each round sat out. Used only to pick the day’s prize winner; it doesn’t count toward any stats or the ranking.';
 function shownCols(){ const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.def).map(x=>x.id); return COLS.filter(x=>c.includes(x.id)); }
@@ -749,15 +810,13 @@ function viewStandings(){
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
   const podium= rows.length>=3 ? `<div class="podium">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><span class="pr">${t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}–${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
   return `${seg}${podium}
-    <div class="cardhead"><p class="note" style="flex:1">Tap a column title to see what it means.</p><button type="button" class="btn ghost small" data-act="cols" aria-expanded="${!!ui.cols}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Columns</button></div>
-    ${picker}
+    <p class="note">Tap a column title to show or hide that column. The Key below explains each one.</p>
     ${prizeBar}${prizeCard}
-    ${help?`<div class="helpbox" role="status"><b>${help.abbr}</b>${help.abbr!==help.name?` · ${esc(help.name)}`:''}<br>${esc(help.help)}<button type="button" class="x" data-act="closeHelp" aria-label="Close explanation">×</button></div>`:''}
     <div class="tablewrap"><table class="st">
-      <thead><tr><th class="pcol" scope="col"><button type="button" class="th" data-help="rank">Player</button></th>${prizeOn?`<th scope="col" class="prz"><button type="button" class="th${ui.colHelp==='prize'?' on':''}" data-help="prize" title="Prize wins: ${esc(PRIZE_HELP)}">Prize</button></th>`:''}${cols.map(c=>`<th scope="col"${c.text?' class="txt"':''}><button type="button" class="th${ui.colHelp===c.id?' on':''}" data-help="${c.id}" title="${esc(c.name)}: ${esc(c.help)}">${c.abbr}</button></th>`).join('')}</tr></thead>
-      <tbody>${(()=>{ const SN=shortNames(rows.map(r=>r.id)); return rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}" title="${esc(nameOf(t.id))}" aria-label="${esc(nameOf(t.id))}">${esc(SN[t.id])}</button></th>${prizeOn?`<td class="prz${t.prize===ptop?' top':''}">${fmtW(t.prize)}</td>`:''}${cols.map(c=>`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`).join('')}</tr>`).join(''); })()}</tbody>
+      <thead><tr><th class="pcol" scope="col">Player</th>${prizeOn?`<th scope="col" class="prz vth"><span class="vt">Prize</span></th>`:''}${COLS.map(c=>{ const on=cols.includes(c); return `<th scope="col" class="vth${on?'':' off'}"><button type="button" class="thv" data-colt="${c.id}" aria-pressed="${on}" title="${esc(c.name)}: ${esc(c.help)}"><span class="vt">${esc(c.short||c.abbr)}</span></button></th>`; }).join('')}</tr></thead>
+      <tbody>${(()=>{ const SN=shortNames(rows.map(r=>r.id)); return rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}" title="${esc(nameOf(t.id))}" aria-label="${esc(nameOf(t.id))}">${esc(SN[t.id])}</button></th>${prizeOn?`<td class="prz${t.prize===ptop?' top':''}">${fmtW(t.prize)}</td>`:''}${COLS.map(c=>cols.includes(c)?`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`:'<td class="off" aria-hidden="true"></td>').join('')}</tr>`).join(''); })()}</tbody>
     </table></div>
-    <p class="note">Ranked by Win%, then +/−. Tap a name to see their games. ${cols.length>4?'Swipe the table sideways to see every column.':''}</p>
+    <p class="note">Ranked by Win%, then +/−. Tap a name to see their games.</p>
     <button type="button" class="btn" data-act="export">${IC.share}Save or share results</button>
     <details class="card key"><summary><span>Key: what each column means</span>${IC.chev}</summary>
       <dl class="keylist"><div><dt>#</dt><dd>Rank. Players are ranked by Win%, then by +/−, then by PF.</dd></div>${prizeOn?`<div><dt>Prize</dt><dd><b>Prize wins.</b> ${esc(PRIZE_HELP)}</dd></div>`:''}${COLS.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
@@ -793,25 +852,53 @@ function welcomeNext(){
   const st=ui.wstep||0, S=season();
   if(st===1){ const n=($('#wName').value||'').trim(); if(n) S.name=n; const d=$('#wDate').value; if(d){ S.startDate=d; sel=null; userPicked=false; } saveCfg(); }
   if(st===3){ const names=parseNames($('#wNames').value); if(names.length<4){ toast('Add at least 4 players to start.'); return; }
-    const ids=names.map(idFor); cfg.onboarded=true; saveCfg(); sel=null; userPicked=false; render(); ui.pick[sel]=ids; ui.tab='players'; render(); window.scrollTo(0,0); toast('All set. Check the list and build your first schedule.'); return; }
+    const ids=names.map(idFor); season().regulars=ids.slice(); cfg.onboarded=true; saveCfg(); sel=null; userPicked=false; render(); ui.pick[sel]=ids; ui.tab='players'; render(); window.scrollTo(0,0); toast('All set. Check the list and build your first schedule.'); return; }
   ui.wstep=st+1; render(); window.scrollTo(0,0);
 }
 function rosterIds(){ const h=cfg.hidden||{}; return Object.keys(cfg.roster).filter(id=>!h[id]).sort((a,b)=>nameOf(a).localeCompare(nameOf(b))); }
+const byName=(a,b)=>nameOf(a).localeCompare(nameOf(b));
+/* Regular (signed-up) players belong to a session. Subs are added to one week only and never join this list. */
+function regularsOf(S){
+  if(Array.isArray(S.regulars)) return S.regulars.filter(id=>cfg.roster[id]);
+  const ids=new Set(), subs=new Set();
+  Object.values(sessions).filter(x=>sid(x)===S.id).forEach(x=>{ (x.players||[]).forEach(id=>{ if(isSub(x,id)) subs.add(id); else ids.add(id); }); });
+  let out=[...ids].filter(id=>!subs.has(id));
+  if(!out.length){ const prev=seasonsSorted().filter(x=>x.startDate<S.startDate&&Array.isArray(x.regulars)).pop(); out= prev?prev.regulars.slice():rosterIds(); }
+  return out;
+}
+function setRegulars(S,ids){ S.regulars=[...new Set(ids)]; saveCfg(); }
 function pickSet(){
-  if(!ui.pick[sel]){ const s=sessions[sel]; let ids=(s&&s.players.length)?s.players.filter(id=>!isSub(s,id)):lastPlayers(sel); if(!ids.length) ids=rosterIds(); ui.pick[sel]=ids.slice(); }
+  if(!ui.pick[sel]){ const s=sessions[sel];
+    if(s&&s.players.length){ ui.pick[sel]=s.players.filter(id=>!isSub(s,id)); ui.pickSubs[sel]=s.players.filter(id=>isSub(s,id)&&s.subs[id]==='none'); }
+    else { ui.pick[sel]=regularsOf(season()).slice(); ui.pickSubs[sel]=[]; } }
+  if(!ui.pickSubs[sel]) ui.pickSubs[sel]=[];
   return ui.pick[sel];
 }
+const pickSubs=()=>{ pickSet(); return ui.pickSubs[sel]; };
+function recentSubs(){ const regs=new Set(regularsOf(season())), cur=new Set(pickSubs()), seen={};
+  Object.values(sessions).sort((a,b)=>a.date<b.date?1:-1).forEach(x=>Object.keys(x.subs||{}).forEach(id=>{ if(!regs.has(id)&&!cur.has(id)&&cfg.roster[id]&&!seen[id]) seen[id]=x.date; }));
+  return Object.keys(seen).slice(0,8); }
 function viewPick(){
-  const s=sess(), built=s.rounds.length>0, locked=lockedCount(s), pk=pickSet();
-  const ids=rosterIds(); pk.forEach(id=>{ if(!ids.includes(id)) ids.push(id); });
-  const rows=ids.map(id=>{ const on=pk.includes(id);
-    return `<div class="pkrow"><button type="button" class="pk${on?' on':''}" data-pick="${id}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':''}</span><span class="nm">${esc(nameOf(id))}</span></button>${ui.editList?`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))} from the list">×</button>`:''}</div>`; }).join('');
+  const s=sess(), S=season(), built=s.rounds.length>0, locked=lockedCount(s), pk=pickSet(), subs=pickSubs();
+  const regs=regularsOf(S).slice().sort(byName); pk.forEach(id=>{ if(!regs.includes(id)) regs.push(id); });
+  const chk='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  const rows=regs.map(id=>{ const on=pk.includes(id);
+    return `<div class="pkrow"><button type="button" class="pk${on?' on':''}" data-pick="${id}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?chk:''}</span><span class="nm">${esc(nameOf(id))}</span>${on?'':'<small class="away">Not coming</small>'}</button>${ui.editList?`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))} from the regular players">×</button>`:''}</div>`; }).join('');
+  const subRows=subs.map(id=>`<div class="pkrow"><span class="pk on sub"><span class="box" aria-hidden="true">${chk}</span><span class="nm">${esc(nameOf(id))}</span><small class="subtag">Sub · this week</small></span><button type="button" class="rm" data-unsub="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button></div>`).join('');
+  const recent=recentSubs();
+  const total=pk.length+subs.length;
   return `<div class="cardhead"><h2 style="font-size:23px">Who’s playing?</h2><span class="note">${esc(fmtDate(sel,{weekday:'short',month:'short',day:'numeric'}))}</span></div>
-    <p class="note">Tap names to include or leave out. <b style="color:var(--ink)">${pk.length} selected.</b></p>
-    <div class="pkbar"><button type="button" class="chipbtn" data-act="pickAll">Select all</button><button type="button" class="chipbtn" data-act="pickNone">Clear</button><button type="button" class="chipbtn${ui.editList?' on':''}" data-act="editList">${ui.editList?'Done editing':'Edit list'}</button></div>
-    ${ids.length?`<div class="plist">${rows}</div>`:'<p class="note">No players yet. Add them below.</p>'}
-    <div class="card" style="gap:8px"><label class="label" for="newPlayer" style="margin:0">Add a player</label><div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="First and last name"><button type="button" class="btn small" data-act="addPlayer">Add</button></div><p class="note">New players are saved to your list for future weeks.</p></div>
-    <p class="note" id="plan">${esc(planText(pk.length))}</p>
+    <p class="note">Tap a regular who isn’t coming. <b style="color:var(--ink)">${total} playing</b> (${pk.length} regular${pk.length===1?'':'s'}${subs.length?`, ${subs.length} sub${subs.length>1?'s':''}`:''}).</p>
+    <div class="pkbar"><button type="button" class="chipbtn" data-act="pickAll">Everyone’s coming</button><button type="button" class="chipbtn${ui.editList?' on':''}" data-act="editList">${ui.editList?'Done editing':'Edit regulars'}</button></div>
+    <span class="label" style="margin:2px 0 -6px">Regular players · ${esc(S.name)}</span>
+    ${regs.length?`<div class="plist">${rows}</div>`:'<p class="note">No regular players yet. Add them below.</p>'}
+    ${ui.editList?`<div class="card" style="gap:8px"><label class="label" for="newPlayer" style="margin:0">Add a regular player</label><div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="First and last name"><button type="button" class="btn small" data-act="addPlayer">Add</button></div><p class="note">Regulars are signed up for the whole session and appear every week.</p></div>`:''}
+    <span class="label" style="margin:6px 0 -6px">Subs for this week only</span>
+    ${subs.length?`<div class="plist">${subRows}</div>`:''}
+    <div class="card" style="gap:8px"><div class="inline"><input id="newSub" type="text" autocomplete="off" placeholder="Sub’s name" aria-label="Sub’s name"><button type="button" class="btn small" data-act="addSub">Add sub</button></div>
+      ${recent.length?`<div class="pkbar"><span class="note" style="width:100%">Recent subs, tap to add:</span>${recent.map(id=>`<button type="button" class="chipbtn" data-resub="${id}">+ ${esc(nameOf(id))}</button>`).join('')}</div>`:''}
+      <p class="note">Subs play this week only. They aren’t added to the regular list and won’t be assumed for next week.</p></div>
+    <p class="note" id="plan">${esc(planText(total))}</p>
     <button type="button" class="btn" data-act="build">${locked?'Update the remaining rounds':built?'Rebuild this week’s schedule':'Build this week’s schedule'}</button>
     ${built?`<button type="button" class="linkrow" data-act="pickDone" style="justify-content:center;border:0;padding:6px;color:var(--blue);font-weight:700">Cancel, keep the current schedule</button>`:''}
     ${locked?(ui.confirm==='reset'?`<div class="confirm"><b>Clear all of this week's rounds and scores?</b><div class="row2"><button type="button" class="btn danger" data-act="resetYes">Clear and rebuild</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Cancel</button></div></div>`:`<button type="button" class="btn danger" data-act="reset">Start this week over</button>`):''}`;
@@ -822,7 +909,7 @@ function viewPlayers(){
   if(!s.rounds.length) return emptyWeek();
   const here=hereIds(s).length;
   const rows=s.players.map(id=>{ const on=!s.out.includes(id);
-    let sub=''; if(isSub(s,id)) sub=`Sub for ${esc(nameOf(s.subs[id]))}`; else { const by=Object.entries(s.subs||{}).find(([,o])=>o===id); if(by) sub=`${esc(nameOf(by[0]))} is subbing`; }
+    let sub=''; if(isSub(s,id)) sub= s.subs[id]==='none' ? 'Sub · this week' : `Sub for ${esc(nameOf(s.subs[id]))}`; else { const by=Object.entries(s.subs||{}).find(([,o])=>o===id); if(by) sub=`${esc(nameOf(by[0]))} is subbing`; }
     return `<div class="prow${on?'':' out'}"><span class="pname"><b>${esc(nameOf(id))}</b>${sub?`<small>${sub}</small>`:''}</span>${readOnly?`<span class="muted">${on?'Here':'Out'}</span>`:`<button type="button" class="toggle" data-id="${id}" aria-pressed="${on}" aria-label="${esc(nameOf(id))}: ${on?'here':'out'}">${on?'Here':'Out'}</button>`}</div>`; }).join('');
   const forms= readOnly?'' : `
     <div class="row2">
@@ -863,8 +950,8 @@ function viewSetup(){
     return `<button type="button" class="wk${st?' done':''}" data-date="${d}" aria-pressed="${d===sel}"><b>${n?'Wk '+n:'Extra'}</b><span>${esc(fmtDate(d,{month:'short',day:'numeric'}))}</span></button>`; }).join('');
   const delOK=!ro&&cfg.seasons.length>1&&!seasonWeeks().some(x=>(x.rounds||[]).length);
   const dis=ro?' disabled':'';
-  return `
-    ${ro?'':`<button type="button" class="btn ghost dash" data-act="newSeason">${IC.plus}Start a new session</button>`}
+  const S2=S, regs=regularsOf(S2).slice().sort(byName);
+  const P1=`    ${ro?'':`<button type="button" class="btn ghost dash" data-act="newSeason">${IC.plus}Start a new session</button>`}
     <section class="card">
       <h2 style="font-size:20px">Current session</h2>
       <div class="field"><label class="label" for="seasonPick">Showing</label><select id="seasonPick">${opts}</select></div>
@@ -873,27 +960,32 @@ function viewSetup(){
       <div class="field"><label class="label" for="seasonName">Session name</label><input id="seasonName" type="text" value="${esc(S.name)}" autocomplete="off"${dis}></div>
       <div><span class="label">Weeks in this session</span><div class="weeks">${weeks}</div></div>
       ${delOK?(ui.confirm==='delSeason'?`<div class="confirm"><b>Delete ${esc(S.name)}?</b><div class="row2"><button type="button" class="btn danger" data-act="delSeasonYes">Delete</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Keep it</button></div></div>`:`<button type="button" class="btn danger" data-act="delSeason">Delete this empty session</button>`):''}
-    </section>
-
-    <button type="button" class="linkrow" data-goto="players" style="background:var(--blue-soft);border-color:transparent"><span style="flex:1"><b>This week’s players</b><br><span class="muted" style="font-size:16px">Choose who’s playing and build the rounds on the Players tab</span></span><span class="go">Open</span>${IC.go}</button>
-
-    <h2 style="font-size:20px;margin-top:4px">Courts &amp; timing</h2>
-    <section class="card setcard">
+    </section>`;
+  const P2=`    <section class="card setcard">
       <div class="setrow"><span class="k" id="courtsL">Courts</span><div class="seg solid" role="group" aria-labelledby="courtsL"><button type="button" data-c="1" aria-pressed="${cfg.courts===1}"${dis}>1</button><button type="button" data-c="2" aria-pressed="${cfg.courts===2}"${dis}>2</button></div></div>
       <div class="setrow"><label class="k" for="start">Start time</label><input id="start" type="time" value="${cfg.startTime}"${dis}></div>
       <div class="setrow"><span class="k">Play time</span><button type="button" class="step" data-set="session" data-d="-15" aria-label="Less play time"${dis}>−</button><span class="v">${cfg.session} min</span><button type="button" class="step plus" data-set="session" data-d="15" aria-label="More play time"${dis}>+</button></div>
       <div class="setrow"><span class="k">Each round</span><button type="button" class="step" data-set="per" data-d="-1" aria-label="Shorter rounds"${dis}>−</button><span class="v">${cfg.per} min</span><button type="button" class="step plus" data-set="per" data-d="1" aria-label="Longer rounds"${dis}>+</button></div>
-    </section>
-
-
-    ${mode==='local'&&/^https?:$/.test(location.protocol)?`<section class="card"><h2 style="font-size:20px">App look</h2><p class="note">Both looks use the same saved data.</p>
+    </section><p class="note">${totalRounds()} rounds per game day.</p>`;
+  const PR=`<section class="card"><p class="note">Signed-up players for <b style="color:var(--ink)">${esc(S2.name)}</b>. They appear on the Players tab every week. Add subs there, one week at a time.</p>
+      ${regs.length?`<div class="plist">${regs.map(id=>`<div class="pkrow"><span class="pk on" style="cursor:default"><span class="nm">${esc(nameOf(id))}</span></span>${ro?'':`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button>`}</div>`).join('')}</div>`:'<p class="note">No regular players yet.</p>'}
+      ${ro?'':`<div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="Add a regular player" aria-label="Add a regular player"><button type="button" class="btn small" data-act="addPlayer">Add</button></div>`}
+      <span class="note">${regs.length} regular player${regs.length===1?'':'s'}</span></section>`;
+  const P3=`    ${mode==='local'&&/^https?:$/.test(location.protocol)?`<section class="card"><h2 style="font-size:20px">App look</h2><p class="note">Both looks use the same saved data.</p>
       <div class="lookswitch">
         <a class="lookopt" href="index.html"${THEME==='classic'?' aria-current="true"':''}><span class="sw"><i style="background:#1559B0"></i><i style="background:#C53B3B"></i></span>Classic</a>
         <a class="lookopt" href="dink.html"${THEME==='dink'?' aria-current="true"':''}><span class="sw"><i style="background:#458F86"></i><i style="background:#F3F7F6;border:1px solid #C9D8D5"></i></span>Dink &amp; Drive</a>
-      </div></section>`:''}
-    ${mode==='local'?`<section class="card"><h2 style="font-size:20px">Backup</h2><p class="note">Your sessions are saved on this device only. Save a backup after each week so you can restore it if this app's data is ever cleared.</p>
+      </div></section>`:''}`;
+  const P4=`    ${mode==='local'?`<section class="card"><h2 style="font-size:20px">Backup</h2><p class="note">Your sessions are saved on this device only. Save a backup after each week so you can restore it if this app's data is ever cleared.</p>
       <div class="row2"><button type="button" class="btn ghost" data-act="backup">Save backup</button><button type="button" class="btn ghost" data-act="restore">Restore</button></div>
       ${restoreData?`<div class="confirm"><span>${esc(restoreInfo)}</span><div class="row2"><button type="button" class="btn danger" data-act="restoreYes">Replace with backup</button><button type="button" class="btn ghost small" data-act="restoreNo">Cancel</button></div></div>`:''}</section>`:''}`;
+  const steps=[['Session',P1],['Courts & timing',P2],['Regular players',PR]];
+  if(P3.trim()) steps.push(['App look',P3]); if(P4.trim()) steps.push(['Backup',P4]);
+  const k=Math.max(0,Math.min(steps.length-1,ui.setupStep||0));
+  return `<nav class="steps" aria-label="Setup sections">${steps.map(([l],j)=>`<button type="button" class="stp${j===k?' on':j<k?' done':''}" data-sstep="${j}"${j===k?' aria-current="step"':''}><span class="n">${j+1}</span><span class="l">${esc(l)}</span></button>`).join('')}</nav>
+    <h2 style="font-size:23px">${esc(steps[k][0])}</h2>
+    ${steps[k][1]}
+    <div class="stepnav">${k>0?`<button type="button" class="btn ghost" data-sstep="${k-1}">${IC.back}${esc(steps[k-1][0])}</button>`:'<span></span>'}${k<steps.length-1?`<button type="button" class="btn" data-sstep="${k+1}">${esc(steps[k+1][0])} ${IC.go}</button>`:'<span></span>'}</div>`;
 }
 
 
@@ -1075,6 +1167,7 @@ function render(){
   $('#view').innerHTML=v()+`<p class="ver">Version ${APP_VERSION}${updateReady?' · <button type="button" data-act="update">New version available. Tap to update</button>':''}</p>`;
   $('#sheet').innerHTML=ui.sheet?sheetHTML():'';
   if(ui.tab==='today') requestAnimationFrame(centerRail);
+  if(ui.tab==='setup') requestAnimationFrame(()=>{ const n=document.querySelector('.steps'), c=n&&n.querySelector('.stp.on'); if(c) n.scrollLeft=c.offsetLeft-n.clientWidth/2+c.clientWidth/2; });
   if(mode==='local') setSync('Saved on phone');
   else if(readOnly) setSync('View only');
 }
@@ -1172,7 +1265,9 @@ document.addEventListener('click',e=>{
     }
     setScore(+d.r,+d.g,k,nv); render(); return; }
   if(d.pick){ const pk=pickSet(), i=pk.indexOf(d.pick); if(i>=0) pk.splice(i,1); else pk.push(d.pick); render(); return; }
-  if(d.hide){ cfg.hidden=cfg.hidden||{}; cfg.hidden[d.hide]=true; const pk=pickSet(), i=pk.indexOf(d.hide); if(i>=0) pk.splice(i,1); saveCfg(); render(); toast(`${nameOf(d.hide)} removed from the list`); return; }
+  if(d.hide){ const S=season(); setRegulars(S,regularsOf(S).filter(x=>x!==d.hide)); const pk=pickSet(), i=pk.indexOf(d.hide); if(i>=0) pk.splice(i,1); render(); toast(`${nameOf(d.hide)} removed from the regular players`); return; }
+  if(d.unsub){ const ps=pickSubs(), i=ps.indexOf(d.unsub); if(i>=0) ps.splice(i,1); render(); return; }
+  if(d.resub){ const ps=pickSubs(); if(!ps.includes(d.resub)) ps.push(d.resub); render(); toast(`${nameOf(d.resub)} added as a sub for this week`); return; }
   if(d.rnd!=null){ goRound(+d.rnd); return; }
   if(d.rstep){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(+d.rstep), +d.rstep>0?'left':'right'); return; }
   if(d.quick!=null){ setScore(+d.r,+d.g,d.s,+d.quick); render(); return; }
@@ -1186,6 +1281,8 @@ document.addEventListener('click',e=>{
   if(d.hsum){ ui.season=d.hsum; sel=null; userPicked=false; ui.sub=null; ui.scope='season'; ui.player=null; render(); window.scrollTo(0,0); return; }
   if(d.exscope){ ui.exScope=d.exscope; render(); return; }
   if(d.exfmt){ ui.exFmt=d.exfmt; render(); return; }
+  if(d.colt){ const cur=shownCols().map(c=>c.id); cfg.cols= cur.includes(d.colt)? cur.filter(x=>x!==d.colt) : COLS.map(c=>c.id).filter(x=>x===d.colt||cur.includes(x)); saveCfg(); render(); return; }
+  if(d.sstep!=null){ ui.setupStep=+d.sstep; render(); window.scrollTo(0,0); return; }
   if(d.help){ ui.colHelp= ui.colHelp===d.help?null:d.help; render(); return; }
   if(d.wb2!=null){ const s=sess(), R=s.rounds[+d.wb2]; if(!R) return; R.wb2=!R.wb2; saveSession(); render(); toast(`Win by 2 is ${R.wb2?'on':'off'} for Round ${+d.wb2+1}.`); return; }
   if(d.acc!=null){ const i=+d.acc, s=sess(), cur=firstOpen(s), open=ui.open==null?Math.min(cur,s.rounds.length-1):ui.open; ui.open= open===i?-1:i; render(); return; }
@@ -1222,18 +1319,22 @@ document.addEventListener('click',e=>{
     case 'addLate': addLate(); return;
     case 'subIn': subIn(); return;
     case 'build': {
-      const ids=pickSet().slice(); if(ids.length<4){ toast('Pick at least 4 players.'); return; }
+      const regs=pickSet().slice(), wsubs=pickSubs().slice(), ids=regs.concat(wsubs.filter(x=>!regs.includes(x))); if(ids.length<4){ toast('Pick at least 4 players.'); return; }
       const s=sess(), keepSubs=s.subs||{}; snap();
-      s.players=ids; s.out=s.out.filter(id=>ids.includes(id)); s.subs=Object.fromEntries(Object.entries(keepSubs).filter(([k])=>ids.includes(k)));
+      s.players=ids; s.out=s.out.filter(id=>ids.includes(id)); s.subs=Object.fromEntries(Object.entries(keepSubs).filter(([k])=>ids.includes(k)&&!regs.includes(k)));
+      wsubs.forEach(id=>{ if(!s.subs[id]) s.subs[id]='none'; });
       s.seasonId=season().id; delete ui.draft[sel]; saveCfg();
       ui.pickMode=false; const {f,total}=rebuild(); toast(f>0?`Rounds ${f+1}–${total} updated`:'Schedule built',true); setTimeout(()=>goTab('today'),600); return; }
     case 'pickMode': ui.pickMode=true; ui.pick[sel]=null; render(); window.scrollTo(0,0); return;
     case 'pickDone': ui.pickMode=false; ui.pick[sel]=null; render(); return;
-    case 'pickAll': ui.pick[sel]=rosterIds(); render(); return;
+    case 'pickAll': ui.pick[sel]=regularsOf(season()).slice(); render(); return;
     case 'pickNone': ui.pick[sel]=[]; render(); return;
     case 'editList': ui.editList=!ui.editList; render(); return;
     case 'addPlayer': { const n=($('#newPlayer').value||'').trim().replace(/\s+/g,' '); if(!n){ toast('Type a name first.'); return; }
-      const id=idFor(n); if(cfg.hidden) delete cfg.hidden[id]; const pk=pickSet(); if(!pk.includes(id)) pk.push(id); saveCfg(); render(); toast(`${n} added`); const f=$('#newPlayer'); if(f) f.focus(); return; }
+      const id=idFor(n), S=season(); setRegulars(S,regularsOf(S).concat([id])); const pk=pickSet(); if(!pk.includes(id)) pk.push(id); const ps=pickSubs(), j=ps.indexOf(id); if(j>=0) ps.splice(j,1); render(); toast(`${n} added to the regular players`); const f=$('#newPlayer'); if(f) f.focus(); return; }
+    case 'addSub': { const n=($('#newSub').value||'').trim().replace(/\s+/g,' '); if(!n){ toast('Type the sub’s name.'); return; }
+      const id=idFor(n); if(regularsOf(season()).includes(id)){ toast(`${n} is already a regular. Tick them in the list instead.`); return; }
+      const ps=pickSubs(); if(!ps.includes(id)) ps.push(id); saveCfg(); render(); toast(`${n} added as a sub for this week`); return; }
     case 'undo': doUndo(); return;
     case 'timerStart': timerStart(+d.r); return;
     case 'timerPause': timerPause(); return;
@@ -1246,7 +1347,7 @@ document.addEventListener('click',e=>{
     case 'cancelConfirm': ui.confirm=null; render(); return;
     case 'newSeason': { const L=seasonsSorted(), last=L[L.length-1];
       let start=last?addDays(seasonEnd(last),7):todayISO(); if(start<todayISO()) start=todayISO();
-      const S={id:newId(),name:'Session '+(cfg.seasons.length+1),startDate:start,weeks:5};
+      const S={id:newId(),name:'Session '+(cfg.seasons.length+1),startDate:start,weeks:5,regulars:last?regularsOf(last).slice():[]};
       cfg.seasons.push(S); ui.season=S.id; sel=null; userPicked=false; ui.player=null; saveCfg(); render(); window.scrollTo(0,0); toast(`${S.name} created. Set its name and first week.`); return; }
     case 'delSeason': ui.confirm='delSeason'; render(); return;
     case 'delSeasonYes': { const id=season().id; cfg.seasons=cfg.seasons.filter(x=>x.id!==id); ui.season=null; ui.confirm=null; sel=null; userPicked=false; saveCfg(); render(); toast('Session deleted'); return; }
@@ -1279,6 +1380,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter') return;
   if(e.target.id==='late'){ e.preventDefault(); addLate(); }
+  else if(e.target.id==='newSub'){ e.preventDefault(); const b=document.querySelector('[data-act="addSub"]'); if(b) b.click(); }
   else if(e.target.id==='newPlayer'){ e.preventDefault(); const b=document.querySelector('[data-act="addPlayer"]'); if(b) b.click(); }
   else if(e.target.id==='subName'){ e.preventDefault(); subIn(); }
   else if(e.target.classList&&e.target.classList.contains('score')){ e.preventDefault(); e.target.blur(); }
@@ -1296,6 +1398,9 @@ function startLocal(){
   try{ const v=JSON.parse(localStorage.getItem(LOCAL)); if(v&&v.cfg){ cfg=migrate(v.cfg); sessions=v.sessions||{}; } }catch(e){}
   render();
 }
+function hideSplash(){ const sp=document.getElementById('splash'); if(!sp||sp.classList.contains('out')) return; sp.classList.add('out'); setTimeout(()=>sp.remove(),400); }
+(()=>{ const sp=document.getElementById('splash'); if(!sp) return; if(THEME==='dink') document.getElementById('spName').textContent='Dink & Drive';
+  sp.addEventListener('click',hideSplash); sp.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') hideSplash(); }); setTimeout(hideSplash,1600); })();
 (async()=>{
   sel=pickDefault(); render();
   if(!(window.claude&&window.claude.use)){ startLocal(); return; }
