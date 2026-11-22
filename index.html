@@ -502,6 +502,51 @@ html.paper .splash.out{opacity:1;animation:psplashOut .9s cubic-bezier(.62,.04,.
 .ptag{font-size:15px;font-weight:600;color:#5C6378;letter-spacing:.04em;animation:spFade .6s 2.2s both}
 @media (prefers-reduced-motion: reduce){.pdial,.pdial .r1,.pdial .orb,.pword span,.pballs .ball,.pballs .sh,.ptag,.pbits i,html.paper .podium.enter .pod,html.paper .podium.enter canvas.pball,html.paper .enterrows tr{animation:none!important}html.paper .splash.out{animation:none;opacity:0;transition:opacity .2s}}
 
+
+/* Paper Studio end-of-day scene: a paper city goes from day to night, then a toggle saves the day */
+.eod{position:fixed;inset:0;z-index:60;overflow:hidden;background:#E9EEF8;font-family:"Outfit",system-ui,sans-serif;color:#13224F}
+.eod-in{position:absolute;left:50%;top:0;bottom:0;width:min(100%,560px);transform:translateX(-50%)}
+.eod-sky{position:absolute;inset:0;background:linear-gradient(180deg,#8FB0EE 0%,#C9D8F5 70%)}
+.eod-sky::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0B1330 0%,#22356F 72%);opacity:0;animation:eodNight 2.6s 1.6s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes eodNight{to{opacity:1}}
+.eod-stars i{position:absolute;width:3px;height:3px;border-radius:50%;background:#FFF;opacity:0;animation:eodTw 2.4s ease-in-out infinite alternate}
+@keyframes eodTw{0%{opacity:0}40%{opacity:.2}100%{opacity:1}}
+.eod-orb{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 140px);width:120px;height:120px;margin-left:-60px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#FFE680,#F2C230 60%,#E2A812);box-shadow:0 18px 30px -12px rgba(120,80,0,.45);animation:eodRise 1s .2s cubic-bezier(.3,1.4,.5,1) both,eodMoon 2.6s 1.6s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes eodRise{from{transform:translateY(160px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes eodMoon{to{background:radial-gradient(circle at 40% 35%,#FFFFFF,#E9EAF2 60%,#C9CCDA);box-shadow:inset -14px -4px 0 #E6B12A,0 0 40px rgba(255,255,255,.35)}}
+.eod-city{position:absolute;left:50%;width:390px;margin-left:-195px;bottom:calc(250px + env(safe-area-inset-bottom,0px));height:230px;animation:eodDim 2.6s 1.6s forwards}
+@keyframes eodDim{to{filter:brightness(.62) saturate(.9)}}
+.eod-city>*{position:absolute;bottom:0;transform-origin:50% 100%;animation:eodPop .7s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes eodPop{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.eod-mtn{width:0;height:0;border-left:46px solid transparent;border-right:46px solid transparent;border-bottom:120px solid #F4F6FA;filter:drop-shadow(-6px 0 0 #DCE2EE)}
+.eod-bld{border-radius:6px 6px 0 0;box-shadow:inset -8px 0 0 rgba(0,0,0,.12),0 10px 14px -8px rgba(28,40,80,.35)}
+.eod-bld.dome{border-radius:999px 999px 0 0}
+.eod-win{position:absolute;width:7px;height:9px;border-radius:2px;background:rgba(255,255,255,.55);animation:eodLight .4s both}
+@keyframes eodLight{to{background:#FFD95A;box-shadow:0 0 8px rgba(255,214,90,.9)}}
+.eod-ground{position:absolute;left:0;right:0;bottom:calc(200px + env(safe-area-inset-bottom,0px));height:52px;background:linear-gradient(180deg,#F4F6FA,#DDE3EE);box-shadow:0 -2px 0 #C9D2E2;animation:eodGround 2.6s 1.6s forwards}
+@keyframes eodGround{to{background:linear-gradient(180deg,#3B4A7A,#26335D);box-shadow:0 -2px 0 #1A2550}}
+.eod-pins{position:absolute;left:50%;width:390px;margin-left:-195px;bottom:calc(206px + env(safe-area-inset-bottom,0px));height:40px}
+.eod-pin{position:absolute;bottom:0;width:10px;height:34px;border-radius:5px;transform-origin:50% 100%;animation:eodPop .6s cubic-bezier(.3,1.6,.5,1) both,eodSway 3s 1s ease-in-out infinite alternate}
+@keyframes eodSway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.eod-text{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 44px);text-align:center;padding:0 16px;animation:eodUp .6s .9s both;transition:color 1s}
+.eod-text h2{margin:0;font-size:30px;font-weight:900;letter-spacing:-.02em}
+.eod-text p{margin:4px 0 0;font-size:15px;font-weight:600;opacity:.85}
+.eod.night .eod-text{color:#FFFFFF}
+@keyframes eodUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.eod-panel{position:absolute;left:0;right:0;bottom:0;padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));border-radius:32px 32px 0 0;background:linear-gradient(160deg,#3157B0,#22408E 70%);box-shadow:0 -10px 30px rgba(10,20,50,.35);display:flex;flex-direction:column;align-items:center;gap:14px;color:#FFF;transform:translateY(110%);animation:eodPanel .7s 4.4s cubic-bezier(.2,1.2,.4,1) forwards}
+@keyframes eodPanel{to{transform:none}}
+.eod-toggle{position:relative;width:250px;height:92px;border-radius:999px;background:#1A3275;box-shadow:inset 0 6px 14px rgba(0,0,0,.45),0 2px 0 rgba(255,255,255,.12);display:flex;align-items:center;justify-content:space-between;padding:0 10px}
+.eod-slot{width:72px;height:72px;border-radius:50%;box-shadow:inset 0 4px 10px rgba(0,0,0,.35)}
+.eod-slot.pie{background:conic-gradient(#8DAEE8 0 50%,#D7E2F7 50%)}
+.eod-knob{position:absolute;left:10px;top:10px;width:72px;height:72px;border-radius:50%;background:#FFFFFF;box-shadow:0 8px 16px -6px rgba(0,0,0,.5);display:grid;place-items:center;animation:eodKnob .9s 5.3s cubic-bezier(.5,0,.2,1.3) forwards}
+@keyframes eodKnob{to{transform:translateX(158px)}}
+.eod-msg{font-size:18px;font-weight:800;min-height:24px;text-align:center}
+.eod-msg span{display:inline-block;animation:eodUp .4s 6.1s both}
+.eod-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.eod-btns button{min-height:48px;padding:0 22px;border:0;border-radius:999px;font:inherit;font-weight:800;font-size:16px;cursor:pointer}
+.eod-btns .done{background:#FFFFFF;color:#22408E;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.eod-btns .close{background:rgba(255,255,255,.16);color:#FFFFFF}
+
 /* ---------- Dink & Drive look (used when the page sets html.dink) ---------- */
 html.dink{--bg:#F3F7F6;--surface:#FFFFFF;--ink:#2E3B3A;--muted:#5B6B69;--line:#E3ECEA;--line2:#EEF3F2;--edge:#C9D8D5;
   --blue:#357A71;--blue-dark:#2A635C;--blue-soft:#E6F2F0;--red:#C2694A;--red-soft:#FBEDE7;
@@ -681,7 +726,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-10';
+const APP_VERSION='2026.11.21-11';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -866,7 +911,7 @@ function viewToday(){
   const R=s.rounds[i], ed=!readOnly, isNow=i===cur, done=R.done;
   const rail=s.rounds.map((r,k)=>{ const st=r.done?'done':k===cur?'now':'later';
     return `<button type="button" class="rchip ${st}${k===i?' sel':''}" data-rnd="${k}" aria-label="Round ${k+1}, ${r.done?'final':k===cur?'up now':'upcoming'}"${k===i?' aria-current="true"':''}><span class="rn">${r.done?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>':k+1}</span><span class="rt">${clock(k).replace(/ [AP]M$/,'')}</span></button>`; }).join('');
-  const finished= cur>=N ? `<div class="card finished"><b>All ${N} rounds are finished.</b>${ed?`<button type="button" class="btn ghost small" data-act="addRound">${IC.plus}Play one more round</button>`:''}<div class="row2"><button type="button" class="btn small" data-goto="standings">See standings</button><button type="button" class="btn ghost small" data-act="export">${IC.share}Save or share</button></div></div>` : '';
+  const finished= cur>=N ? `<div class="card finished"><b>All ${N} rounds are finished.</b>${PAPER?`<button type="button" class="btn ghost small" data-act="eod">Replay the day's wrap-up</button>`:''}${ed?`<button type="button" class="btn ghost small" data-act="addRound">${IC.plus}Play one more round</button>`:''}<div class="row2"><button type="button" class="btn small" data-goto="standings">See standings</button><button type="button" class="btn ghost small" data-act="export">${IC.share}Save or share</button></div></div>` : '';
   const pill= done?'<span class="pill final">Final</span>':isNow?`<span class="pill now">Up now · ${clock(i)}</span>`:`<span class="pill later">Starts ${clock(i)}</span>`;
   const nextLbl= i+1<N ? `Save &amp; go to Round ${i+2}` : 'Save &amp; finish';
   const actions= !ed ? '' : done
@@ -1555,6 +1600,31 @@ function cardTurn(dir,doRender){
     n.querySelectorAll('.teambtn').forEach((t,i)=>t.animate([{transform:'translateX(24px)',opacity:0},{transform:'none',opacity:1}],{duration:360,delay:120+i*50,easing:'cubic-bezier(.2,.9,.3,1.2)',fill:'backwards'}));
   },()=>ghost.remove());
 }
+function playEOD(){
+  if(!PAPER) return; const old=document.getElementById('eod'); if(old) old.remove();
+  const s=sess(), R=s.rounds||[], games=R.reduce((n,r)=>n+r.games.length,0);
+  const d=document.createElement('section'); d.className='eod'; d.id='eod'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true'); d.setAttribute('aria-label','Game day complete');
+  const stars=Array.from({length:30},()=>`<i style="left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*45).toFixed(1)}%;animation-delay:${(2.4+Math.random()*2).toFixed(2)}s"></i>`).join('');
+  const B=[[18,64,92,'#2F8F6E',1,.55],[70,52,120,'#F4F6FA',0,.65],[118,40,150,'#22408E',0,.75],[150,70,104,'#C63A72',1,.85],[214,58,128,'#E6B12A',0,.95],[266,46,96,'#8DAEE8',0,1.05],[306,64,80,'#3F8A6B',0,1.15]];
+  const wins=(w,h)=>{ let o=''; for(let y=18;y<h-20;y+=22) for(let x=10;x<w-12;x+=16) o+=`<span class="eod-win" style="left:${x}px;bottom:${y}px;animation-delay:${(2.6+Math.random()*1.6).toFixed(2)}s"></span>`; return o; };
+  d.innerHTML=`<div class="eod-sky"></div><div class="eod-stars" aria-hidden="true">${stars}</div><div class="eod-in">
+    <div class="eod-orb" aria-hidden="true"></div>
+    <div class="eod-text"><h2>Game day done!</h2><p>${esc(fmtDate(sel,{weekday:'short',month:'short',day:'numeric'}))} · ${R.length} round${R.length===1?'':'s'} · ${games} game${games===1?'':'s'}</p></div>
+    <div class="eod-city" aria-hidden="true"><span class="eod-mtn" style="left:40px;animation-delay:.35s"></span><span class="eod-mtn" style="left:220px;border-bottom-width:150px;animation-delay:.45s"></span><span class="eod-mtn" style="left:300px;border-bottom-width:96px;animation-delay:.5s"></span>
+      ${B.map(([l,w,h,c,dm,dl])=>`<span class="eod-bld${dm?' dome':''}" style="left:${l}px;width:${w}px;height:${h}px;background:${c};animation-delay:${dl}s">${wins(w,h)}</span>`).join('')}</div>
+    <div class="eod-ground" aria-hidden="true"></div>
+    <div class="eod-pins" aria-hidden="true">${[[30,'#22408E',.9],[96,'#C63A72',1],[200,'#3F8A6B',1.1],[288,'#22408E',1.2],[350,'#C63A72',1.3]].map(([l,c,dl])=>`<span class="eod-pin" style="left:${l}px;background:${c};animation-delay:${dl}s,${dl+.6}s"></span>`).join('')}</div>
+    <div class="eod-panel">
+      <div class="eod-toggle" role="img" aria-label="Day saved"><span class="eod-slot"></span><span class="eod-slot pie"></span><span class="eod-knob" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#22408E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+      <div class="eod-msg"><span>Scores saved · standings updated</span></div>
+      <div class="eod-btns"><button type="button" class="close" data-eod="close">Close</button><button type="button" class="done" data-eod="standings">See standings</button></div>
+    </div></div>`;
+  document.body.appendChild(d);
+  const nt=setTimeout(()=>d.classList.add('night'),2600);
+  const shut=to=>{ clearTimeout(nt); d.animate([{opacity:1},{opacity:0}],{duration:350,easing:'ease-in'}).finished.then(()=>{ d.remove(); if(to) goTab(to); }); };
+  d.addEventListener('click',e=>{ const b=e.target.closest('[data-eod]'); if(b) shut(b.dataset.eod==='standings'?'standings':null); });
+  setTimeout(()=>{ const b=d.querySelector('[data-eod="standings"]'); if(b) b.focus({preventScroll:true}); },6200);
+}
 function flipDay(dir){ const h=$('#dayH'); if(!PAPER||!h) return; h.animate([{transform:`perspective(500px) rotateX(${dir>0?-90:90}deg)`,opacity:0},{transform:'none',opacity:1}],{duration:520,easing:'cubic-bezier(.2,.9,.3,1.3)'}); }
 function burstAt(el){ if(!PAPER||!el) return; const r=el.getBoundingClientRect(), cols=['#C63A72','#E6B12A','#8DAEE8','#22408E','#E68DB2'];
   for(let i=0;i<14;i++){ const p=document.createElement('span'); p.className='pconf'; p.style.left=(r.left+30)+'px'; p.style.top=(r.top+r.height/2)+'px'; p.style.background=cols[i%5];
@@ -1653,8 +1723,9 @@ document.addEventListener('click',e=>{
   switch(d.act){
     case 'advance': { const s=sess(), R=s.rounds[+d.r]; if(!R.games.every(scored)){ toast('Enter both scores for every court first.'); return; }
       snap(); R.done=true; ui.round=null; ui.slide='left'; saveSession(); cardTurn(1,()=>{ render(); centerRail(); });
-      const nx=firstOpen(s); toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.',true); return; }
+      const nx=firstOpen(s); if(nx>=s.rounds.length&&PAPER){ setTimeout(playEOD,700); return; } toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.',true); return; }
     case 'addRound': addRound(); return;
+    case 'eod': playEOD(); return;
     case 'rmRound': rmRound(); return;
     case 'skip': { const s=sess(); snap(); s.rounds[+d.r].done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail(); return; }
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
