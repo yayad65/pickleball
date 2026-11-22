@@ -450,8 +450,14 @@ html.paper main{position:relative;z-index:1;padding-bottom:calc(var(--navh) + 48
 .pbits{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .pbits i{position:absolute;display:block;box-shadow:0 2px 0 rgba(0,0,0,.06),0 10px 14px -8px rgba(28,40,80,.4);animation:pdrift 7s ease-in-out infinite alternate}
 @keyframes pdrift{from{transform:translate(0,0) rotate(var(--r,0deg))}to{transform:translate(var(--dx,6px),var(--dy,-12px)) rotate(calc(var(--r,0deg) + 14deg))}}
-.pturn{position:fixed;z-index:4;overflow:hidden;pointer-events:none;background:radial-gradient(130% 60% at 15% 0%,#FFFFFF 0%,#EEF0F4 45%,#DDE1E8 100%);backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform}
-.pturn .pshade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,30,60,0),rgba(20,30,60,.35));opacity:0}
+.pturnwrap{position:fixed;z-index:4;pointer-events:none;perspective:1800px}
+.pturn{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}
+.pfront,.pback{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.pfront{background:radial-gradient(130% 60% at 15% 0%,#FFFFFF 0%,#EEF0F4 45%,#DDE1E8 100%)}
+.pback{background:linear-gradient(90deg,#E6E9EF 0%,#FFFFFF 70%);box-shadow:inset 0 0 40px rgba(28,40,80,.12)}
+.pshade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,30,60,0) 20%,rgba(20,30,60,.38));opacity:0}
+.punder{position:fixed;z-index:3;pointer-events:none;background:linear-gradient(90deg,rgba(20,30,60,.30),rgba(20,30,60,.05))}
+.pghost{position:fixed;z-index:4;margin:0;pointer-events:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .pconf{position:fixed;z-index:30;width:8px;height:16px;border-radius:4px;pointer-events:none;animation:pburst .9s cubic-bezier(.15,.7,.3,1) forwards}
 @keyframes pburst{from{transform:translate(0,0) rotate(0);opacity:1}to{transform:translate(var(--x),var(--y)) rotate(var(--rot));opacity:0}}
 html.paper .podium.enter .pod{animation:pgrow .7s cubic-bezier(.3,1.45,.55,1) both}
@@ -675,7 +681,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-9';
+const APP_VERSION='2026.11.21-10';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -907,7 +913,7 @@ function timerPause(){ const T=ui.timer; if(!T) return; if(T.paused!=null){ T.en
 function startTick(){ clearInterval(tick); tick=setInterval(()=>{ const T=ui.timer; if(!T){ clearInterval(tick); return; } if(T.paused!=null) return;
   const left=T.end-Date.now(), el=document.getElementById('tmr'); if(el) el.textContent=fmtT(left);
   if(left<=0&&!T.rang){ T.rang=true; clearInterval(tick); beep(); try{ navigator.vibrate&&navigator.vibrate([300,150,300]); }catch(e){} try{ wake&&wake.release(); }catch(e){} toast(`Time! Round ${T.round+1} is over.`); render(); } },500); }
-function goRound(k,dir){ const s=sess(); const N=s.rounds.length; if(!N) return; k=Math.max(0,Math.min(N-1,k)); const cur= ui.round==null?Math.min(firstOpen(s),N-1):ui.round; if(k===cur) return; ui.slide= dir|| (k>cur?'left':'right'); ui.round=k; render(); centerRail(); }
+function goRound(k,dir){ const s=sess(); const N=s.rounds.length; if(!N) return; k=Math.max(0,Math.min(N-1,k)); const cur= ui.round==null?Math.min(firstOpen(s),N-1):ui.round; if(k===cur) return; ui.slide= dir|| (k>cur?'left':'right'); const d2=ui.slide==='left'?1:-1; cardTurn(d2,()=>{ ui.round=k; render(); centerRail(); }); }
 function centerRail(){ const r=document.getElementById('rail'); const c=r&&r.querySelector('.sel'); if(c) r.scrollLeft=c.offsetLeft-r.clientWidth/2+c.clientWidth/2; }
 function tally(list){
   const m={}, seq={}, part={}, wk={}, sits={};
@@ -1517,16 +1523,37 @@ function setScore(ri,gi,k,v){ const s=sess(), R=s.rounds[ri], g=R&&R.games[gi]; 
 const TAB_ORDER=['today','standings','players','setup'];
 function pageTurn(dir,doRender){
   const v=$('#view'); if(!PAPER||!v){ doRender(); return; }
-  const r=v.getBoundingClientRect(), top=Math.max(r.top,0), h=Math.min(window.innerHeight,r.bottom)-top;
-  const ov=document.createElement('div'); ov.className='pturn'; ov.setAttribute('aria-hidden','true');
-  Object.assign(ov.style,{left:r.left+'px',top:top+'px',width:r.width+'px',height:Math.max(0,h)+'px',transformOrigin:dir>0?'left center':'right center'});
-  const c=v.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id')); c.style.marginTop=(r.top-top)+'px';
-  ov.appendChild(c); const sh=document.createElement('div'); sh.className='pshade'; ov.appendChild(sh); document.body.appendChild(ov);
+  const r=v.getBoundingClientRect(), top=Math.max(r.top,0), h=Math.max(0,window.innerHeight-top);
+  const wrap=document.createElement('div'); wrap.className='pturnwrap'; wrap.setAttribute('aria-hidden','true');
+  Object.assign(wrap.style,{left:r.left+'px',top:top+'px',width:r.width+'px',height:h+'px'});
+  const sheet=document.createElement('div'); sheet.className='pturn'; sheet.style.transformOrigin=dir>0?'left center':'right center';
+  const front=document.createElement('div'); front.className='pfront';
+  const c=v.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id')); c.style.marginTop=(r.top-top)+'px'; c.style.maxWidth='none';
+  c.querySelectorAll('canvas').forEach(x=>x.remove()); front.appendChild(c);
+  const sh=document.createElement('div'); sh.className='pshade'; front.appendChild(sh);
+  const back=document.createElement('div'); back.className='pback'; back.style.transform=`rotateY(${dir>0?180:-180}deg)`;
+  sheet.appendChild(front); sheet.appendChild(back); wrap.appendChild(sheet); document.body.appendChild(wrap);
   doRender();
-  const ease='cubic-bezier(.62,.04,.28,1)', dur=800;
-  sh.animate([{opacity:0},{opacity:1}],{duration:dur,easing:ease});
-  v.animate([{filter:'brightness(.8)'},{filter:'none'}],{duration:dur,easing:ease});
-  ov.animate([{transform:'perspective(1800px) rotateY(0)'},{transform:`perspective(1800px) rotateY(${dir>0?-180:180}deg)`}],{duration:dur,easing:ease}).finished.then(()=>ov.remove(),()=>ov.remove());
+  const under=document.createElement('div'); under.className='punder'; Object.assign(under.style,{left:r.left+'px',top:top+'px',width:r.width+'px',height:h+'px'}); document.body.appendChild(under);
+  const ease='cubic-bezier(.45,.05,.35,1)', dur=900;
+  sh.animate([{opacity:0},{opacity:1}],{duration:dur*.5,easing:'ease-in',fill:'forwards'});
+  under.animate([{opacity:.9},{opacity:0}],{duration:dur,easing:ease,fill:'forwards'});
+  sheet.animate([{transform:'rotateY(0)'},{transform:`rotateY(${dir>0?-180:180}deg)`}],{duration:dur,easing:ease}).finished.then(()=>{ wrap.remove(); under.remove(); },()=>{ wrap.remove(); under.remove(); });
+}
+function cardTurn(dir,doRender){
+  const old=document.querySelector('.roundcard'); if(!PAPER||!old){ doRender(); return; }
+  const r=old.getBoundingClientRect(), ghost=old.cloneNode(true); ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+  ghost.classList.remove('slide-left','slide-right'); ghost.classList.add('pghost');
+  Object.assign(ghost.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',transformOrigin:dir>0?'left center':'right center'});
+  document.body.appendChild(ghost);
+  doRender();
+  const nw=document.querySelector('.roundcard'); if(nw){ nw.classList.remove('slide-left','slide-right'); nw.style.opacity='0'; }
+  ghost.animate([{transform:'perspective(1400px) rotateY(0)'},{transform:`perspective(1400px) rotateY(${dir>0?-90:90}deg)`}],{duration:260,easing:'cubic-bezier(.5,0,.9,.5)'}).finished.then(()=>{
+    ghost.remove(); const n=document.querySelector('.roundcard'); if(!n) return; n.style.opacity='';
+    n.style.transformOrigin=dir>0?'right center':'left center';
+    n.animate([{transform:`perspective(1400px) rotateY(${dir>0?90:-90}deg)`},{transform:'perspective(1400px) rotateY(0)'}],{duration:380,easing:'cubic-bezier(.1,.6,.3,1.15)'});
+    n.querySelectorAll('.teambtn').forEach((t,i)=>t.animate([{transform:'translateX(24px)',opacity:0},{transform:'none',opacity:1}],{duration:360,delay:120+i*50,easing:'cubic-bezier(.2,.9,.3,1.2)',fill:'backwards'}));
+  },()=>ghost.remove());
 }
 function flipDay(dir){ const h=$('#dayH'); if(!PAPER||!h) return; h.animate([{transform:`perspective(500px) rotateX(${dir>0?-90:90}deg)`,opacity:0},{transform:'none',opacity:1}],{duration:520,easing:'cubic-bezier(.2,.9,.3,1.3)'}); }
 function burstAt(el){ if(!PAPER||!el) return; const r=el.getBoundingClientRect(), cols=['#C63A72','#E6B12A','#8DAEE8','#22408E','#E68DB2'];
@@ -1625,7 +1652,7 @@ document.addEventListener('click',e=>{
   if(d.wk){ const S=season(); S.weeks=Math.max(1,Math.min(52,(S.weeks|0)+(+d.wk))); saveCfg(); render(); return; }
   switch(d.act){
     case 'advance': { const s=sess(), R=s.rounds[+d.r]; if(!R.games.every(scored)){ toast('Enter both scores for every court first.'); return; }
-      snap(); R.done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail();
+      snap(); R.done=true; ui.round=null; ui.slide='left'; saveSession(); cardTurn(1,()=>{ render(); centerRail(); });
       const nx=firstOpen(s); toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.',true); return; }
     case 'addRound': addRound(); return;
     case 'rmRound': rmRound(); return;
