@@ -269,6 +269,8 @@ main{grid-template-columns:minmax(0,1fr)}
 .card .subfor{padding:0}
 .subfor select{flex:1;min-width:0;min-height:44px}
 .pk.sub .subtag{margin-left:auto;font-size:12px}
+.yesbtn{flex:none;min-height:36px;margin-right:8px;padding:0 12px;border:1px solid var(--edge);border-radius:999px;background:var(--surface);color:var(--muted);font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.yesbtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
 .rm{width:44px;height:44px;margin-right:6px;border:0;border-radius:10px;background:var(--red-soft);color:var(--red);font-size:24px;cursor:pointer;flex:none}
 .timer{display:grid;gap:8px;justify-items:center;background:var(--blue-soft);border-radius:14px;padding:12px}
 .timer .row2{width:100%}
@@ -730,7 +732,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-4';
+const APP_VERSION='2026.11.24-5';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1128,20 +1130,23 @@ function inviteCard(regs){
     ${code?`<a class="linkrow" href="${esc(code)}" target="_blank" rel="noopener">Open the replies page ${IC.go}</a>`:''}
   </section>`;
 }
+/* regulars who told Yasser by email or text that they're coming */
+function yesSet(d){ cfg.yes=cfg.yes||{}; return cfg.yes[d]||(cfg.yes[d]=[]); }
+const yesOf=(d,on)=>((cfg.yes&&cfg.yes[d])||[]).filter(id=>on.includes(id)).map(id=>nameOf(id));
 /* who's out and who's subbing on an upcoming day, so the email invites skip them */
 function availFor(d){
   const S=season(), regs=regularsOf(S), x=sessions[d];
   const nm=id=>nameOf(id), forN=v=>v&&v!=='none'?nameOf(v):'';
   if(x&&inSeason(x)&&x.players&&x.players.length){ const here=new Set(hereIds(x));
-    return {out:regs.filter(id=>!here.has(id)).map(nm), subs:Object.entries(x.subs||{}).filter(([k])=>here.has(k)&&!regs.includes(k)).map(([k,v])=>({name:nm(k),forName:forN(v)}))}; }
-  if(ui.pick[d]) return {out:regs.filter(id=>!ui.pick[d].includes(id)).map(nm), subs:(ui.pickSubs[d]||[]).map(k=>({name:nm(k),forName:forN((ui.pickFor[d]||{})[k])}))};
+    return {out:regs.filter(id=>!here.has(id)).map(nm), subs:Object.entries(x.subs||{}).filter(([k])=>here.has(k)&&!regs.includes(k)).map(([k,v])=>({name:nm(k),forName:forN(v)})), in:yesOf(d,[...here])}; }
+  if(ui.pick[d]) return {out:regs.filter(id=>!ui.pick[d].includes(id)).map(nm), subs:(ui.pickSubs[d]||[]).map(k=>({name:nm(k),forName:forN((ui.pickFor[d]||{})[k])})), in:yesOf(d,ui.pick[d])};
   return (cfg.avail&&cfg.avail[d])||null;
 }
 let availTimer=null;
 function availChanged(d){
   d=d||sel; if(!d||d<todayISO()) return; const a=availFor(d); if(!a) return;
   cfg.avail=cfg.avail||{}; const before=JSON.stringify(cfg.avail[d]||null); if(before===JSON.stringify(a)) return;
-  cfg.avail[d]=a; Object.keys(cfg.avail).forEach(k=>{ if(k<todayISO()) delete cfg.avail[k]; }); saveCfg();
+  cfg.avail[d]=a; Object.keys(cfg.avail).forEach(k=>{ if(k<todayISO()) delete cfg.avail[k]; }); if(cfg.yes) Object.keys(cfg.yes).forEach(k=>{ if(k<todayISO()) delete cfg.yes[k]; }); saveCfg();
   if(cfg.invite&&cfg.invite.code){ clearTimeout(availTimer); availTimer=setTimeout(()=>syncInvites(true),2500); }
 }
 async function syncInvites(quiet){
@@ -1165,7 +1170,7 @@ function viewPick(){
   const regs=regularsOf(S).slice().sort(byName); pk.forEach(id=>{ if(!regs.includes(id)) regs.push(id); });
   const chk='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
   const rows=regs.map(id=>{ const on=pk.includes(id);
-    return `<div class="pkrow"><button type="button" class="pk${on?' on':''}" data-pick="${id}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?chk:''}</span><span class="nm">${esc(nameOf(id))}</span>${on?'':'<small class="away">Not coming</small>'}</button>${ui.editList?`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))} from the regular players">×</button>`:''}</div>`; }).join('');
+    return `<div class="pkrow"><button type="button" class="pk${on?' on':''}" data-pick="${id}" aria-pressed="${on}"><span class="box" aria-hidden="true">${on?chk:''}</span><span class="nm">${esc(nameOf(id))}</span>${on?'':'<small class="away">Not coming</small>'}</button>${on&&!ui.editList&&sel>=todayISO()&&cfg.invite&&cfg.invite.code?(y=>`<button type="button" class="yesbtn${y?' on':''}" data-yes="${id}" aria-pressed="${y}" aria-label="${esc(nameOf(id))} told you they’re coming">${y?'✓ Said yes':'Said yes'}</button>`)(yesSet(sel).includes(id)):''}${ui.editList?`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))} from the regular players">×</button>`:''}</div>`; }).join('');
   const fm=pickFor(), allRegs=regularsOf(S).slice().sort(byName);
   const forOpts=(cur,ex)=>`<option value="">No one in particular</option>${allRegs.filter(r=>!Object.entries(fm).some(([k,v])=>v===r&&k!==ex)).map(r=>`<option value="${r}"${r===cur?' selected':''}>${esc(nameOf(r))}${pk.includes(r)?'':' (not coming)'}</option>`).join('')}`;
   const subRows=subs.map(id=>`<div class="subrow"><div class="pkrow" style="border:0"><span class="pk on sub"><span class="box" aria-hidden="true">${chk}</span><span class="nm">${esc(nameOf(id))}</span><small class="subtag">${fm[id]?'Sub for '+esc(shortName(fm[id])):'Sub · this week'}</small></span><button type="button" class="rm" data-unsub="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button></div>
@@ -1173,7 +1178,7 @@ function viewPick(){
   const recent=recentSubs();
   const total=pk.length+subs.length;
   return `<div class="cardhead"><h2 style="font-size:23px">Who’s playing?</h2><span class="note">${esc(fmtDate(sel,{weekday:'short',month:'short',day:'numeric'}))}</span></div>
-    <p class="note">Tap a regular who isn’t coming. <b style="color:var(--ink)">${total} playing</b> (${pk.length} regular${pk.length===1?'':'s'}${subs.length?`, ${subs.length} sub${subs.length>1?'s':''}`:''}).</p>
+    <p class="note">Tap a regular who isn’t coming. ${cfg.invite&&cfg.invite.code?'If someone told you by email or text that they’re coming, tap <b style="color:var(--ink)">Said yes</b> so they don’t get reminders. ':''}<b style="color:var(--ink)">${total} playing</b> (${pk.length} regular${pk.length===1?'':'s'}${subs.length?`, ${subs.length} sub${subs.length>1?'s':''}`:''}).</p>
     <div class="pkbar"><button type="button" class="chipbtn" data-act="pickAll">Everyone’s coming</button><button type="button" class="chipbtn${ui.editList?' on':''}" data-act="editList">${ui.editList?'Done editing':'Edit regulars'}</button></div>
     <span class="label" style="margin:2px 0 -6px">Regular players · ${esc(S.name)}</span>
     ${regs.length?`<div class="plist">${rows}</div>`:'<p class="note">No regular players yet. Add them below.</p>'}
@@ -1196,7 +1201,8 @@ function viewPlayers(){
   const here=hereIds(s).length;
   const rows=s.players.map(id=>{ const on=!s.out.includes(id);
     let sub=''; if(isSub(s,id)) sub= s.subs[id]==='none' ? 'Sub · this week' : `Sub for ${esc(nameOf(s.subs[id]))}`; else { const by=Object.entries(s.subs||{}).find(([,o])=>o===id); if(by) sub=`${esc(nameOf(by[0]))} is subbing`; }
-    return `<div class="prow${on?'':' out'}"><span class="pname"><b>${esc(nameOf(id))}</b>${sub?`<small>${sub}</small>`:''}</span>${readOnly?`<span class="muted">${on?'Here':'Out'}</span>`:`<button type="button" class="toggle" data-id="${id}" aria-pressed="${on}" aria-label="${esc(nameOf(id))}: ${on?'here':'out'}">${on?'Here':'Out'}</button>`}</div>`; }).join('');
+    const yb=!readOnly&&on&&!isSub(s,id)&&sel>=todayISO()&&cfg.invite&&cfg.invite.code?(y=>`<button type="button" class="yesbtn${y?' on':''}" data-yes="${id}" aria-pressed="${y}" aria-label="${esc(nameOf(id))} told you they’re coming">${y?'✓ Said yes':'Said yes'}</button>`)(yesSet(sel).includes(id)):'';
+    return `<div class="prow${on?'':' out'}"><span class="pname"><b>${esc(nameOf(id))}</b>${sub?`<small>${sub}</small>`:''}</span>${yb}${readOnly?`<span class="muted">${on?'Here':'Out'}</span>`:`<button type="button" class="toggle" data-id="${id}" aria-pressed="${on}" aria-label="${esc(nameOf(id))}: ${on?'here':'out'}">${on?'Here':'Out'}</button>`}</div>`; }).join('');
   const forms= readOnly?'' : `
     <div class="row2">
       <button type="button" class="btn ghost" data-form="late" aria-expanded="${ui.form==='late'}">${IC.plus}Late arrival</button>
@@ -1745,7 +1751,8 @@ document.addEventListener('click',e=>{
       else { toast(`Highest score allowed is ${maxOf(R)}.`); return; }
     }
     setScore(+d.r,+d.g,k,nv); render(); return; }
-  if(d.pick){ const pk=pickSet(), i=pk.indexOf(d.pick); if(i>=0) pk.splice(i,1); else pk.push(d.pick); render(); availChanged(); return; }
+  if(d.pick){ const pk=pickSet(), i=pk.indexOf(d.pick); if(i>=0){ pk.splice(i,1); const ys=yesSet(sel), j=ys.indexOf(d.pick); if(j>=0) ys.splice(j,1); } else pk.push(d.pick); render(); availChanged(); return; }
+  if(d.yes){ const ys=yesSet(sel), i=ys.indexOf(d.yes); if(i>=0) ys.splice(i,1); else ys.push(d.yes); saveCfg(); render(); availChanged(); return; }
   if(d.hide){ const S=season(); setRegulars(S,regularsOf(S).filter(x=>x!==d.hide)); const pk=pickSet(), i=pk.indexOf(d.hide); if(i>=0) pk.splice(i,1); render(); toast(`${nameOf(d.hide)} removed from the regular players`); return; }
   if(d.unsub){ const ps=pickSubs(), i=ps.indexOf(d.unsub); if(i>=0) ps.splice(i,1); delete pickFor()[d.unsub]; render(); availChanged(); return; }
   if(d.resub){ const ps=pickSubs(); if(!ps.includes(d.resub)) ps.push(d.resub); render(); availChanged(); toast(`${nameOf(d.resub)} added as a sub for this week`); return; }
