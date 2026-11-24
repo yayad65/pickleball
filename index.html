@@ -222,6 +222,10 @@ main{grid-template-columns:minmax(0,1fr)}
 .rhead{display:flex;align-items:center;gap:8px}
 .rtitle{flex:1;min-width:0;display:grid;justify-items:center;gap:4px;text-align:center}
 .rtitle h2{font-size:22px;font-weight:600}
+.regrow .pk{min-width:0}
+.eminp{width:100%;min-height:40px!important;padding:6px 10px!important;font-size:15px!important;border-radius:10px!important}
+.eminp.missing{border-color:var(--red)!important;background:var(--red-soft)}
+.regrow .em{color:var(--muted);font-size:14px}
 .rndedit{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rndedit .btn{white-space:nowrap}
 .finished>.btn{margin-top:8px}
@@ -727,7 +731,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-1';
+const APP_VERSION='2026.11.24-2';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1112,6 +1116,28 @@ function pickSet(){
 }
 const pickSubs=()=>{ pickSet(); return ui.pickSubs[sel]; };
 const pickFor=()=>{ pickSet(); return ui.pickFor[sel]; };
+function inviteCard(regs){
+  const code=cfg.invite&&cfg.invite.code||'', last=cfg.invite&&cfg.invite.synced, miss=regs.filter(id=>!emailOf(id)).length;
+  return `<section class="card" id="invites"><h2 style="font-size:20px">Email invites</h2>
+    <p class="note">The day before each game day, players get an email to say if they’re coming. You approve every batch first.</p>
+    <div class="field"><label class="label" for="inviteCode">Connection code from your Google Sheet</label><input id="inviteCode" type="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec?k=…" value="${esc(code)}"></div>
+    ${miss?`<p class="note" style="color:var(--red)">${miss} player${miss>1?'s have':' has'} no email yet and won’t get invites.</p>`:''}
+    <button type="button" class="btn" data-act="syncInvites"${code?'':' disabled'}>Send players &amp; game days to the Sheet</button>
+    ${last?`<p class="note">Last sent ${esc(last)}.</p>`:''}
+    ${code?`<a class="linkrow" href="${esc(code)}" target="_blank" rel="noopener">Open the replies page ${IC.go}</a>`:''}
+  </section>`;
+}
+async function syncInvites(quiet){
+  const code=(cfg.invite&&cfg.invite.code)||''; const m=code.match(/^(https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec)\?k=([\w]+)$/);
+  if(!m){ if(!quiet) toast('That connection code doesn’t look right. Copy it again from the Sheet.'); return; }
+  const S=season(), regs=regularsOf(S), [h,mi]=(cfg.startTime||'09:00').split(':').map(Number);
+  const body={api:'sync',k:m[2],players:regs.map(id=>({name:nameOf(id),email:emailOf(id)})),dates:planDates(S).map(x=>x.date),courts:cfg.courts,startTime:`${h%12||12}:${String(mi).padStart(2,'0')} ${h<12?'AM':'PM'}`};
+  try{ const r=await fetch(m[1],{method:'POST',body:JSON.stringify(body),redirect:'follow'}); const j=await r.json();
+    if(!j.ok){ toast(j.error||'The Sheet didn’t accept that.'); return; }
+    cfg.invite.synced=new Date().toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveCfg(); if(ui.tab==='setup') render();
+    if(!quiet) toast(`Sent ${j.players} players and ${j.dates} game days.${j.noEmail&&j.noEmail.length?` No email for ${j.noEmail.length}.`:''}${j.testMode?' Test mode is on.':''}`);
+  }catch(e){ if(!quiet) toast('Couldn’t reach the Sheet. Check the connection code and try again.'); }
+}
 function setSubFor(id,reg){ const fm=pickFor(); Object.keys(fm).forEach(k=>{ if(fm[k]===reg&&k!==id) delete fm[k]; }); if(reg){ fm[id]=reg; const pk=pickSet(), i=pk.indexOf(reg); if(i>=0) pk.splice(i,1); } else delete fm[id]; }
 function recentSubs(){ const regs=new Set(regularsOf(season())), cur=new Set(pickSubs()), seen={};
   Object.values(sessions).sort((a,b)=>a.date<b.date?1:-1).forEach(x=>Object.keys(x.subs||{}).forEach(id=>{ if(!regs.has(id)&&!cur.has(id)&&cfg.roster[id]&&!seen[id]) seen[id]=x.date; }));
@@ -1166,10 +1192,20 @@ function viewPlayers(){
     <p class="note">${here} playing today. ${readOnly?'':'Tap Here or Out to change. Unplayed rounds update right away.'}</p>
     <div class="plist">${rows}</div>${forms}`;
 }
-function parseNames(v){
-  const seen=new Set(), out=[];
-  for(const line of String(v).split(/\n|,/)){ const n=line.trim().replace(/\s+/g,' '); if(n&&!seen.has(n.toLowerCase())){ seen.add(n.toLowerCase()); out.push(n); } }
+const EMAIL_RE=/[A-Za-z0-9._%+'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+function parseEntries(v){
+  const seen=new Set(), out=[], lines=String(v).split(/\r?\n/), anyEmail=lines.some(l=>EMAIL_RE.test(l));
+  const push=(name,email)=>{ name=name.replace(/[<>"()\[\]]/g,' ').replace(/^[\s,;:|\-]+|[\s,;:|\-]+$/g,'').replace(/\s+/g,' ').trim();
+    if(!name&&email) name=email.split('@')[0].replace(/[._]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    if(!name||seen.has(name.toLowerCase())) return; seen.add(name.toLowerCase()); out.push({name,email:email?email.toLowerCase():''}); };
+  for(const line of lines){ if(!line.trim()) continue;
+    const m=line.match(EMAIL_RE);
+    if(m) push(line.replace(m[0],' ').replace(/mailto:/i,' '),m[0]);
+    else if(!anyEmail) line.split(',').forEach(n=>push(n,''));
+    else push(line,''); }
   return out;
+}
+function parseNames(v){ return parseEntries(v).map(e=>e.name);
 }
 function csvRows(text){
   const lines=String(text).replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim());
@@ -1184,11 +1220,13 @@ function namesFromRows(rows){
   rows=rows.map(r=>(r||[]).map(c=>String(c==null?'':c).trim())).filter(r=>r.some(c=>c));
   if(!rows.length) return [];
   const H=rows[0].map(c=>c.toLowerCase());
-  const fi=H.findIndex(c=>/first/.test(c)), li=H.findIndex(c=>/last|surname/.test(c)), ni=H.findIndex(c=>/name|player/.test(c)&&!/first|last|user|team|session/.test(c));
-  if(fi>=0||ni>=0){ return rows.slice(1).map(r=> ni>=0&&r[ni] ? r[ni] : [r[fi]||'',li>=0?r[li]||'':''].join(' ').trim()).filter(looksName); }
+  const fi=H.findIndex(c=>/first/.test(c)), li=H.findIndex(c=>/last|surname/.test(c)), ni=H.findIndex(c=>/name|player/.test(c)&&!/first|last|user|team|session|e-?mail/.test(c));
+  let ei=H.findIndex(c=>/e-?mail/.test(c)); if(ei<0){ const w0=Math.max(...rows.map(r=>r.length)); for(let c=0;c<w0;c++){ if(rows.filter(r=>EMAIL_RE.test(r[c]||'')).length>=Math.max(1,rows.length/2-1)){ ei=c; break; } } }
+  const withEmail=(name,r)=>{ const em=ei>=0?((r[ei]||'').match(EMAIL_RE)||[''])[0]:''; return em?`${name}, ${em}`:name; };
+  if(fi>=0||ni>=0){ return rows.slice(1).map(r=>[ni>=0&&r[ni] ? r[ni] : [r[fi]||'',li>=0?r[li]||'':''].join(' ').trim(),r]).filter(([n])=>looksName(n)).map(([n,r])=>withEmail(n,r)); }
   if(rows.every(r=>r.length===1)) return rows.map(r=>r[0]).filter(looksName);
-  const w=rows[0].length; let bestC=0,bestN=-1; for(let c=0;c<w;c++){ const n=rows.filter(r=>looksName(r[c])).length; if(n>bestN){ bestN=n; bestC=c; } }
-  return rows.map(r=>r[bestC]).filter(looksName);
+  const w=rows[0].length; let bestC=0,bestN=-1; for(let c=0;c<w;c++){ if(c===ei) continue; const n=rows.filter(r=>looksName(r[c])).length; if(n>bestN){ bestN=n; bestC=c; } }
+  return rows.filter(r=>looksName(r[bestC])).map(r=>withEmail(r[bestC],r));
 }
 async function importNamesFile(f){
   const ext=(f.name.split('.').pop()||'').toLowerCase(); let rows;
@@ -1198,14 +1236,16 @@ async function importNamesFile(f){
     else rows=csvRows(await f.text());
   }catch(e){ toast('Couldn’t read that file. Try a .csv, .txt or Excel file.'); return; }
   const names=namesFromRows(rows); if(!names.length){ toast('No names found in that file.'); return; }
-  const ta=$('#regNames'); if(!ta) return; const have=parseNames(ta.value), low=new Set(have.map(n=>n.toLowerCase()));
-  const add=names.filter(n=>!low.has(n.toLowerCase())); ta.value=have.concat(add).join('\n'); ui.regDraft=ta.value; countRegs();
+  const ta=$('#regNames'); if(!ta) return; const cur=ta.value.trim(), low=new Set(parseNames(cur).map(n=>n.toLowerCase()));
+  const add=names.filter(n=>!low.has(parseNames(n)[0].toLowerCase())); ta.value=(cur?cur+'\n':'')+add.join('\n'); ui.regDraft=ta.value; countRegs();
   toast(`${add.length} name${add.length===1?'':'s'} added from ${f.name}. Check the list, then save it.`);
 }
-function countRegs(){ const ta=$('#regNames'), c=$('#regCount'); if(ta&&c){ const n=parseNames(ta.value).length; c.textContent=n+' name'+(n===1?'':'s'); } }
+function countRegs(){ const ta=$('#regNames'), c=$('#regCount'); if(ta&&c){ const E=parseEntries(ta.value), n=E.length, m=E.filter(e=>e.email).length; c.textContent=n+' name'+(n===1?'':'s')+(m?` · ${m} with email`:''); } }
+const emailOf=id=>(cfg.emails&&cfg.emails[id])||'';
+function setEmail(id,em){ if(!cfg.emails) cfg.emails={}; if(em) cfg.emails[id]=em.toLowerCase(); else delete cfg.emails[id]; }
 function applyRegDraft(replace){
   const ta=$('#regNames'); if(!ta) return true; const names=parseNames(ta.value); if(!names.length) return !replace||regularsOf(season()).length>=4;
-  const S=season(), ids=names.map(idFor); setRegulars(S, replace?ids:regularsOf(S).concat(ids)); ui.regDraft=''; delete ui.pick[sel]; return true;
+  const S=season(), E=parseEntries(ta.value), ids=E.map(e=>{ const id=idFor(e.name); if(e.email) setEmail(id,e.email); return id; }); setRegulars(S, replace?ids:regularsOf(S).concat(ids)); ui.regDraft=''; delete ui.pick[sel]; return true;
 }
 function namesText(){
   if(ui.draft[sel]!=null) return ui.draft[sel];
@@ -1253,15 +1293,16 @@ function viewSetup(){
       <div class="setrow"><span class="k">Play time</span><button type="button" class="step" data-set="session" data-d="-15" aria-label="Less play time"${dis}>−</button><span class="v">${cfg.session} min</span><button type="button" class="step plus" data-set="session" data-d="15" aria-label="More play time"${dis}>+</button></div>
       <div class="setrow"><span class="k">Each round</span><button type="button" class="step" data-set="per" data-d="-1" aria-label="Shorter rounds"${dis}>−</button><span class="v">${cfg.per} min</span><button type="button" class="step plus" data-set="per" data-d="1" aria-label="Longer rounds"${dis}>+</button></div>
     </section><p class="note">${totalRounds()} rounds per game day. ${cfg.courts} court${cfg.courts>1?'s need':' needs'} ${cfg.courts*4} players to fill.</p>`;
-  const listBox=(open)=>ro?'':`<div class="field"><label class="label" for="regNames">${regs.length?'Paste more names':'Paste the signup list'}, one per line</label><textarea id="regNames" spellcheck="false" placeholder="Alex Brown&#10;Beth Green&#10;Carlos Diaz&#10;Dana Moore">${esc(ui.regDraft||'')}</textarea></div>
+  const listBox=(open)=>ro?'':`<div class="field"><label class="label" for="regNames">${regs.length?'Paste more names':'Paste the signup list'}, one per line (emails optional)</label><textarea id="regNames" spellcheck="false" placeholder="Alex Brown, alex@example.com&#10;Beth Green &lt;beth@example.com&gt;&#10;Carlos Diaz&#10;Dana Moore">${esc(ui.regDraft||'')}</textarea></div>
       <div class="row2"><button type="button" class="btn ghost" data-act="regFile">${IC.save}Open file</button><button type="button" class="btn" data-act="saveRegs">${regs.length?'Add these':'Save list'}</button></div>
       <p class="note"><b id="regCount" style="color:var(--ink)">${parseNames(ui.regDraft||'').length} names</b> · Files: Excel (.xlsx), .csv, .txt or contact cards (.vcf). A “Name” column, or First and Last columns, are picked up automatically.</p>`;
   const PR=`<section class="card"><p class="note">Signed-up players for <b style="color:var(--ink)">${esc(S2.name)}</b>. They appear on the Players tab every week. Add subs there, one week at a time.</p>
       ${!regs.length?listBox():''}
-      ${regs.length?`<div class="plist">${regs.map(id=>`<div class="pkrow"><span class="pk on" style="cursor:default"><span class="nm">${esc(nameOf(id))}</span></span>${ro?'':`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button>`}</div>`).join('')}</div>`:''}
+      ${regs.length?`<div class="plist">${regs.map(id=>`<div class="pkrow regrow"><span class="pk on" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px"><span class="nm">${esc(nameOf(id))}</span>${ro?(emailOf(id)?`<small class="em">${esc(emailOf(id))}</small>`:''):`<input class="eminp${emailOf(id)?'':' missing'}" type="email" inputmode="email" autocomplete="off" data-email="${id}" value="${esc(emailOf(id))}" placeholder="Add email" aria-label="Email for ${esc(nameOf(id))}">`}</span>${ro?'':`<button type="button" class="rm" data-hide="${id}" aria-label="Remove ${esc(nameOf(id))}">×</button>`}</div>`).join('')}</div>`:''}
       ${ro||!regs.length?'':`<div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="Add a regular player" aria-label="Add a regular player"><button type="button" class="btn small" data-act="addPlayer">Add</button></div>`}
       ${regs.length?`<span class="note">${regs.length} regular player${regs.length===1?'':'s'}</span>`:''}
-      ${regs.length&&!ro?`<details class="more"${ui.regDraft?' open':''}><summary>Paste a list or open a file</summary>${listBox()}</details>`:''}</section>`;
+      ${regs.length&&!ro?`<details class="more"${ui.regDraft?' open':''}><summary>Paste a list or open a file</summary>${listBox()}</details>`:''}</section>
+    ${ro?'':inviteCard(regs)}`;
   const P3=`    ${mode==='local'&&/^https?:$/.test(location.protocol)?`<section class="card"><h2 style="font-size:20px">App look</h2><p class="note">All looks use the same saved data.</p>
       <div class="lookswitch">
         <a class="lookopt" href="index.html"${THEME==='paper'?' aria-current="true"':''}><span class="sw"><i style="background:#22408E"></i><i style="background:#E6B12A"></i></span>Paper Studio</a>
@@ -1727,6 +1768,7 @@ document.addEventListener('click',e=>{
       const nx=firstOpen(s); if(nx>=s.rounds.length&&PAPER){ setTimeout(playEOD,700); return; } toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.',true); return; }
     case 'addRound': addRound(); return;
     case 'eod': playEOD(); return;
+    case 'syncInvites': syncInvites(false); return;
     case 'rmRound': rmRound(); return;
     case 'skip': { const s=sess(); snap(); s.rounds[+d.r].done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail(); return; }
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
@@ -1780,7 +1822,7 @@ document.addEventListener('click',e=>{
     case 'regFile': $('#regFileIn').click(); return;
     case 'saveRegs': { const n=parseNames(($('#regNames')||{}).value||'').length; if(!n){ toast('Paste names or open a file first.'); return; } const had=regularsOf(season()).length; applyRegDraft(!had); render(); toast(had?`${n} added to the regular players`:`${n} players saved`); return; }
     case 'finishSetup': { const S=season(); applyRegDraft(true); const n=regularsOf(S).length; if(n<4){ ui.setupStep=2; render(); toast('Add at least 4 players to finish.'); return; }
-      delete S.setup; saveCfg(); sel=null; userPicked=false; ui.tab='players'; render(); window.scrollTo(0,0); toast(`${S.name} is ready with ${n} players. Check who's here and build the schedule.`); return; }
+      delete S.setup; saveCfg(); if(cfg.invite&&cfg.invite.code) syncInvites(true); sel=null; userPicked=false; ui.tab='players'; render(); window.scrollTo(0,0); toast(`${S.name} is ready with ${n} players. Check who's here and build the schedule.`); return; }
     case 'delSeason': ui.confirm='delSeason'; render(); return;
     case 'delSeasonYes': { const id=season().id; cfg.seasons=cfg.seasons.filter(x=>x.id!==id); ui.season=null; ui.confirm=null; sel=null; userPicked=false; saveCfg(); render(); toast('Session deleted'); return; }
     case 'backup': saveBackup(); return;
@@ -1805,6 +1847,8 @@ document.addEventListener('change',e=>{
   if(t.id==='startDate'){ if(!t.value) return; season().startDate=t.value; userPicked=false; sel=null; saveCfg(); render(); return; }
   if(t.id==='seasonName'){ const v=t.value.trim(); if(!v){ render(); return; } season().name=v; saveCfg(); render(); return; }
   if(t.id==='start'){ cfg.startTime=t.value||'09:00'; saveCfg(); render(); return; }
+  if(t.dataset&&t.dataset.email){ const v=t.value.trim(); if(v&&!EMAIL_RE.test(v)){ toast('That email doesn’t look right.'); return; } setEmail(t.dataset.email,(v.match(EMAIL_RE)||[''])[0]); saveCfg(); t.classList.toggle('missing',!v); toast(v?'Email saved':'Email removed'); return; }
+  if(t.id==='inviteCode'){ cfg.invite=Object.assign({},cfg.invite,{code:t.value.trim()}); saveCfg(); render(); return; }
   if(t.id==='regFileIn'){ const f=t.files&&t.files[0]; t.value=''; if(f) importNamesFile(f); return; }
   if(t.id==='restoreFile'){ const f=t.files&&t.files[0]; t.value=''; if(!f) return;
     f.text().then(txt=>{ const v=JSON.parse(txt); if(!v||typeof v.cfg!=='object'||typeof v.sessions!=='object') throw 0;
