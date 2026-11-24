@@ -730,7 +730,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-3';
+const APP_VERSION='2026.11.24-4';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1149,7 +1149,7 @@ async function syncInvites(quiet){
   if(!m){ if(!quiet) toast('That connection code doesn’t look right. Copy it again from the Sheet.'); return; }
   const S=season(), regs=regularsOf(S), [h,mi]=(cfg.startTime||'09:00').split(':').map(Number);
   const today=todayISO(), avail={}; planDates(S).forEach(({date})=>{ if(date>=today){ const a=availFor(date); if(a) avail[date]=a; } });
-  const body={api:'sync',k:m[2],players:regs.map(id=>({name:nameOf(id),email:emailOf(id)})),dates:planDates(S).map(x=>x.date),avail,courts:cfg.courts,startTime:`${h%12||12}:${String(mi).padStart(2,'0')} ${h<12?'AM':'PM'}`};
+  const body={api:'sync',k:m[2],url:m[1],players:regs.map(id=>({name:nameOf(id),email:emailOf(id)})),dates:planDates(S).map(x=>x.date),avail,courts:cfg.courts,startTime:`${h%12||12}:${String(mi).padStart(2,'0')} ${h<12?'AM':'PM'}`};
   try{ const r=await fetch(m[1],{method:'POST',body:JSON.stringify(body),redirect:'follow'}); const j=await r.json();
     if(!j.ok){ toast(j.error||'The Sheet didn’t accept that.'); return; }
     cfg.invite.synced=new Date().toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveCfg(); if(ui.tab==='setup') render();
