@@ -327,6 +327,11 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 .inline{display:flex;gap:8px}
 .inline input{flex:1;min-width:0}
 .confirm{display:grid;gap:10px;background:var(--red-soft);border-radius:12px;padding:12px}
+.mailday{display:grid;gap:10px;border-top:1px solid var(--line2);padding-top:14px}
+.mailday h3{margin:0;font-size:18px}
+.mailday .st{margin:0;font-weight:700}
+.mailday .warn{margin:0;background:#FFF4D6;color:#6B5200;border-radius:10px;padding:8px 10px;font-size:15px}
+.confirm.go{background:var(--blue-soft)}
 .empty{text-align:center;padding:28px 16px;display:grid;gap:12px;justify-items:center}
 .empty p{margin:0;max-width:30ch}
 .empty .btn{width:100%}
@@ -735,7 +740,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-6';
+const APP_VERSION='2026.11.24-7';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1128,9 +1133,10 @@ function inviteCard(regs){
     <p class="note">The day before each game day, players get an email to say if they’re coming. You approve every batch first.</p>
     <div class="field"><label class="label" for="inviteCode">Connection code from your Google Sheet</label><input id="inviteCode" type="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec?k=…" value="${esc(code)}"></div>
     ${miss?`<p class="note" style="color:var(--red)">${miss} player${miss>1?'s have':' has'} no email yet and won’t get invites.</p>`:''}
-    <button type="button" class="btn" data-act="syncInvites"${code?'':' disabled'}>Send players &amp; game days to the Sheet</button>
-    ${last?`<p class="note">Last sent ${esc(last)}.</p>`:''}
-    ${code?`<a class="linkrow" href="${esc(code)}" target="_blank" rel="noopener">Open the replies page ${IC.go}</a>`:''}
+    <button type="button" class="btn" data-act="syncInvites"${code?'':' disabled'}>Update sheet</button>
+    <p class="note">Sends your players, their emails and the game days to the Sheet.${last?` Last updated ${esc(last)}.`:''}</p>
+    ${code?mailDayPanel():''}
+    ${code?`<a class="linkrow" href="${esc(code)}" target="_blank" rel="noopener">Open replies page ${IC.go}</a>`:''}
   </section>`;
 }
 /* regulars who told Yasser by email or text that they're coming */
@@ -1146,6 +1152,52 @@ function loadReplies(d,force){
     const was=JSON.stringify(ui.replies[d].map); ui.replies[d]={map:(j&&j.ok&&j.replies)||{},at:Date.now()};
     if(JSON.stringify(ui.replies[d].map)!==was&&sel===d&&ui.tab==='players') render(); })
   .catch(()=>{ ui.replies[d]=Object.assign({},ui.replies[d],{busy:false}); });
+}
+/* approve the emails for the next game day without leaving the app */
+ui.mail=ui.mail||null;
+function nextMailDay(){ const t=todayISO(); const d=planDates(season()).map(x=>x.date).find(x=>x>t); return d||''; }
+function sheetCall(body){
+  const m=((cfg.invite&&cfg.invite.code)||'').match(/^(https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec)\?k=([\w]+)$/);
+  if(!m) return Promise.reject(new Error('no code'));
+  return fetch(m[1],{method:'POST',body:JSON.stringify(Object.assign({k:m[2]},body))}).then(x=>x.json());
+}
+function loadMailDay(force){
+  const d=nextMailDay(); if(!d) return; const M=ui.mail;
+  if(!force&&M&&M.d===d&&(M.busy||Date.now()-M.at<60000)) return;
+  ui.mail=Object.assign({},M&&M.d===d?M:{},{d,busy:true,at:Date.now()});
+  sheetCall({api:'day',d}).then(j=>{ ui.mail={d,at:Date.now(),data:j.ok?j:null,err:j.ok?'':j.error}; if(ui.tab==='setup') render(); })
+    .catch(()=>{ ui.mail={d,at:Date.now(),data:null,err:'Couldn’t reach the Sheet.'}; if(ui.tab==='setup') render(); });
+}
+function approveMail(scope){
+  const d=ui.mail&&ui.mail.d; if(!d) return; ui.confirm=null; ui.mail.busy=true; ui.mail.saving=scope; render();
+  sheetCall({api:'approve',d,scope}).then(j=>{ ui.mail={d,at:Date.now(),data:j.ok?j:ui.mail.data,err:j.ok?'':j.error}; render();
+      if(j.ok) toast(scope==='skip'?'No emails this week':j.invite?'Approved. The invite is on its way':'Approved'); })
+    .catch(()=>{ ui.mail.busy=false; ui.mail.saving=null; render(); toast('Couldn’t reach the Sheet. Try again.'); });
+}
+function mailDayPanel(){
+  loadMailDay(); const M=ui.mail, d=nextMailDay();
+  if(!d) return '';
+  const when=esc(fmtDate(d,{weekday:'short',month:'short',day:'numeric'}));
+  if(!M||!M.data) return `<div class="mailday"><h3>Emails for ${when}</h3><p class="note">${M&&M.err?esc(M.err):'Checking the Sheet…'}</p>${M&&M.err?'<button type="button" class="btn ghost small" data-act="mailRefresh">Try again</button>':''}</div>`;
+  const x=M.data, h=x.hours||{}, busy=!!M.busy;
+  const status=x.approved==='all'?'Approved: invite and both reminders':x.approved==='invite'?'Approved: invite only':x.approved==='skip'?'Skipped: no emails this week':'Not approved yet. Nothing has been sent.';
+  const sent=[x.invite?'Invite sent '+x.invite:'',x.rem1?'Reminder 1 sent '+x.rem1:'',x.rem2?'Reminder 2 sent '+x.rem2:''].filter(Boolean).join(' · ');
+  const isTomorrow=d===addDays(todayISO(),1), now=new Date().getHours(), invH=parseInt(h.invite)%12+(/PM/.test(h.invite||'')?12:0);
+  const rightAway=isTomorrow&&now>=invH;
+  const conf=c=>{ const txt=c==='all'?`Send the invite ${rightAway?'right away':'at '+esc(h.invite)+' the day before'}, then reminders at ${esc(h.rem1)} and ${esc(h.rem2)} to anyone who hasn’t replied?`
+      :c==='invite'?`Send the invite ${rightAway?'right away':'at '+esc(h.invite)+' the day before'}, with no reminders?`
+      :c==='add'?`Add reminders at ${esc(h.rem1)} and ${esc(h.rem2)} for anyone who hasn’t replied?`:'Skip this week? Nobody gets an email.';
+    return `<div class="confirm go"><b>${txt}</b>${x.testMode&&c!=='skip'?'<span class="note">Test mode is on, so they’ll all come to you.</span>':''}<div class="row2"><button type="button" class="btn small" data-act="mailYes" data-mail="${c==='add'?'all':c}">${c==='skip'?'Skip':'Yes, approve'}</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Cancel</button></div></div>`; };
+  const c=(ui.confirm||'').startsWith('mail:')?ui.confirm.slice(5):'';
+  let actions='';
+  if(!x.invite&&x.approved!=='skip'&&!x.approved){
+    actions=c?conf(c):`<button type="button" class="btn" data-act="mailAsk" data-mail="all"${busy?' disabled':''}>Approve invite + reminders</button>
+      <div class="row2"><button type="button" class="btn ghost small" data-act="mailAsk" data-mail="invite"${busy?' disabled':''}>Invite only</button><button type="button" class="btn ghost small" data-act="mailAsk" data-mail="skip"${busy?' disabled':''}>Skip this week</button></div>`;
+  } else if(x.approved==='invite'&&x.invite&&!x.summary){
+    actions=c?conf(c):`<button type="button" class="btn ghost small" data-act="mailAsk" data-mail="add"${busy?' disabled':''}>Add the reminders</button>`;
+  }
+  return `<div class="mailday"><h3>Emails for ${when}</h3>${x.testMode?'<p class="warn">Test mode is on: every email goes to you.</p>':''}
+    <p class="st">${status}</p>${sent?`<p class="note">${esc(sent)}</p>`:''}${busy&&M.saving?'<p class="note">Saving…</p>':''}${actions}</div>`;
 }
 function yesChip(id){
   if(!(cfg.invite&&cfg.invite.code)||sel<todayISO()) return '';
@@ -1179,7 +1231,7 @@ async function syncInvites(quiet){
   const body={api:'sync',k:m[2],url:m[1],players:regs.map(id=>({name:nameOf(id),email:emailOf(id)})),dates:planDates(S).map(x=>x.date),avail,courts:cfg.courts,startTime:`${h%12||12}:${String(mi).padStart(2,'0')} ${h<12?'AM':'PM'}`};
   try{ const r=await fetch(m[1],{method:'POST',body:JSON.stringify(body),redirect:'follow'}); const j=await r.json();
     if(!j.ok){ toast(j.error||'The Sheet didn’t accept that.'); return; }
-    cfg.invite.synced=new Date().toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveCfg(); if(ui.tab==='setup') render();
+    cfg.invite.synced=new Date().toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveCfg(); loadMailDay(true); if(ui.tab==='setup') render();
     if(!quiet) toast(`Sent ${j.players} players and ${j.dates} game days.${j.noEmail&&j.noEmail.length?` No email for ${j.noEmail.length}.`:''}${j.testMode?' Test mode is on.':''}`);
   }catch(e){ if(!quiet) toast('Couldn’t reach the Sheet. Check the connection code and try again.'); }
 }
@@ -1816,6 +1868,9 @@ document.addEventListener('click',e=>{
     case 'addRound': addRound(); return;
     case 'eod': playEOD(); return;
     case 'syncInvites': syncInvites(false); return;
+    case 'mailRefresh': loadMailDay(true); render(); return;
+    case 'mailAsk': ui.confirm='mail:'+t.dataset.mail; render(); return;
+    case 'mailYes': approveMail(t.dataset.mail); return;
     case 'rmRound': rmRound(); return;
     case 'skip': { const s=sess(); snap(); s.rounds[+d.r].done=true; ui.round=null; ui.slide='left'; saveSession(); render(); window.scrollTo(0,0); centerRail(); return; }
     case 'copySched': copy(schedText(false).join('\n').trim()); return;
