@@ -36,6 +36,8 @@ h1{margin:0;font-size:30px;font-weight:900;letter-spacing:-.02em;line-height:1.1
 .done h2{margin:6px 0 0;font-size:24px;font-weight:900}.yes h2{color:var(--grn-dk)}.no h2{color:#7A1F45}
 .done p{margin:0;font-size:16px}
 .change{border:0;background:transparent;color:var(--navy);font:inherit;font-weight:700;text-decoration:underline;padding:10px;min-height:44px;cursor:pointer}
+.plans{display:flex;flex-direction:column;align-items:center;gap:2px}
+.note a{color:var(--navy);font-weight:700;word-break:break-all}
 .err{border-radius:20px;background:#FFF;box-shadow:var(--sh-sm);padding:18px;text-align:center}
 .skel{height:22px;border-radius:12px;background:linear-gradient(90deg,#E6E9EF,#F4F6F9,#E6E9EF);background-size:200% 100%;animation:sh 1.2s linear infinite}
 @keyframes sh{to{background-position:-200% 0}}
@@ -71,14 +73,15 @@ button:focus-visible{outline:3px solid #E6B12A;outline-offset:3px}
   function ask(){
     app.innerHTML=`<h1>Hi ${esc(info.first)}! Are you playing?</h1>${header()}
       <div class="choice"><button type="button" class="in" data-a="in">${CHECK}I’m in</button><button type="button" class="out" data-a="out">${CROSS}Can’t make it</button></div>
-      <p class="note">Your answer only goes to the organizer.</p>`;
+      <p class="note">Your answer only goes to ${esc(info.organizer||'the organizer')}.</p>`;
   }
   function done(){
     const yes=info.answer==='in';
     app.innerHTML=`${header()}<div class="done ${yes?'yes':'no'}"><span class="badge">${yes?CHECK.replace('<svg','<svg width="36" height="36"'):CROSS.replace('<svg','<svg width="36" height="36"')}</span>
       <h2>${yes?`You’re in, ${esc(info.first)}!`:`Thanks for letting me know, ${esc(info.first)}.`}</h2>
       <p>${yes?`See you ${esc(info.dateText.split(',')[0])} at ${esc(info.time)}.`:'Hope to see you next time.'}</p></div>
-      <button type="button" class="change" data-change="1">Plans changed? Change my answer</button>`;
+      <div class="plans"><button type="button" class="change" data-change="1">Plans changed? Change my answer</button>
+      ${info.contact?`<p class="note">Or email ${esc(info.organizer||'the organizer')} at <a href="mailto:${esc(info.contact)}">${esc(info.contact)}</a></p>`:''}</div>`;
   }
   app.addEventListener('click',async e=>{
     const b=e.target.closest('button'); if(!b) return;
