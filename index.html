@@ -731,7 +731,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-2';
+const APP_VERSION='2026.11.24-3';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -835,7 +835,7 @@ async function flush(path,retried){
   if(pend[path]) flush(path); else if(!Object.keys(pend).length) setSync('Saved');
 }
 const saveCfg=()=>queueWrite('league/config',cfg);
-const saveSession=()=>{ const s=sess(); queueWrite('sessions/'+s.date,s); };
+const saveSession=()=>{ const s=sess(); queueWrite('sessions/'+s.date,s); availChanged(s.date); };
 
 let toastT, undoBuf=null;
 function toast(msg,undoable){ const t=$('#toast'); t.innerHTML=esc(msg)+(undoable&&undoBuf?' <button type="button" data-act="undo">Undo</button>':''); t.classList.toggle('act',!!(undoable&&undoBuf)); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>{ t.classList.remove('show','act'); },undoable&&undoBuf?6000:2600); }
@@ -1109,6 +1109,8 @@ function pickSet(){
   if(!ui.pick[sel]){ const s=sessions[sel];
     if(s&&s.players.length){ ui.pick[sel]=s.players.filter(id=>!isSub(s,id)); ui.pickSubs[sel]=s.players.filter(id=>isSub(s,id));
       ui.pickFor[sel]=Object.fromEntries(Object.entries(s.subs||{}).filter(([k,v])=>v&&v!=='none'&&s.players.includes(k))); }
+    else if(cfg.avail&&cfg.avail[sel]){ const A=cfg.avail[sel], byName={}; Object.keys(cfg.roster).forEach(id=>byName[nameOf(id)]=id); const out=new Set((A.out||[]).map(n=>byName[n]).filter(Boolean));
+      ui.pick[sel]=regularsOf(season()).filter(id=>!out.has(id)); ui.pickSubs[sel]=(A.subs||[]).map(x=>byName[x.name]).filter(Boolean); ui.pickFor[sel]=Object.fromEntries((A.subs||[]).filter(x=>byName[x.name]&&byName[x.forName]).map(x=>[byName[x.name],byName[x.forName]])); }
     else { ui.pick[sel]=regularsOf(season()).slice(); ui.pickSubs[sel]=[]; ui.pickFor[sel]={}; } }
   if(!ui.pickSubs[sel]) ui.pickSubs[sel]=[];
   if(!ui.pickFor[sel]) ui.pickFor[sel]={};
@@ -1127,11 +1129,28 @@ function inviteCard(regs){
     ${code?`<a class="linkrow" href="${esc(code)}" target="_blank" rel="noopener">Open the replies page ${IC.go}</a>`:''}
   </section>`;
 }
+/* who's out and who's subbing on an upcoming day, so the email invites skip them */
+function availFor(d){
+  const S=season(), regs=regularsOf(S), x=sessions[d];
+  const nm=id=>nameOf(id), forN=v=>v&&v!=='none'?nameOf(v):'';
+  if(x&&inSeason(x)&&x.players&&x.players.length){ const here=new Set(hereIds(x));
+    return {out:regs.filter(id=>!here.has(id)).map(nm), subs:Object.entries(x.subs||{}).filter(([k])=>here.has(k)&&!regs.includes(k)).map(([k,v])=>({name:nm(k),forName:forN(v)}))}; }
+  if(ui.pick[d]) return {out:regs.filter(id=>!ui.pick[d].includes(id)).map(nm), subs:(ui.pickSubs[d]||[]).map(k=>({name:nm(k),forName:forN((ui.pickFor[d]||{})[k])}))};
+  return (cfg.avail&&cfg.avail[d])||null;
+}
+let availTimer=null;
+function availChanged(d){
+  d=d||sel; if(!d||d<todayISO()) return; const a=availFor(d); if(!a) return;
+  cfg.avail=cfg.avail||{}; const before=JSON.stringify(cfg.avail[d]||null); if(before===JSON.stringify(a)) return;
+  cfg.avail[d]=a; Object.keys(cfg.avail).forEach(k=>{ if(k<todayISO()) delete cfg.avail[k]; }); saveCfg();
+  if(cfg.invite&&cfg.invite.code){ clearTimeout(availTimer); availTimer=setTimeout(()=>syncInvites(true),2500); }
+}
 async function syncInvites(quiet){
   const code=(cfg.invite&&cfg.invite.code)||''; const m=code.match(/^(https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec)\?k=([\w]+)$/);
   if(!m){ if(!quiet) toast('That connection code doesn’t look right. Copy it again from the Sheet.'); return; }
   const S=season(), regs=regularsOf(S), [h,mi]=(cfg.startTime||'09:00').split(':').map(Number);
-  const body={api:'sync',k:m[2],players:regs.map(id=>({name:nameOf(id),email:emailOf(id)})),dates:planDates(S).map(x=>x.date),courts:cfg.courts,startTime:`${h%12||12}:${String(mi).padStart(2,'0')} ${h<12?'AM':'PM'}`};
+  const today=todayISO(), avail={}; planDates(S).forEach(({date})=>{ if(date>=today){ const a=availFor(date); if(a) avail[date]=a; } });
+  const body={api:'sync',k:m[2],players:regs.map(id=>({name:nameOf(id),email:emailOf(id)})),dates:planDates(S).map(x=>x.date),avail,courts:cfg.courts,startTime:`${h%12||12}:${String(mi).padStart(2,'0')} ${h<12?'AM':'PM'}`};
   try{ const r=await fetch(m[1],{method:'POST',body:JSON.stringify(body),redirect:'follow'}); const j=await r.json();
     if(!j.ok){ toast(j.error||'The Sheet didn’t accept that.'); return; }
     cfg.invite.synced=new Date().toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveCfg(); if(ui.tab==='setup') render();
@@ -1727,10 +1746,10 @@ document.addEventListener('click',e=>{
       else { toast(`Highest score allowed is ${maxOf(R)}.`); return; }
     }
     setScore(+d.r,+d.g,k,nv); render(); return; }
-  if(d.pick){ const pk=pickSet(), i=pk.indexOf(d.pick); if(i>=0) pk.splice(i,1); else pk.push(d.pick); render(); return; }
+  if(d.pick){ const pk=pickSet(), i=pk.indexOf(d.pick); if(i>=0) pk.splice(i,1); else pk.push(d.pick); render(); availChanged(); return; }
   if(d.hide){ const S=season(); setRegulars(S,regularsOf(S).filter(x=>x!==d.hide)); const pk=pickSet(), i=pk.indexOf(d.hide); if(i>=0) pk.splice(i,1); render(); toast(`${nameOf(d.hide)} removed from the regular players`); return; }
-  if(d.unsub){ const ps=pickSubs(), i=ps.indexOf(d.unsub); if(i>=0) ps.splice(i,1); delete pickFor()[d.unsub]; render(); return; }
-  if(d.resub){ const ps=pickSubs(); if(!ps.includes(d.resub)) ps.push(d.resub); render(); toast(`${nameOf(d.resub)} added as a sub for this week`); return; }
+  if(d.unsub){ const ps=pickSubs(), i=ps.indexOf(d.unsub); if(i>=0) ps.splice(i,1); delete pickFor()[d.unsub]; render(); availChanged(); return; }
+  if(d.resub){ const ps=pickSubs(); if(!ps.includes(d.resub)) ps.push(d.resub); render(); availChanged(); toast(`${nameOf(d.resub)} added as a sub for this week`); return; }
   if(d.rnd!=null){ goRound(+d.rnd); return; }
   if(d.rstep){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(+d.rstep), +d.rstep>0?'left':'right'); return; }
   if(d.quick!=null){ setScore(+d.r,+d.g,d.s,+d.quick); render(); return; }
@@ -1797,14 +1816,14 @@ document.addEventListener('click',e=>{
       ui.pickMode=false; const {f,total}=rebuild(); toast(f>0?`Rounds ${f+1}–${total} updated`:'Schedule built',true); setTimeout(()=>goTab('today'),600); return; }
     case 'pickMode': ui.pickMode=true; ui.pick[sel]=null; render(); window.scrollTo(0,0); return;
     case 'pickDone': ui.pickMode=false; ui.pick[sel]=null; render(); return;
-    case 'pickAll': ui.pick[sel]=regularsOf(season()).slice(); render(); return;
+    case 'pickAll': ui.pick[sel]=regularsOf(season()).slice(); render(); availChanged(); return;
     case 'pickNone': ui.pick[sel]=[]; render(); return;
     case 'editList': ui.editList=!ui.editList; render(); return;
     case 'addPlayer': { const n=($('#newPlayer').value||'').trim().replace(/\s+/g,' '); if(!n){ toast('Type a name first.'); return; }
       const id=idFor(n), S=season(); setRegulars(S,regularsOf(S).concat([id])); const pk=pickSet(); if(!pk.includes(id)) pk.push(id); const ps=pickSubs(), j=ps.indexOf(id); if(j>=0) ps.splice(j,1); render(); toast(`${n} added to the regular players`); const f=$('#newPlayer'); if(f) f.focus(); return; }
     case 'addSub': { const n=($('#newSub').value||'').trim().replace(/\s+/g,' '); if(!n){ toast('Type the sub’s name.'); return; }
       const id=idFor(n); if(regularsOf(season()).includes(id)){ toast(`${n} is already a regular. Tick them in the list instead.`); return; }
-      const ps=pickSubs(); if(!ps.includes(id)) ps.push(id); const f=$('#newSubFor').value; if(f) setSubFor(id,f); saveCfg(); render(); toast(`${n} added as a sub${f?' for '+nameOf(f):''} this week`); return; }
+      const ps=pickSubs(); if(!ps.includes(id)) ps.push(id); const f=$('#newSubFor').value; if(f) setSubFor(id,f); saveCfg(); render(); availChanged(); toast(`${n} added as a sub${f?' for '+nameOf(f):''} this week`); return; }
     case 'undo': doUndo(); return;
     case 'timerStart': timerStart(+d.r); return;
     case 'timerPause': timerPause(); return;
@@ -1841,7 +1860,7 @@ document.addEventListener('change',e=>{
   if(t.classList.contains('score')){ setScore(+t.dataset.r,+t.dataset.g,t.dataset.s,t.value===''?null:+t.value); t.blur(); render(); return; }
   if(t.dataset&&t.dataset.col){ const cur=shownCols().map(c=>c.id); const on=t.checked, id=t.dataset.col;
     const next=COLS.map(c=>c.id).filter(x=>x===id?on:cur.includes(x)); cfg.cols=next; saveCfg(); render(); return; }
-  if(t.dataset&&t.dataset.subfor){ setSubFor(t.dataset.subfor,t.value); render(); return; }
+  if(t.dataset&&t.dataset.subfor){ setSubFor(t.dataset.subfor,t.value); render(); availChanged(); return; }
   if(t.classList.contains('tosel')){ const s=sess(), R=s.rounds[+t.dataset.r]; if(!R) return; R.to=+t.value; saveSession(); t.blur(); render(); toast(`Round ${+t.dataset.r+1} is played to ${R.to}.`); return; }
   if(t.id==='seasonPick'){ ui.season=t.value; sel=null; userPicked=false; ui.player=null; t.blur(); render(); return; }
   if(t.id==='startDate'){ if(!t.value) return; season().startDate=t.value; userPicked=false; sel=null; saveCfg(); render(); return; }
