@@ -767,7 +767,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-8';
+const APP_VERSION='2026.11.24-9';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -2084,7 +2084,9 @@ function hideSplash(){ const sp=document.getElementById('splash'); if(!sp||sp.cl
       <div class="pword" aria-label="Dink and Drive">${[...w].map((c,i)=>`<span aria-hidden="true" style="animation-delay:${700+i*55}ms">${c===' '?'&nbsp;':c}</span>`).join('')}</div>
       <div class="pballs" aria-hidden="true">${[['#FFF3B0','#E6B12A','#946B07'],['#F7B8D1','#C63A72','#6F1538'],['#E3ECFF','#8DAEE8','#3D5FA3']].map((c,i)=>`<div class="pb"><span class="ball" style="--b1:${c[0]};--b2:${c[1]};--b3:${c[2]};animation-delay:${1150+i*170}ms"></span><span class="sh" style="animation-delay:${1150+i*170}ms"></span></div>`).join('')}</div>
       <div class="ptag">Fair doubles, every week</div></div>`;
-    const dial=sp.querySelector('.r2'); if(dial&&PAPER){ const st=performance.now(), [th,tm]=((cfg&&cfg.startTime)||'09:00').split(':').map(Number), tot=th*60+tm; const f=now=>{ const k=1-Math.pow(1-Math.min(1,(now-st)/1800),3), m=Math.round(k*tot); dial.textContent=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); if(k<1&&document.body.contains(dial)) requestAnimationFrame(f); }; setTimeout(()=>requestAnimationFrame(f),900); dial.textContent='00:00'; } }
+    const dial=sp.querySelector('.r2'); if(dial&&PAPER){ const st=performance.now(); let saved=''; try{ saved=JSON.parse(localStorage.getItem('pickleball-league-v2')||'{}').cfg.startTime||''; }catch(e){}
+    const tot=()=>{ const [th,tm]=(saved||(cfg&&cfg.startTime)||'09:00').split(':').map(Number); return th*60+tm; };
+    const f=now=>{ const k=1-Math.pow(1-Math.min(1,(now-st)/1800),3), m=Math.round(k*tot()); dial.textContent=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); if(k<1&&document.body.contains(dial)) requestAnimationFrame(f); }; setTimeout(()=>requestAnimationFrame(f),900); dial.textContent='00:00'; } }
   sp.addEventListener('click',hideSplash); sp.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') hideSplash(); }); setTimeout(hideSplash,4000); })();
 (async()=>{
   sel=pickDefault(); render();
