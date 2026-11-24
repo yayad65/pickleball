@@ -333,6 +333,33 @@ textarea{min-height:150px;resize:vertical;line-height:1.5}
 .mailday .st{margin:0;font-weight:700}
 .mailday .warn{margin:0;background:#FFF4D6;color:#6B5200;border-radius:10px;padding:8px 10px;font-size:15px}
 .confirm.go{background:var(--blue-soft)}
+/* setup: top tabs, sliding parts */
+.stabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--line2);border-radius:14px;padding:4px;gap:4px}
+.stabs button{min-height:44px;border:0;border-radius:11px;background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.stabs button[aria-selected="true"]{background:var(--surface);color:var(--blue);box-shadow:0 1px 0 var(--edge),0 4px 8px -4px rgba(28,40,80,.3)}
+.ssubs{display:flex;gap:20px;overflow-x:auto;scrollbar-width:none;margin:2px 2px -4px}
+.ssubs::-webkit-scrollbar{display:none}
+.ssubs button{flex:none;border:0;background:transparent;padding:6px 0 8px;font:inherit;font-size:16px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.ssubs button[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+.spane{display:grid;gap:14px;min-width:0;touch-action:pan-y}
+.spane.in-l{animation:sIn .32s cubic-bezier(.2,.8,.2,1) both;--sx:44px}
+.spane.in-r{animation:sIn .32s cubic-bezier(.2,.8,.2,1) both;--sx:-44px}
+@keyframes sIn{from{transform:translateX(var(--sx));opacity:0}to{transform:none;opacity:1}}
+.sdots{display:flex;justify-content:center;gap:6px;margin-top:-4px}
+.sdots i{width:7px;height:7px;border-radius:4px;background:var(--edge);transition:width .25s}
+.sdots i.on{width:18px;background:var(--blue)}
+.regl{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:6px 14px;border:0;background:transparent;text-align:left;font:inherit;color:var(--ink);cursor:pointer}
+.regl .nm{flex:1;min-width:0;font-weight:700}.regl small{display:block;font-weight:400;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.regl small.miss{color:var(--red)}.regl .chev{color:var(--muted);flex:none}
+.regedit{display:grid;gap:10px;padding:4px 14px 14px}
+.regedit .row2 .btn{min-height:44px}
+.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.counts div{border-radius:14px;padding:10px 4px;background:var(--line2)}
+.counts b{display:block;font-size:24px;line-height:1.1}.counts span{font-size:14px;color:var(--muted)}
+.counts .c-in{background:#E3F2EB}.counts .c-in b{color:#1C5A40}
+.counts .c-none{background:#FFF4D6}.counts .c-none b{color:#6B5200}
+.connected{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.connected b{color:#1C5A40}
 .empty{text-align:center;padding:28px 16px;display:grid;gap:12px;justify-items:center}
 .empty p{margin:0;max-width:30ch}
 .empty .btn{width:100%}
@@ -455,7 +482,7 @@ html.paper table.st tr.top3 th,html.paper table.st tr.top3 td{background:#F3F5FA
 html.paper .top3 .badge{background:var(--blue)}
 html.paper .finished{background:var(--blue-soft)}
 html.paper .nav{background:transparent;border-top:0;pointer-events:none}
-html.paper .nav-in{pointer-events:auto;background:#FFFFFF;border-radius:28px;margin:0 12px 10px;padding:6px;box-shadow:var(--psh)}
+html.paper .nav-in{pointer-events:auto;background:#FFFFFF;border-radius:28px;margin:0 12px 10px;padding:6px;box-shadow:0 0 0 1px rgba(20,30,60,.10),0 0 26px rgba(20,30,60,.42),0 2px 0 #C9CED8}
 html.paper .tab{border-radius:20px;transition:background .3s,color .3s}
 html.paper .tab[aria-current="page"]{background:var(--line2);color:var(--blue);font-weight:800}
 html.paper .steps{border:0;box-shadow:var(--psh);border-radius:24px}
@@ -622,8 +649,8 @@ html.dink .finished{background:var(--blue-soft)}
 <nav class="nav" aria-label="Main">
   <div class="nav-in">
     <button type="button" class="tab" data-tab="today"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rounds</button>
-    <button type="button" class="tab" data-tab="standings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>Standings</button>
     <button type="button" class="tab" data-tab="players"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>Players</button>
+    <button type="button" class="tab" data-tab="standings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>Standings</button>
     <button type="button" class="tab" data-tab="setup"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Setup</button>
   </div>
 </nav>
@@ -741,7 +768,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-7';
+const APP_VERSION='2026.11.24-8';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1151,7 +1178,7 @@ function loadReplies(d,force){
   ui.replies[d]=Object.assign({map:{}},r,{busy:true,at:Date.now()});
   fetch(m[1],{method:'POST',body:JSON.stringify({api:'replies',k:m[2],d})}).then(x=>x.json()).then(j=>{
     const was=JSON.stringify(ui.replies[d].map); ui.replies[d]={map:(j&&j.ok&&j.replies)||{},at:Date.now()};
-    if(JSON.stringify(ui.replies[d].map)!==was&&sel===d&&ui.tab==='players') render(); })
+    if(JSON.stringify(ui.replies[d].map)!==was&&((sel===d&&ui.tab==='players')||ui.tab==='setup')) render(); })
   .catch(()=>{ ui.replies[d]=Object.assign({},ui.replies[d],{busy:false}); });
 }
 /* approve the emails for the next game day without leaving the app */
@@ -1175,11 +1202,11 @@ function approveMail(scope){
       if(j.ok) toast(scope==='skip'?'No emails this week':j.invite?'Approved. The invite is on its way':'Approved'); })
     .catch(()=>{ ui.mail.busy=false; ui.mail.saving=null; render(); toast('Couldn’t reach the Sheet. Try again.'); });
 }
-function mailDayPanel(){
+function mailDayPanel(bare){
   loadMailDay(); const M=ui.mail, d=nextMailDay();
   if(!d) return '';
   const when=esc(fmtDate(d,{weekday:'short',month:'short',day:'numeric'}));
-  if(!M||!M.data) return `<div class="mailday"><h3>Emails for ${when}</h3><p class="note">${M&&M.err?esc(M.err):'Checking the Sheet…'}</p>${M&&M.err?'<button type="button" class="btn ghost small" data-act="mailRefresh">Try again</button>':''}</div>`;
+  if(!M||!M.data) return `<div class="mailday"${bare?' style="border:0;padding-top:0"':''}>${bare?'':`<h3>Emails for ${when}</h3>`}<p class="note">${M&&M.err?esc(M.err):'Checking the Sheet…'}</p>${M&&M.err?'<button type="button" class="btn ghost small" data-act="mailRefresh">Try again</button>':''}</div>`;
   const x=M.data, h=x.hours||{}, busy=!!M.busy;
   const status=x.approved==='all'?'Approved: invite and both reminders':x.approved==='invite'?'Approved: invite only':x.approved==='skip'?'Skipped: no emails this week':'Not approved yet. Nothing has been sent.';
   const sent=[x.invite?'Invite sent '+x.invite:'',x.rem1?'Reminder 1 sent '+x.rem1:'',x.rem2?'Reminder 2 sent '+x.rem2:''].filter(Boolean).join(' · ');
@@ -1197,7 +1224,7 @@ function mailDayPanel(){
   } else if(x.approved==='invite'&&x.invite&&!x.summary){
     actions=c?conf(c):`<button type="button" class="btn ghost small" data-act="mailAsk" data-mail="add"${busy?' disabled':''}>Add the reminders</button>`;
   }
-  return `<div class="mailday"><h3>Emails for ${when}</h3>${x.testMode?'<p class="warn">Test mode is on: every email goes to you.</p>':''}
+  return `<div class="mailday"${bare?' style="border:0;padding-top:0"':''}>${bare?'':`<h3>Emails for ${when}</h3>`}${x.testMode?'<p class="warn">Test mode is on: every email goes to you.</p>':''}
     <p class="st">${status}</p>${sent?`<p class="note">${esc(sent)}</p>`:''}${busy&&M.saving?'<p class="note">Saving…</p>':''}${actions}</div>`;
 }
 function yesChip(id){
@@ -1411,6 +1438,7 @@ function viewSetup(){
   const P4=`    ${mode==='local'?`<section class="card"><h2 style="font-size:20px">Backup</h2><p class="note">Your sessions are saved on this device only. Save a backup after each week so you can restore it if this app's data is ever cleared.</p>
       <div class="row2"><button type="button" class="btn ghost" data-act="backup">Save backup</button><button type="button" class="btn ghost" data-act="restore">Restore</button></div>
       ${restoreData?`<div class="confirm"><span>${esc(restoreInfo)}</span><div class="row2"><button type="button" class="btn danger" data-act="restoreYes">Replace with backup</button><button type="button" class="btn ghost small" data-act="restoreNo">Cancel</button></div></div>`:''}</section>`:''}`;
+  if(!setting&&!ro) return setupTabs({S,regs,opts,dayBtns,weeks,dis,delOK,P2,P4,listBox});
   const steps=[[setting?'Game days & weeks':'Session',P1,setting?'Days':'Session',IC.cal],['Courts & timing',P2,'Courts',IC.court],['Regular players',PR,'Players',IC.people]];
   if(!setting){ if(P3.trim()) steps.push(['App look',P3,'Look',IC.palette]); if(P4.trim()) steps.push(['Backup',P4,'Backup',IC.save]); }
   const k=Math.max(0,Math.min(steps.length-1,ui.setupStep||0));
@@ -1420,6 +1448,68 @@ function viewSetup(){
     <div class="stepnav">${k>0?`<button type="button" class="btn ghost" data-sstep="${k-1}">${IC.back}${esc(steps[k-1][2])}</button>`:'<span></span>'}${k<steps.length-1?`<button type="button" class="btn" data-sstep="${k+1}">${esc(steps[k+1][2])} ${IC.go}</button>`:setting?`<button type="button" class="btn" data-act="finishSetup">Finish ${IC.go}</button>`:'<span></span>'}</div>`;
 }
 
+
+/* Setup after a session exists: four tabs, each with parts you tap or swipe between */
+function setupTabs(o){
+  const {S,regs,opts,dayBtns,weeks,dis,delOK,P2,P4,listBox}=o, code=(cfg.invite&&cfg.invite.code)||'';
+  const daysPane=`<section class="card setcard">
+      <div><span class="label">Game days</span>${dayBtns}</div>
+      <div class="field"><label class="label" for="startDate">Starting date</label><input id="startDate" type="date" value="${S.startDate}"${dis}></div>
+      <div class="setrow" style="border:0;min-height:48px" role="group" aria-labelledby="weeksL"><span class="k" id="weeksL">Weeks</span><button type="button" class="step" data-wk="-1" aria-label="Fewer weeks"${dis}>−</button><span class="v">${S.weeks}</span><button type="button" class="step plus" data-wk="1" aria-label="More weeks"${dis}>+</button></div>
+    </section><p class="note">${esc(fmtDate(S.startDate,{month:'short',day:'numeric'}))} – ${esc(fmtDate(seasonEnd(S),{month:'short',day:'numeric'}))} · ${S.weeks} week${S.weeks===1?'':'s'}. Skip a holiday week under Weeks.</p>`;
+  const weeksPane=`<section class="card"><p class="note" style="margin:0">Tap Skip for a week you won't play. The session moves one week later.</p><div class="wklist">${weeks}</div></section>`;
+  const sessPane=`<section class="card setcard">
+      <div class="field"><label class="label" for="seasonName">Session name</label><input id="seasonName" type="text" value="${esc(S.name)}" autocomplete="off"${dis}></div>
+      <div class="field"><label class="label" for="seasonPick">Showing</label><select id="seasonPick">${opts}</select></div>
+      ${delOK?(ui.confirm==='delSeason'?`<div class="confirm"><b>Delete ${esc(S.name)}?</b><div class="row2"><button type="button" class="btn danger" data-act="delSeasonYes">Delete</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Keep it</button></div></div>`:`<button type="button" class="btn danger" data-act="delSeason">Delete this empty session</button>`):''}
+    </section>
+    <button type="button" class="btn ghost dash" data-act="newSeason">${IC.plus}Start a new session</button>`;
+  const regRows=regs.map(id=>{ const em=emailOf(id), open=ui.regEdit===id;
+    return `<div class="regwrap"><button type="button" class="regl" data-regedit="${open?'':id}" aria-expanded="${open}"><span class="nm">${esc(nameOf(id))}<small class="${em?'':'miss'}">${em?esc(em):'No email yet'}</small></span><span class="chev">${open?'▾':'›'}</span></button>
+      ${open?`<div class="regedit"><input class="eminp${em?'':' missing'}" type="email" inputmode="email" autocomplete="off" data-email="${id}" value="${esc(em)}" placeholder="Add email" aria-label="Email for ${esc(nameOf(id))}">
+        <div class="row2"><button type="button" class="btn ghost small" data-hide="${id}">Remove player</button><button type="button" class="btn small" data-regedit="">Done</button></div></div>`:''}</div>`; }).join('');
+  const regsPane=regs.length?`<div class="plist">${regRows}</div><p class="note">${regs.length} regular player${regs.length===1?'':'s'} for ${esc(S.name)} · tap a name to edit</p>`
+    :`<section class="card"><p class="note">No regular players yet.</p><button type="button" class="btn" data-ssub="add">Add players</button></section>`;
+  const addPane=`<section class="card">
+      <div class="field"><label class="label" for="newPlayer">Add one player</label><div class="inline"><input id="newPlayer" type="text" autocomplete="off" placeholder="First and last name"><button type="button" class="btn small" data-act="addPlayer">Add</button></div></div>
+    </section><section class="card">${listBox()}</section>
+    <p class="note">Regulars appear on the Players tab every week. Add subs there, one week at a time.</p>`;
+  const miss=regs.filter(id=>!emailOf(id)).length;
+  const sheetPane=`<section class="card">
+      ${code&&!ui.editCode?`<div class="connected"><span><b>✓ Connected</b> to your Google Sheet</span><button type="button" class="btn ghost small" data-act="editCode">Change</button></div>`
+        :`<div class="field"><label class="label" for="inviteCode">Connection code from your Google Sheet</label><input id="inviteCode" type="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec?k=…" value="${esc(code)}"></div>`}
+      <button type="button" class="btn" data-act="syncInvites"${code?'':' disabled'}>Update sheet</button>
+      <p class="note">Sends your players, their emails and the game days to the Sheet.${cfg.invite&&cfg.invite.synced?` Last updated ${esc(cfg.invite.synced)}.`:''}</p>
+      ${miss?`<p class="note" style="color:var(--red)">${miss} player${miss>1?'s have':' has'} no email and won’t get invites.</p>`:''}
+    </section>`;
+  const nextPane=code?nextGameCard():`<section class="card"><p class="note">Connect your Google Sheet first, then approve each game day’s emails here.</p><button type="button" class="btn" data-ssub="sheet">Connect the Sheet</button></section>`;
+  const T=[['schedule','Schedule',[['days','Days',daysPane],['weeks','Weeks',weeksPane],['courts','Courts & time',P2],['session','Session',sessPane]]],
+    ['players','Players',[['regs','Regulars',regsPane],['add','Add players',addPane]]],
+    ['emails','Emails',[['next','Next game',nextPane],['sheet','Sheet',sheetPane]]]];
+  if(P4.trim()) T.push(['app','App',[['backup','Backup',P4]]]);
+  ui.ssub=ui.ssub||{};
+  const tk=T.some(t=>t[0]===ui.stab)?ui.stab:'schedule', tab=T.find(t=>t[0]===tk), subs=tab[2];
+  const sk=subs.some(x=>x[0]===ui.ssub[tk])?ui.ssub[tk]:subs[0][0], pane=subs.find(x=>x[0]===sk), anim=ui.sdir?(ui.sdir>0?' in-l':' in-r'):''; ui.sdir=0;
+  return `<div class="stabs" role="tablist" aria-label="Setup">${T.map(([k,l])=>`<button type="button" role="tab" data-stab="${k}" aria-selected="${k===tk}">${l}</button>`).join('')}</div>
+    ${subs.length>1?`<div class="ssubs" role="tablist" aria-label="${esc(tab[1])}">${subs.map(([k,l])=>`<button type="button" role="tab" data-ssub="${k}" aria-selected="${k===sk}">${l}</button>`).join('')}</div>`:''}
+    <div class="spane${anim}" id="spane">${pane[2]}</div>
+    ${subs.length>1?`<div class="sdots" aria-hidden="true">${subs.map(([k])=>`<i class="${k===sk?'on':''}"></i>`).join('')}</div>`:''}`;
+}
+function setupSubs(){ /* the parts of the current setup tab, in order, for swiping */
+  const el=document.querySelectorAll('.ssubs [data-ssub]'); return [...el].map(b=>b.dataset.ssub); }
+function goSub(k){ const list=setupSubs(), cur=(ui.ssub||{})[ui.stab||'schedule']||list[0], i=list.indexOf(cur), j=list.indexOf(k); if(j<0||j===i) return;
+  ui.ssub=ui.ssub||{}; ui.ssub[ui.stab||'schedule']=k; ui.sdir=j>i?1:-1; ui.regEdit=null; ui.confirm=null; render(); }
+function nextGameCard(){
+  loadMailDay(); const M=ui.mail, d=nextMailDay(); if(!d) return '<section class="card"><p class="note">No more game days in this session.</p></section>';
+  loadReplies(d);
+  const map=((ui.replies[d]||{}).map)||{}, vals=Object.values(map), av=availFor(d)||{};
+  const nIn=vals.filter(v=>v==='in'||v==='told').length, nNone=vals.filter(v=>v==='').length, nSub=(av.subs||[]).length;
+  return `<section class="card"><h2 style="font-size:20px;margin:0">${esc(fmtDate(d,{weekday:'long',month:'long',day:'numeric'}))}</h2>
+      <div class="counts"><div class="c-in"><b>${nIn}</b><span>coming</span></div><div><b>${nSub}</b><span>sub${nSub===1?'':'s'}</span></div><div class="c-none"><b>${nNone}</b><span>no reply</span></div></div>
+      ${mailDayPanel(true)}
+    </section>
+    <a class="linkrow" href="${esc(cfg.invite.code)}" target="_blank" rel="noopener">Open replies page ${IC.go}</a>`;
+}
 
 /* ---------- history ---------- */
 const weeksOfSeason=S=>Object.values(sessions).filter(x=>sid(x)===S.id&&(x.rounds||[]).length).sort((a,b)=>a.date<b.date?-1:1);
@@ -1581,6 +1671,10 @@ function typing(){ const a=document.activeElement; return a&&(a.tagName==='TEXTA
 function scheduleRender(){ if(typing()) renderWanted=true; else render(); }
 let swX=null, swY=null;
 document.addEventListener('touchstart',e=>{ const c=e.target.closest&&e.target.closest('#swipe'); if(!c||e.target.closest('select')){ swX=null; return; } swX=e.touches[0].clientX; swY=e.touches[0].clientY; },{passive:true});
+let ssX=null, ssY=null;
+document.addEventListener('touchstart',e=>{ const c=e.target.closest&&e.target.closest('#spane'); if(!c||e.target.closest('input,textarea,select,.wkd')){ ssX=null; return; } ssX=e.touches[0].clientX; ssY=e.touches[0].clientY; },{passive:true});
+document.addEventListener('touchend',e=>{ if(ssX==null) return; const dx=e.changedTouches[0].clientX-ssX, dy=e.changedTouches[0].clientY-ssY; ssX=null;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){ const list=setupSubs(); if(list.length<2) return; const cur=(ui.ssub||{})[ui.stab||'schedule']||list[0], i=list.indexOf(cur), j=i+(dx<0?1:-1); if(list[j]) goSub(list[j]); } },{passive:true});
 document.addEventListener('touchend',e=>{ if(swX==null) return; const dx=e.changedTouches[0].clientX-swX, dy=e.changedTouches[0].clientY-swY; swX=null;
   if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(dx<0?1:-1), dx<0?'left':'right'); } },{passive:true});
 document.addEventListener('focusout',()=>setTimeout(()=>{ if(renderWanted&&!typing()){ renderWanted=false; render(); } },0));
@@ -1706,7 +1800,7 @@ function rebuild(){
 }
 function setScore(ri,gi,k,v){ const s=sess(), R=s.rounds[ri], g=R&&R.games[gi]; if(!g) return; g[k]=v; saveSession(); }
 /* ---------- Paper Studio motion ---------- */
-const TAB_ORDER=['today','standings','players','setup'];
+const TAB_ORDER=['today','players','standings','setup'];
 function pageTurn(dir,doRender){
   const v=$('#view'); if(!PAPER||!v){ doRender(); return; }
   const r=v.getBoundingClientRect(), top=Math.max(r.top,0), h=Math.max(0,window.innerHeight-top);
@@ -1815,6 +1909,9 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('button'); if(!t||t.disabled) return;
   const d=t.dataset;
   if(d.tab){ goTab(d.tab); return; }
+  if(d.stab){ if(d.stab!==ui.stab){ const o=['schedule','players','emails','app']; ui.sdir=o.indexOf(d.stab)>o.indexOf(ui.stab||'schedule')?1:-1; ui.stab=d.stab; ui.regEdit=null; ui.confirm=null; ui.editCode=false; render(); } return; }
+  if(d.ssub){ goSub(d.ssub); return; }
+  if(d.regedit!==undefined){ ui.regEdit=d.regedit||null; render(); if(ui.regEdit){ const f=document.querySelector('[data-email="'+ui.regEdit+'"]'); if(f&&!f.value) f.focus(); } return; }
   if(d.goto){ goTab(d.goto); return; }
   if(t.id==='prevWk'||t.id==='nextWk'){ const ds=seasonDates(), dir=t.id==='prevWk'?-1:1, i=ds.indexOf(sel), j=i+dir; if(ds[j]){ if(ui.tab==='standings') ui.animPod=true; pageTurn(dir,()=>{ sel=ds[j]; userPicked=true; ui.open=null; ui.round=null; ui.pickMode=false; ui.player=null; ui.confirm=null; ui.form=null; render(); }); flipDay(dir); } return; }
   if(d.step){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const cur=g[d.s]==null?0:g[d.s];
@@ -1868,7 +1965,8 @@ document.addEventListener('click',e=>{
       const nx=firstOpen(s); if(nx>=s.rounds.length&&PAPER){ setTimeout(playEOD,700); return; } toast(nx<s.rounds.length?`Saved. Round ${nx+1} is up.`:'All rounds finished.',true); return; }
     case 'addRound': addRound(); return;
     case 'eod': playEOD(); return;
-    case 'syncInvites': syncInvites(false); return;
+    case 'syncInvites': ui.editCode=false; syncInvites(false); return;
+    case 'editCode': ui.editCode=true; render(); const ic=document.getElementById('inviteCode'); if(ic) ic.focus(); return;
     case 'mailRefresh': loadMailDay(true); render(); return;
     case 'mailAsk': ui.confirm='mail:'+t.dataset.mail; render(); return;
     case 'mailYes': approveMail(t.dataset.mail); return;
