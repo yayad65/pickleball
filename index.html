@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Pickleball">
+<meta name="apple-mobile-web-app-title" content="Dink &amp; Drive">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#1559B0">
+<meta name="theme-color" content="#EEF0F4">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Pickleball Round Robin</title>
+<title>Dink &amp; Drive</title>
+<script>window.__THEME='paper';document.documentElement.classList.add('paper');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@300;400&display=swap">
 <style>
 /* Layout: phone-first single column; sticky header with week switcher, one view at a time, fixed five-tab bar at the bottom. Ocean blue + red highlight. Single light theme on purpose, for outdoor readability. */
 :root{
@@ -726,7 +727,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.21-11';
+const APP_VERSION='2026.11.24-1';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1263,9 +1264,9 @@ function viewSetup(){
       ${regs.length&&!ro?`<details class="more"${ui.regDraft?' open':''}><summary>Paste a list or open a file</summary>${listBox()}</details>`:''}</section>`;
   const P3=`    ${mode==='local'&&/^https?:$/.test(location.protocol)?`<section class="card"><h2 style="font-size:20px">App look</h2><p class="note">All looks use the same saved data.</p>
       <div class="lookswitch">
-        <a class="lookopt" href="index.html"${THEME==='classic'?' aria-current="true"':''}><span class="sw"><i style="background:#1559B0"></i><i style="background:#C53B3B"></i></span>Classic</a>
+        <a class="lookopt" href="index.html"${THEME==='paper'?' aria-current="true"':''}><span class="sw"><i style="background:#22408E"></i><i style="background:#E6B12A"></i></span>Paper Studio</a>
         <a class="lookopt" href="dink.html"${THEME==='dink'?' aria-current="true"':''}><span class="sw"><i style="background:#458F86"></i><i style="background:#F3F7F6;border:1px solid #C9D8D5"></i></span>Dink &amp; Drive</a>
-        <a class="lookopt" href="paper.html"${THEME==='paper'?' aria-current="true"':''}><span class="sw"><i style="background:#22408E"></i><i style="background:#E6B12A"></i></span>Paper Studio</a>
+        <a class="lookopt" href="classic.html"${THEME==='classic'?' aria-current="true"':''}><span class="sw"><i style="background:#1559B0"></i><i style="background:#C53B3B"></i></span>Classic</a>
       </div></section>`:''}`;
   const P4=`    ${mode==='local'?`<section class="card"><h2 style="font-size:20px">Backup</h2><p class="note">Your sessions are saved on this device only. Save a backup after each week so you can restore it if this app's data is ever cleared.</p>
       <div class="row2"><button type="button" class="btn ghost" data-act="backup">Save backup</button><button type="button" class="btn ghost" data-act="restore">Restore</button></div>
