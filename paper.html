@@ -73,7 +73,11 @@ main{max-width:560px;margin:0 auto;padding-block:16px calc(var(--navh) + 28px + 
 .linkrow .go{color:var(--blue);font-weight:700}
 
 .court{background:var(--blue-soft);border-radius:14px;padding:10px 10px 12px;display:grid;gap:8px}
-.courthead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.courthead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.courthead .hint{flex:1;text-align:right}
+.tiebtn{flex:none;min-height:36px;padding:0 14px;border:1px solid var(--edge);border-radius:999px;background:var(--surface);color:var(--muted);font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.tiebtn.on{background:var(--gold,#E6B12A);border-color:transparent;color:#1C2440}
+.tietag{flex:none;font-size:13px;font-weight:800;color:#6B5200;background:#FFF4D6;border-radius:999px;padding:3px 10px}
 .hint{font-size:14px;color:var(--muted)}
 .teambtn{flex:1;min-width:0;min-height:52px;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;border:1px solid var(--edge);background:var(--surface);text-align:left;cursor:pointer;color:var(--ink)}
 .teambtn .team{font-size:17px}
@@ -768,7 +772,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.25-1';
+const APP_VERSION='2026.11.25-2';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -825,7 +829,8 @@ function shortName(id){
 const nmHtml=(s,id)=>esc(shortName(id))+(isSub(s,id)?'<span class="subtag">sub</span>':'');
 const nmTxt=(s,id)=>nameOf(id)+(isSub(s,id)?' (sub)':'');
 const totalRounds=()=>Math.max(1,Math.floor((+cfg.session||0)/Math.max(1,+cfg.per||1)));
-const scored=g=>g.sa!=null&&g.sb!=null;
+const scored=g=>!!g.tie||(g.sa!=null&&g.sb!=null);
+const isTie=g=>!!g.tie||(g.sa!=null&&g.sb!=null&&g.sa===g.sb);
 const toEng=r=>({games:r.games.map(g=>[g.a,g.b]),sits:r.sits});
 function lockedCount(s){ let k=0; s.rounds.forEach((r,i)=>{ if(r.done||r.games.some(g=>g.sa!=null||g.sb!=null)) k=i+1; }); return k; }
 function firstOpen(s){ const i=s.rounds.findIndex(r=>!r.done); return i===-1?s.rounds.length:i; }
@@ -911,6 +916,7 @@ function toRowHTML(ri,R,editable){
     </div>`;
 }
 function winnerOf(g,target){
+  if(g.tie) return null;
   if(g.sa!=null&&g.sb!=null) return g.sa>g.sb?'sa':g.sb>g.sa?'sb':null;
   if(g.sa!=null&&g.sb==null&&g.sa>=target) return 'sa'; if(g.sb!=null&&g.sa==null&&g.sb>=target) return 'sb'; return null;
 }
@@ -922,7 +928,7 @@ function scoreOptions(v,to){
 function courtHTML(s,ri,ci,g,editable,to,target){
   to=to||11; target=target||11;
   const W=winnerOf(g,target), pending= W && g[W==='sa'?'sb':'sa']==null;
-  const hint= !editable ? '' : !W&&g.sa==null&&g.sb==null ? 'Tap the winning team' : pending ? 'Now pick the losing score' : '';
+  const hint= !editable ? '' : g.tie ? 'Tie · score is optional' : !W&&g.sa==null&&g.sb==null ? 'Tap the winning team or Tie' : pending ? 'Now pick the losing score' : '';
   const side=(team,k,v)=>{
     const label=team.map(id=>nameOf(id)).join(' and '), win=W===k, lose=W&&W!==k, need=pending&&lose;
     const names=`${nmHtml(s,team[0])} &amp; ${nmHtml(s,team[1])}`;
@@ -936,7 +942,8 @@ function courtHTML(s,ri,ci,g,editable,to,target){
   const quick=(k)=>{ if(!(editable&&pending&&W&&W!==k)) return ''; const top=g[W]-1; let b='';
     for(let n=0;n<=top;n++) b+=`<button type="button" class="qk" data-quick="${n}" data-r="${ri}" data-g="${ci}" data-s="${k}">${n}</button>`;
     return `<div class="quick" role="group" aria-label="Losing team's score">${b}</div>`; };
-  return `<div class="court"><div class="courthead"><span class="cl">Court ${ci+1}</span>${hint?`<span class="hint">${hint}</span>`:''}</div>${side(g.a,'sa',g.sa)}${quick('sa')}${editable?'':'<div class="net"></div>'}${side(g.b,'sb',g.sb)}${quick('sb')}</div>`;
+  const tieB= editable?`<button type="button" class="tiebtn${g.tie?' on':''}" data-tie="1" data-r="${ri}" data-g="${ci}" aria-pressed="${!!g.tie}">${g.tie?'✓ Tie':'Tie'}</button>`: (scored(g)&&isTie(g)?'<span class="tietag">Tie</span>':'');
+  return `<div class="court${g.tie?' tied':''}"><div class="courthead"><span class="cl">Court ${ci+1}</span>${hint?`<span class="hint">${hint}</span>`:''}${tieB}</div>${side(g.a,'sa',g.sa)}${quick('sa')}${editable?'':'<div class="net"></div>'}${side(g.b,'sb',g.sb)}${quick('sb')}</div>`;
 }
 const sitHTML=(s,R)=>R.sits.length?`<p class="sit">Sitting out: <b>${R.sits.map(x=>nmHtml(s,x)).join(', ')}</b></p>`:'';
 function emptyWeek(){
@@ -1004,32 +1011,33 @@ function goRound(k,dir){ const s=sess(); const N=s.rounds.length; if(!N) return;
 function centerRail(){ const r=document.getElementById('rail'); const c=r&&r.querySelector('.sel'); if(c) r.scrollLeft=c.offsetLeft-r.clientWidth/2+c.clientWidth/2; }
 function tally(list){
   const m={}, seq={}, part={}, wk={}, sits={};
-  const T=p=>m[p]||(m[p]={id:p,w:0,l:0,pf:0,pa:0});
+  const T=p=>m[p]||(m[p]={id:p,w:0,l:0,t:0,pf:0,pa:0});
   const ordered=list.slice().sort((a,b)=>a.date<b.date?-1:1);
   for(const s of ordered) (s.rounds||[]).forEach(r=>{
     const live=r.done||r.games.some(scored);
     if(live) for(const x of r.sits){ sits[x]=(sits[x]||0)+1; T(x); }
-    for(const g of r.games) if(scored(g)&&g.sa!==g.sb){
-      for(const [team,f,a] of [[g.a,g.sa,g.sb],[g.b,g.sb,g.sa]]) team.forEach((p,i)=>{
-        const t=T(p), win=f>a; t.pf+=f; t.pa+=a; win?t.w++:t.l++;
-        (seq[p]=seq[p]||[]).push(win?'W':'L');
+    for(const g of r.games) if(scored(g)){
+      const tie=isTie(g), A=g.sa==null?0:g.sa, B=g.sb==null?0:g.sb;
+      for(const [team,f,a] of [[g.a,A,B],[g.b,B,A]]) team.forEach((p,i)=>{
+        const t=T(p), win=!tie&&f>a; t.pf+=f; t.pa+=a; tie?t.t++:win?t.w++:t.l++;
+        (seq[p]=seq[p]||[]).push(tie?'T':win?'W':'L');
         (wk[p]=wk[p]||new Set()).add(s.date);
         const mate=team[1-i], pp=(part[p]=part[p]||{}); const q=pp[mate]||(pp[mate]={w:0,d:0}); if(win) q.w++; q.d+=f-a;
       });
     }
   });
   return Object.values(m).map(t=>{
-    const g=t.w+t.l, sq=seq[t.id]||[]; let n=0; for(let i=sq.length-1;i>=0&&sq[i]===sq[sq.length-1];i--) n++;
+    const g=t.w+t.l+t.t, sq=seq[t.id]||[]; let n=0; for(let i=sq.length-1;i>=0&&sq[i]===sq[sq.length-1];i--) n++;
     const bp=Object.entries(part[t.id]||{}).filter(([,q])=>q.w>0).sort((a,b)=>b[1].w-a[1].w||b[1].d-a[1].d)[0];
     const by=sits[t.id]||0;
-    return {...t,prize:t.w+0.5*by,bye:by,g,pct:g?t.w/g:0,diff:t.pf-t.pa,avg:g?(t.pf-t.pa)/g:0,sits:by,weeks:(wk[t.id]||new Set()).size,
+    return {...t,prize:t.w+0.5*t.t+0.5*by,bye:by,g,pct:g?(t.w+0.5*t.t)/g:0,diff:t.pf-t.pa,avg:g?(t.pf-t.pa)/g:0,sits:by,weeks:(wk[t.id]||new Set()).size,
       streak:sq.length?sq[sq.length-1]+n:'',best:bp?{id:bp[0],w:bp[1].w}:null};
   }).sort((x,y)=>y.pct-x.pct||y.diff-x.diff||y.pf-x.pf||nameOf(x.id).localeCompare(nameOf(y.id)));
 }
 const COLS=[
   {id:'gp',  abbr:'GP',   name:'Games played', help:'Number of scored games the player played.', def:1, val:t=>t.g},
-  {id:'wl',  abbr:'W/L',  name:'Wins / Losses', help:'Games won / games lost. 7/1 means 7 wins and 1 loss.', def:1, val:t=>`${fmtW(t.w)}/${t.l}`},
-  {id:'pct', abbr:'Win%', name:'Win percentage', help:'Percent of games won. 100 means every game was won; 87.5 means 7 of 8. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
+  {id:'wl',  abbr:'W/L',  name:'Wins / Losses / Ties', help:'Games won / lost, plus ties when there are any. 7/1 means 7 wins and 1 loss; 6/1/1 adds one tie.', def:1, val:t=>wlTxt(t)},
+  {id:'pct', abbr:'Win%', name:'Win percentage', help:'Percent of games won, with a tie counting as half a win. 87.5 means 7 of 8; 6 wins, 1 loss and 1 tie is 81.3. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
   {id:'pf',  abbr:'PF',   name:'Points for', help:'Total points scored by the player’s teams.', def:1, val:t=>t.pf},
   {id:'pa',  abbr:'PA',   name:'Points against', help:'Total points scored against the player’s teams.', def:1, val:t=>t.pa},
   {id:'diff',abbr:'+/−',  name:'Point difference', help:'Points for minus points against. Breaks ties in Win%.', def:1, val:t=>sgn(t.diff)},
@@ -1039,9 +1047,11 @@ const COLS=[
   {id:'stk', abbr:'Strk', name:'Current streak', help:'Latest run of results, for example W3 means three wins in a row.', def:0, val:t=>t.streak||'–'},
   {id:'best',abbr:'Best partner',short:'Partner', name:'Best partner', help:'The partner they won the most games with, and how many wins together.', def:0, val:t=>t.best?`${esc(nameOf(t.best.id))} (${t.best.w})`:'–', text:1}
 ];
-const PRIZE_HELP='Games won today plus half a win (0.5) for each round sat out. Used only to pick the day’s prize winner; it doesn’t count toward any stats or the ranking.';
+const PRIZE_HELP='Games won today plus half a win (0.5) for each tie and each round sat out. Used only to pick the day’s prize winner; it doesn’t count toward any stats or the ranking.';
 function shownCols(){ const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.def).map(x=>x.id); return COLS.filter(x=>c.includes(x.id)); }
-function ranked(rows){ let rank=0; return rows.map((t,i)=>{ if(i===0||t.pct!==rows[i-1].pct||t.diff!==rows[i-1].diff) rank=i+1; return {...t,rank}; }); }
+let ANY_T=false;
+const wlTxt=t=>`${fmtW(t.w)}/${t.l}${t.t||ANY_T?'/'+(t.t||0):''}`;
+function ranked(rows){ ANY_T=rows.some(t=>t.t); const wc=COLS.find(c=>c.id==='wl'); if(wc) wc.abbr=ANY_T?'W/L/T':'W/L'; let rank=0; return rows.map((t,i)=>{ if(i===0||t.pct!==rows[i-1].pct||t.diff!==rows[i-1].diff) rank=i+1; return {...t,rank}; }); }
 const fmtW=w=>Number.isInteger(w)?String(w):w.toFixed(1);
 /* Table names: long names become "First L." unless that would make two players look the same. */
 function shortNames(ids){ const out={}; ids.forEach(id=>{ out[id]=shortName(id); }); return out; }
@@ -1078,7 +1088,7 @@ function viewStandings(){
       <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
   const podEnter=PAPER&&ui.animPod; if(ui.animPod) setTimeout(()=>{ ui.animPod=false; },0);
-  const podium= rows.length>=3 ? `<div class="podium${podEnter?' enter':''}">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><canvas class="pball" data-metal="${['gold','silver','bronze'][t.rank-1]||'bronze'}" data-sz="${[58,70,52][k]}" role="img" aria-label="${['Gold','Silver','Bronze'][t.rank-1]||'Bronze'} pickleball"></canvas><span class="prk">${['1st','2nd','3rd'][t.rank-1]||t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${t.w}/${t.l}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
+  const podium= rows.length>=3 ? `<div class="podium${podEnter?' enter':''}">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><canvas class="pball" data-metal="${['gold','silver','bronze'][t.rank-1]||'bronze'}" data-sz="${[58,70,52][k]}" role="img" aria-label="${['Gold','Silver','Bronze'][t.rank-1]||'Bronze'} pickleball"></canvas><span class="prk">${['1st','2nd','3rd'][t.rank-1]||t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${wlTxt(t)}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
   return `${seg}${podium}
     <p class="note">Tap a column title to show or hide that column. The Key below explains each one.</p>
     ${prizeBar}${prizeCard}
@@ -1536,7 +1546,7 @@ function viewHistory(){
       <button type="button" class="acchead hs" data-hopen="${S.id}" aria-expanded="${isOpen}">
         <span class="hsmain"><span class="hsname">${esc(S.name)} <span class="pill ${S.id===cur.id?'now':finished?'final':'later'}">${S.id===cur.id?'Current':finished?'Finished':'Upcoming'}</span></span>
         <small>${esc(fmtDate(S.startDate,{month:'short',day:'numeric'}))} – ${esc(fmtDate(seasonEnd(S),{month:'short',day:'numeric',year:'numeric'}))} · ${played} of ${S.weeks} weeks played</small>
-        <small>${lead?`${finished?'Champion':'Leading'}: <b style="color:var(--ink)">${esc(shortName(lead.id))} (${lead.w}/${lead.l})</b>`:'No scores yet'}</small></span>${IC.chev}</button>
+        <small>${lead?`${finished?'Champion':'Leading'}: <b style="color:var(--ink)">${esc(shortName(lead.id))} (${wlTxt(lead)})</b>`:'No scores yet'}</small></span>${IC.chev}</button>
       ${isOpen?`<div class="accbody">
         <div class="kpis"><div><b>${played}</b><small>game days</small></div><div><b>${games}</b><small>games</small></div><div><b>${players.size}</b><small>players</small></div></div>
         <button type="button" class="btn ghost small" data-hsum="${S.id}">Session summary &amp; standings</button>
@@ -1576,15 +1586,15 @@ function weekNoIn(S,d){ const f=planDates(S).find(x=>x.date===d); return f?f.wee
 function gameRows(list){
   const out=[]; list.slice().sort((a,b)=>a.date<b.date?-1:1).forEach(x=>{ const S=seasonById(sid(x));
     x.rounds.forEach((r,ri)=>r.games.forEach((g,ci)=>{ if(g.sa==null&&g.sb==null) return;
-      const A=g.a.map(nameOf), B=g.b.map(nameOf), w= scored(g)? (g.sa>g.sb?A.join(' & '):g.sb>g.sa?B.join(' & '):'Tie') : '';
+      const A=g.a.map(nameOf), B=g.b.map(nameOf), w= scored(g)? (isTie(g)?'Tie':g.sa>g.sb?A.join(' & '):B.join(' & ')) : '';
       out.push([x.date,S.name,weekNoIn(S,x.date),ri+1,ci+1,targetOf(r),A[0],A[1],g.sa==null?'':g.sa,g.sb==null?'':g.sb,B[0],B[1],w]); })); });
   return out;
 }
 const GAME_HEAD=['Date','Session','Week','Round','Court','Playing to','Team 1 player A','Team 1 player B','Team 1 score','Team 2 score','Team 2 player A','Team 2 player B','Winner'];
 function standRows(list,withPrize){
-  return ranked(tally(list)).map(t=>{ const r=[t.rank,nameOf(t.id),t.g,t.w,t.l,t.g?Math.round(t.pct*1000)/10:'',t.pf,t.pa,t.diff,t.g?+(t.avg.toFixed(1)):'',t.sits,t.weeks]; if(withPrize) r.splice(2,0,t.prize); return r; });
+  return ranked(tally(list)).map(t=>{ const r=[t.rank,nameOf(t.id),t.g,t.w,t.l,t.t,t.g?Math.round(t.pct*1000)/10:'',t.pf,t.pa,t.diff,t.g?+(t.avg.toFixed(1)):'',t.sits,t.weeks]; if(withPrize) r.splice(2,0,t.prize); return r; });
 }
-const standHead=withPrize=>{ const h=['Rank','Player','GP','W','L','Win%','PF','PA','+/-','Avg margin','Sit-outs','Weeks']; if(withPrize) h.splice(2,0,'Prize wins'); return h; };
+const standHead=withPrize=>{ const h=['Rank','Player','GP','W','L','T','Win%','PF','PA','+/-','Avg margin','Sit-outs','Weeks']; if(withPrize) h.splice(2,0,'Prize wins'); return h; };
 function dayRows(list){
   return list.slice().sort((a,b)=>a.date<b.date?-1:1).map(x=>{ const S=seasonById(sid(x)), t=topWins([x],true);
     return [x.date,S.name,weekNoIn(S,x.date),x.players.length,x.rounds.reduce((m,r)=>m+r.games.filter(scored).length,0),t?t.names.join(', '):'',t?t.w:'']; });
@@ -1619,7 +1629,7 @@ async function buildFile(scope,fmt){
     add('Games',GAME_HEAD,gameRows(list),[11,14,6,6,6,9,18,18,9,9,18,18,30]);
     add('Days',DAY_HEAD,dayRows(list),[11,14,6,8,12,30,6]);
     const ps={}; list.forEach(x=>x.players.forEach(p=>{ ps[p]=(ps[p]||0)+1; }));
-    add('Players',['Player','Days on the list','Games played','Wins','Losses','Points for','Points against'],Object.keys(ps).sort((a,b)=>nameOf(a).localeCompare(nameOf(b))).map(p=>{ const t=tally(list).find(r=>r.id===p)||{g:0,w:0,l:0,pf:0,pa:0}; return [nameOf(p),ps[p],t.g,t.w,t.l,t.pf,t.pa]; }),[22,16,13,8,8,11,14]);
+    add('Players',['Player','Days on the list','Games played','Wins','Losses','Ties','Points for','Points against'],Object.keys(ps).sort((a,b)=>nameOf(a).localeCompare(nameOf(b))).map(p=>{ const t=tally(list).find(r=>r.id===p)||{g:0,w:0,l:0,t:0,pf:0,pa:0}; return [nameOf(p),ps[p],t.g,t.w,t.l,t.t,t.pf,t.pa]; }),[22,16,13,8,8,11,14]);
     const buf=X.write(wb,{bookType:'xlsx',type:'array'});
     return {name:T.file+'.xlsx', blob:new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})};
   }
@@ -1759,7 +1769,7 @@ function schedText(withScores){
   return L;
 }
 function standText(title,list){ const rows=ranked(tally(list)); if(!rows.length) return [];
-  return [title,...rows.map(t=>`${t.rank}. ${nameOf(t.id)}  ${t.w}/${t.l}  (${pctTxt(t.pct)}%, ${sgn(t.diff)})`),'']; }
+  return [title,...rows.map(t=>`${t.rank}. ${nameOf(t.id)}  ${wlTxt(t)}  (${pctTxt(t.pct)}%, ${sgn(t.diff)})`),'']; }
 function prizeText(){ const s=sessions[sel]; if(!s||!s.halfBye) return [];
   const rows=tally([s]); if(!rows.length) return []; const top=Math.max(...rows.map(t=>t.prize)); const w=rows.filter(t=>t.prize===top);
   return [`Most wins today, counting each sit-out as ½ win: ${w.map(t=>nameOf(t.id)).join(', ')} (${fmtW(top)})`,'']; }
@@ -1923,6 +1933,7 @@ document.addEventListener('click',e=>{
   if(d.step){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const cur=g[d.s]==null?0:g[d.s];
     const nv=cur+(+d.step), k=d.s, o=k==='sa'?'sb':'sa', T=targetOf(R), W=winnerOf(g,T);
     if(nv<0) return;
+    if(g.tie){ if(nv>maxOf(R)){ toast(`Highest score allowed is ${maxOf(R)}.`); return; } g.sa=nv; g.sb=nv; saveSession(); render(); return; }
     if(+d.step>0 && W===o && g[o]!=null && nv>=g[o]){ toast('The losing score has to be lower than the winner’s. Tap the other team if they won.'); return; }
     if(nv>maxOf(R)){
       if(!R.wb2 && nv<=T+10){ R.wb2=true; toast(`Win by 2 turned on for this round, so scores can go past ${T}.`); }
@@ -1937,7 +1948,8 @@ document.addEventListener('click',e=>{
   if(d.rnd!=null){ goRound(+d.rnd); return; }
   if(d.rstep){ const s=sess(), cur= ui.round==null?Math.min(firstOpen(s),s.rounds.length-1):ui.round; goRound(cur+(+d.rstep), +d.rstep>0?'left':'right'); return; }
   if(d.quick!=null){ setScore(+d.r,+d.g,d.s,+d.quick); render(); return; }
-  if(d.win){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; const k=d.win, o=k==='sa'?'sb':'sa', T=targetOf(R);
+  if(d.tie){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; if(g.tie){ g.tie=false; g.sa=null; g.sb=null; } else { g.tie=true; const v=(g.sa!=null&&g.sb!=null&&g.sa===g.sb)?g.sa:null; g.sa=v; g.sb=v; } saveSession(); render(); return; }
+  if(d.win){ const s=sess(), R=s.rounds[+d.r], g=R&&R.games[+d.g]; if(!g) return; if(g.tie){ g.tie=false; g.sa=null; g.sb=null; } const k=d.win, o=k==='sa'?'sb':'sa', T=targetOf(R);
     const isWin= g[k]!=null && (g[o]==null ? g[k]>=T : g[k]>g[o]);
     if(isWin){ g[k]=null; }
     else { if(g[k]==null||g[k]<T) g[k]=T; if(g[o]!=null&&g[o]>=g[k]) g[o]=null; }
@@ -2047,7 +2059,7 @@ document.addEventListener('input',e=>{
 });
 document.addEventListener('change',e=>{
   const t=e.target;
-  if(t.classList.contains('score')){ setScore(+t.dataset.r,+t.dataset.g,t.dataset.s,t.value===''?null:+t.value); t.blur(); render(); return; }
+  if(t.classList.contains('score')){ const v=t.value===''?null:+t.value, G=(sess().rounds[+t.dataset.r]||{games:[]}).games[+t.dataset.g]; if(G&&G.tie){ G.sa=v; G.sb=v; saveSession(); } else setScore(+t.dataset.r,+t.dataset.g,t.dataset.s,v); t.blur(); render(); return; }
   if(t.dataset&&t.dataset.col){ const cur=shownCols().map(c=>c.id); const on=t.checked, id=t.dataset.col;
     const next=COLS.map(c=>c.id).filter(x=>x===id?on:cur.includes(x)); cfg.cols=next; saveCfg(); render(); return; }
   if(t.dataset&&t.dataset.subfor){ setSubFor(t.dataset.subfor,t.value); render(); availChanged(); return; }
