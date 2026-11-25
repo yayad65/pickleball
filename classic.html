@@ -183,6 +183,23 @@ details.key[open] .chev{transform:rotate(180deg)}
 .prizecard svg{color:var(--red);flex:none}
 table.st .prz{background:#FFF7E8;font-weight:700}
 table.st tr.top3 .prz{background:#FBE8D8}
+table.st tr.subhead th{background:var(--line2)!important;color:var(--muted);font-size:13px;font-weight:800;text-align:left;padding:10px 12px;letter-spacing:.02em}
+table.st tr.subrow th,table.st tr.subrow td{background:#F6F3EC!important;color:#6B6F80}
+table.st tr.subrow .badge{background:#E4DED0;color:#6B5200}
+.linkbtn{border:0;background:none;padding:0;font:inherit;color:var(--blue);font-weight:700;text-decoration:underline;cursor:pointer}
+.helpbtn{margin-left:auto;width:32px;height:32px;border-radius:50%;border:1.5px solid currentColor;background:transparent;color:inherit;font:inherit;font-size:17px;font-weight:800;line-height:1;display:grid;place-items:center;cursor:pointer;opacity:.85}
+.helpwrap{position:fixed;inset:0;z-index:90;background:rgba(20,28,50,.45);display:flex;align-items:flex-end;justify-content:center;animation:hwIn .2s ease both}
+@keyframes hwIn{from{opacity:0}}
+.helpsheet{background:var(--bg,#F4F5F8);color:var(--ink);width:100%;max-width:640px;max-height:92vh;border-radius:24px 24px 0 0;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.25);animation:hsUp .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes hsUp{from{transform:translateY(40px)}}
+.helphead{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
+.helphead h2{margin:0;font-size:22px;flex:1}
+.helpx{width:40px;height:40px;border-radius:50%;border:0;background:var(--line2);font-size:22px;cursor:pointer;color:var(--ink)}
+.helptabs{margin:0 16px 8px}
+.helpbody{overflow:auto;padding:4px 16px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;-webkit-overflow-scrolling:touch}
+.helpbody section{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 1px 0 #D4D8E0}
+.helpbody h3{margin:0 0 6px;font-size:18px}.helpbody p,.helpbody li{font-size:16px;line-height:1.45;margin:4px 0}
+.helpbody ol,.helpbody ul{margin:4px 0;padding-left:22px}.helpbody .ex{background:var(--line2);border-radius:12px;padding:8px 12px;font-size:15px}
 table.st td.prz.top{color:var(--red)}
 .dayrow{width:100%;display:flex;align-items:center;gap:10px;min-height:52px;border:0;border-top:1px solid var(--line2);background:transparent;text-align:left;cursor:pointer;color:var(--blue);padding:4px 0}
 .dayrow .wkno{width:58px;font-size:14px;font-weight:700;flex:none}
@@ -239,7 +256,11 @@ main{grid-template-columns:minmax(0,1fr)}
 @keyframes slideL{from{transform:translateX(36px);opacity:.3}to{transform:none;opacity:1}}
 @keyframes slideR{from{transform:translateX(-36px);opacity:.3}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion: reduce){.roundcard.slide-left,.roundcard.slide-right{animation:none}}
-.brandrow{display:none}
+.brandrow{display:block;height:0}
+.brandrow .brand{display:none}
+.top-in{position:relative}
+.brandrow .helpbtn{position:absolute;right:0;top:0;z-index:2}
+html:not(.paper):not(.dink) .toprow{padding-right:42px}
 .lookswitch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .lookopt{display:grid;gap:4px;justify-items:center;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:700;font-size:15px;cursor:pointer}
 .lookopt[aria-current="true"]{border:2px solid var(--blue)}
@@ -459,7 +480,9 @@ html.paper,html.paper body{background:radial-gradient(130% 60% at 15% 0%,#FFFFFF
 html.paper body{font-size:17px}
 html.paper body::before{background:#F7F8FA}
 html.paper .top{background:rgba(247,248,250,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:0}
-html.paper .brandrow{display:flex;justify-content:space-between;align-items:center}
+html.paper .brandrow{display:flex;justify-content:space-between;align-items:center;height:auto}
+html.paper .brandrow .brand{display:inline}
+html.paper .brandrow .helpbtn{position:static;color:var(--blue)}
 html.paper .brand{font-family:var(--display);font-size:20px;font-weight:800;color:var(--blue);letter-spacing:-.01em}
 html.paper .weekbar h1{font-weight:800;letter-spacing:-.02em;transform-origin:50% 0}
 html.paper .top .arrow{border:0;border-radius:50%;background:#FFFFFF;box-shadow:var(--pshs);color:var(--blue)}
@@ -599,7 +622,9 @@ html.dink{--bg:#F3F7F6;--surface:#FFFFFF;--ink:#2E3B3A;--muted:#5B6B69;--line:#E
 html.dink body{font-size:17px}
 html.dink body::before{background:#3D8279}
 html.dink .top{background:linear-gradient(110deg,#2C6A62 0%,#3D8279 55%,#4C948A 100%);color:#FFFFFF;border-bottom:0;border-radius:0 0 26px 26px}
-html.dink .brandrow{display:flex;justify-content:center;margin-bottom:2px}
+html.dink .brandrow{display:flex;justify-content:center;margin-bottom:2px;height:auto}
+html.dink .brandrow .brand{display:inline}
+html.dink .brandrow .helpbtn{top:2px}
 html.dink .brand{font-family:"Dancing Script",cursive;font-size:32px;font-weight:700;line-height:1.1;color:#FFFFFF}
 html.dink .eyebrow{color:#FFFFFF}
 html.dink .sync,html.dink .sync.warn{color:rgba(255,255,255,.9)}
@@ -637,7 +662,7 @@ html.dink .finished{background:var(--blue-soft)}
 </div>
 <header class="top">
   <div class="top-in">
-    <div class="brandrow"><span class="brand">Dink &amp; Drive</span></div>
+    <div class="brandrow"><span class="brand">Dink &amp; Drive</span><button type="button" class="helpbtn" data-act="help" aria-label="Help: how to use the app and the rule book">?</button></div>
     <div class="toprow"><span class="eyebrow" id="eyebrow"></span><span class="sync" id="sync">Loading…</span></div>
     <div class="weekbar">
       <button type="button" class="arrow" id="prevWk" aria-label="Previous week"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
@@ -771,7 +796,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.25-2';
+const APP_VERSION='2026.11.25-3';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1037,20 +1062,50 @@ const COLS=[
   {id:'gp',  abbr:'GP',   name:'Games played', help:'Number of scored games the player played.', def:1, val:t=>t.g},
   {id:'wl',  abbr:'W/L',  name:'Wins / Losses / Ties', help:'Games won / lost, plus ties when there are any. 7/1 means 7 wins and 1 loss; 6/1/1 adds one tie.', def:1, val:t=>wlTxt(t)},
   {id:'pct', abbr:'Win%', name:'Win percentage', help:'Percent of games won, with a tie counting as half a win. 87.5 means 7 of 8; 6 wins, 1 loss and 1 tie is 81.3. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
+  {id:'rk',  abbr:'Rank%', name:'Ranking percentage', help:'Win% with each missed game day counted as losses for half of that day’s games. Regulars are ranked by this over the whole session. Shows only in Whole session.', def:1, val:t=>(t.g||t.pen)?pctTxt(t.rk):'–'},
+  {id:'miss',abbr:'Miss', name:'Days missed', help:'Game days this regular was marked out (even with a sub), counting from their first day in the session. Shows only in Whole session.', def:1, val:t=>t.miss||0},
   {id:'pf',  abbr:'PF',   name:'Points for', help:'Total points scored by the player’s teams.', def:1, val:t=>t.pf},
   {id:'pa',  abbr:'PA',   name:'Points against', help:'Total points scored against the player’s teams.', def:1, val:t=>t.pa},
-  {id:'diff',abbr:'+/−',  name:'Point difference', help:'Points for minus points against. Breaks ties in Win%.', def:1, val:t=>sgn(t.diff)},
-  {id:'avg', abbr:'Avg',  name:'Average margin', help:'Point difference divided by games played. Fairer when people played different numbers of games.', def:0, val:t=>(t.avg>0?'+':t.avg<0?'−':'')+Math.abs(t.avg).toFixed(1)},
+  {id:'diff',abbr:'+/−',  name:'Point difference', help:'Points for minus points against.', def:1, val:t=>sgn(t.diff)},
+  {id:'avg', abbr:'Avg',  name:'Average margin', help:'Point difference divided by games played. Breaks ties in the ranking, because it’s fair when people played different numbers of games.', def:1, val:t=>(t.avg>0?'+':t.avg<0?'−':'')+Math.abs(t.avg).toFixed(1)},
   {id:'sits',abbr:'Sat',  name:'Sit-outs', help:'Rounds the player sat out.', def:0, val:t=>t.sits},
   {id:'wks', abbr:'Wks',  name:'Weeks played', help:'Weeks with at least one scored game. Most useful in the Whole session view.', def:0, val:t=>t.weeks},
   {id:'stk', abbr:'Strk', name:'Current streak', help:'Latest run of results, for example W3 means three wins in a row.', def:0, val:t=>t.streak||'–'},
   {id:'best',abbr:'Best partner',short:'Partner', name:'Best partner', help:'The partner they won the most games with, and how many wins together.', def:0, val:t=>t.best?`${esc(nameOf(t.best.id))} (${t.best.w})`:'–', text:1}
 ];
-const PRIZE_HELP='Games won today plus half a win (0.5) for each tie and each round sat out. Used only to pick the day’s prize winner; it doesn’t count toward any stats or the ranking.';
-function shownCols(){ const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.def).map(x=>x.id); return COLS.filter(x=>c.includes(x.id)); }
+const PRIZE_HELP_OLD='Games won today plus half a win (0.5) for each tie and each round sat out. Used only to pick the day’s prize winner; it doesn’t count toward any stats or the ranking.';
+const PRIZE_HELP='Wins plus ½ for each tie in each player’s first games of the day, so everyone is judged on the same number of games (the fewest played by anyone who was there all day). Used only to pick the day’s prize winner.';
+function shownCols(){ if(Array.isArray(cfg.cols)&&!cfg.colsV2){ cfg.colsV2=true; ['rk','miss','avg'].forEach(k=>{ if(!cfg.cols.includes(k)) cfg.cols.push(k); }); saveCfg(); } const c=Array.isArray(cfg.cols)?cfg.cols:COLS.filter(x=>x.def).map(x=>x.id); return COLS.filter(x=>c.includes(x.id)); }
 let ANY_T=false;
+/* Day prize: everyone is judged on the same number of games. N = the fewest games played by anyone who was there for
+   every round (playing or sitting out). Each player's first N games count: a win is 1, a tie is ½. Late arrivals and
+   early leavers don't set N and get no make-up credit. */
+function liveRounds(s){ return (s&&s.rounds||[]).filter(r=>r.done||r.games.some(scored)); }
+function dayPrize(s){
+  const R=liveRounds(s), seen={}, games={};
+  R.forEach(r=>{ r.sits.forEach(x=>{ seen[x]=(seen[x]||0)+1; });
+    r.games.forEach(g=>{ [...g.a,...g.b].forEach(x=>{ seen[x]=(seen[x]||0)+1; });
+      if(scored(g)){ const tie=isTie(g), A=g.sa==null?0:g.sa, B=g.sb==null?0:g.sb;
+        g.a.forEach(x=>(games[x]=games[x]||[]).push(tie?.5:A>B?1:0)); g.b.forEach(x=>(games[x]=games[x]||[]).push(tie?.5:B>A?1:0)); } }); });
+  const full=Object.keys(seen).filter(x=>seen[x]===R.length), cnt=x=>(games[x]||[]).length;
+  const N=full.length?Math.min(...full.map(cnt)):Math.max(0,...Object.keys(games).map(cnt));
+  const score={}; Object.keys(seen).forEach(x=>{ score[x]=(games[x]||[]).slice(0,N).reduce((a,b)=>a+b,0); });
+  return {N,score,full:new Set(full),rounds:R.length};
+}
+/* Session ranking for regulars: a missed game day counts as losses for half of that day's games. */
+function missedInfo(S,list){
+  const regs=regularsOf(S), out={}, days=list.filter(x=>liveRounds(x).length).sort((a,b)=>a.date<b.date?-1:1);
+  regs.forEach(id=>{ let joined=false, miss=0, pen=0;
+    days.forEach(d=>{ const here=(d.players||[]).includes(id)&&!(d.out||[]).includes(id);
+      if(here){ joined=true; return; } if(!joined) return; miss++; pen+=dayPrize(d).N/2; });
+    out[id]={miss,pen}; });
+  return out;
+}
 const wlTxt=t=>`${fmtW(t.w)}/${t.l}${t.t||ANY_T?'/'+(t.t||0):''}`;
-function ranked(rows){ ANY_T=rows.some(t=>t.t); const wc=COLS.find(c=>c.id==='wl'); if(wc) wc.abbr=ANY_T?'W/L/T':'W/L'; let rank=0; return rows.map((t,i)=>{ if(i===0||t.pct!==rows[i-1].pct||t.diff!==rows[i-1].diff) rank=i+1; return {...t,rank}; }); }
+function ranked(rows,keepT){ if(!keepT){ ANY_T=rows.some(t=>t.t); const wc=COLS.find(c=>c.id==='wl'); if(wc) wc.abbr=ANY_T?'W/L/T':'W/L'; }
+  const key=t=>t.rk!=null?t.rk:t.pct;
+  rows=rows.slice().sort((x,y)=>key(y)-key(x)||y.avg-x.avg||y.pf-x.pf||nameOf(x.id).localeCompare(nameOf(y.id)));
+  let rank=0; return rows.map((t,i)=>{ if(i===0||key(t)!==key(rows[i-1])||t.avg!==rows[i-1].avg) rank=i+1; return {...t,rank}; }); }
 const fmtW=w=>Number.isInteger(w)?String(w):w.toFixed(1);
 /* Table names: long names become "First L." unless that would make two players look the same. */
 function shortNames(ids){ const out={}; ids.forEach(id=>{ out[id]=shortName(id); }); return out; }
@@ -1068,7 +1123,12 @@ function playerGames(pid,list){
 }
 function viewStandings(){
   if(ui.sub==='history') return viewHistory();
-  const list=scopeList(), rows=ranked(tally(list)), S=season();
+  const list=scopeList(), S=season(), day=ui.scope==='day', regSet=new Set(regularsOf(S)), raw=tally(list);
+  const mi=day?null:missedInfo(S,list);
+  if(mi) Object.entries(mi).forEach(([id,m])=>{ if(m.miss&&!raw.some(t=>t.id===id)) raw.push({id,w:0,l:0,t:0,pf:0,pa:0,g:0,pct:0,diff:0,avg:0,prize:0,sits:0,weeks:0,streak:'',best:null}); });
+  raw.forEach(t=>{ const m=mi&&mi[t.id]; t.miss=m?m.miss:0; t.pen=m?m.pen:0; t.rk=(t.g+t.pen)?(t.w+0.5*t.t)/(t.g+t.pen):0; });
+  ANY_T=raw.some(t=>t.t); { const wc=COLS.find(c=>c.id==='wl'); if(wc) wc.abbr=ANY_T?'W/L/T':'W/L'; }
+  const regRows=ranked(raw.filter(t=>regSet.has(t.id)),1), subRows=ranked(raw.filter(t=>!regSet.has(t.id)),1), rows=regRows.concat(subRows);
   const seg=`<div class="row2"><button type="button" class="btn ghost small" data-act="history">${IC.clock}History</button><button type="button" class="btn small" data-act="export">${IC.share}Save or share</button></div>`+`<div class="seg" role="group" aria-label="Range"><button type="button" data-scope="day" aria-pressed="${ui.scope==='day'}">This week</button><button type="button" data-scope="season" aria-pressed="${ui.scope==='season'}">Whole session</button></div>`;
   if(ui.player){
     const gs=playerGames(ui.player,list), t=rows.find(r=>r.id===ui.player);
@@ -1079,26 +1139,31 @@ function viewStandings(){
         return `<li><span class="when">${esc(fmtDate(x.date,{month:'short',day:'numeric'}))} · Round ${x.round}</span><span>with <b>${esc(nameOf(x.partner))}</b> vs ${esc(nameOf(x.opp[0]))} &amp; ${esc(nameOf(x.opp[1]))}</span><span class="res${w?' w':''}">${done?`${x.f}–${x.a} ${w?'W':'L'}`:'—'}</span></li>`; }).join(''):'<li><span class="muted">No games in this range.</span></li>'}</ul></div>`;
   }
   if(!rows.length) return `${seg}<div class="card empty"><h2 style="font-size:22px">No scores yet</h2><p class="muted">${ui.scope==='day'?'Scores entered for this week will show up here.':'Scores from every week of '+esc(S.name)+' add up here.'}</p></div>`;
-  const day=ui.scope==='day', sd=sessions[sel], prizeOn=!!(day&&sd&&sd.halfBye), ptop=prizeOn?Math.max(...rows.map(t=>t.prize)):null;
-  const prizeBar= day&&!readOnly ? `<div class="prizebar"><button type="button" class="wbbtn" data-act="halfBye" aria-pressed="${prizeOn}">${prizeOn?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>':''}½ win for sit-outs</button><span class="note">For today's prize only. Doesn't change any stats.</span></div>` : '';
-  const prizeCard= prizeOn ? `<div class="prizecard"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg><span><b>Most wins today:</b> ${rows.filter(t=>t.prize===ptop).map(t=>esc(nameOf(t.id))).join(', ')} with ${fmtW(ptop)}</span></div>` : '';
-  const cols=shownCols(), help= ui.colHelp==='prize' ? {abbr:'Prize',name:'Prize wins',help:PRIZE_HELP} : ui.colHelp==='rank' ? {abbr:'#',name:'Rank',help:'Players are ranked by Win%, then by +/−, then by PF. The top three are highlighted.'} : (ui.colHelp&&COLS.find(c=>c.id===ui.colHelp));
+  const sd=sessions[sel], prizeOn=!!(day&&sd&&liveRounds(sd).length), oldRule=!!(sd&&sd.halfBye), DP=prizeOn?dayPrize(sd):null;
+  if(prizeOn) rows.forEach(t=>{ t.pz=oldRule?t.prize:(DP.score[t.id]||0); });
+  const ptop=prizeOn?Math.max(...rows.map(t=>t.pz)):null;
+  const VC=COLS.filter(c=>!(day&&(c.id==='rk'||c.id==='miss')));
+  const prizeBar= prizeOn&&!readOnly ? `<div class="prizebar"><button type="button" class="wbbtn" data-act="halfBye" aria-pressed="${oldRule}">${oldRule?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>':''}Use ½ win for sit-outs instead</button><span class="note">${oldRule?'Prize: wins + ½ per tie + ½ per round sat out.':`Prize: each player’s first ${DP.N} game${DP.N===1?'':'s'} count, so everyone is judged on the same number.`}</span></div>` : '';
+  const prizeCard= prizeOn&&ptop>0 ? `<div class="prizecard"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg><span><b>Today’s prize:</b> ${rows.filter(t=>t.pz===ptop).map(t=>esc(nameOf(t.id))+(regSet.has(t.id)?'':' (sub)')).join(', ')} · ${fmtW(ptop)} pts${oldRule?'':` in ${DP.N} games`}</span></div>` : '';
+  const cols=shownCols(), help= ui.colHelp==='prize' ? {abbr:'Prize',name:'Prize points',help:oldRule?PRIZE_HELP_OLD:PRIZE_HELP} : ui.colHelp==='rank' ? {abbr:'#',name:'Rank',help:day?'Ranked by Win%, then average margin. Subs are ranked on their own list.':'Regulars are ranked by Rank% (missed days count against them), then average margin. Subs are ranked on their own list.'} : (ui.colHelp&&COLS.find(c=>c.id===ui.colHelp));
   const picker= ui.cols ? `<div class="card colpick"><div class="cardhead"><h2 style="font-size:19px">Columns to show</h2><button type="button" class="btn ghost small" data-act="colsDone">Done</button></div>
       <div class="checks">${COLS.map(c=>`<label class="chk"><input type="checkbox" data-col="${c.id}"${cols.includes(c)?' checked':''}><span><b>${c.abbr}</b> ${c.abbr!==c.name?esc(c.name):''}</span></label>`).join('')}</div>
       <button type="button" class="linkrow" data-act="colsReset" style="justify-content:center;border:0;padding:4px;color:var(--blue);font-weight:700;font-size:16px">Back to the recommended columns</button></div>` : '';
   const podEnter=PAPER&&ui.animPod; if(ui.animPod) setTimeout(()=>{ ui.animPod=false; },0);
-  const podium= rows.length>=3 ? `<div class="podium${podEnter?' enter':''}">${[rows[1],rows[0],rows[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><canvas class="pball" data-metal="${['gold','silver','bronze'][t.rank-1]||'bronze'}" data-sz="${[58,70,52][k]}" role="img" aria-label="${['Gold','Silver','Bronze'][t.rank-1]||'Bronze'} pickleball"></canvas><span class="prk">${['1st','2nd','3rd'][t.rank-1]||t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${wlTxt(t)}</span><small>${sgn(t.diff)} pts</small></button>`).join('')}</div>` : '';
+  const podSrc= prizeOn&&ptop>0 ? (()=>{ const o=rows.slice().sort((x,y)=>y.pz-x.pz||x.rank-y.rank); let r=0; return o.map((t,i)=>{ if(i===0||t.pz!==o[i-1].pz) r=i+1; return {...t,rank:r}; }); })() : regRows;
+  const podium= podSrc.length>=3 ? `<div class="podium${podEnter?' enter':''}">${[podSrc[1],podSrc[0],podSrc[2]].map((t,k)=>`<button type="button" class="pod p${t.rank}" data-player="${t.id}" style="min-height:${[150,178,136][k]}px"><canvas class="pball" data-metal="${['gold','silver','bronze'][t.rank-1]||'bronze'}" data-sz="${[58,70,52][k]}" role="img" aria-label="${['Gold','Silver','Bronze'][t.rank-1]||'Bronze'} pickleball"></canvas><span class="prk">${['1st','2nd','3rd'][t.rank-1]||t.rank}</span><b>${esc(shortName(t.id))}</b><span class="wl">${prizeOn&&ptop>0?fmtW(t.pz)+' pts':wlTxt(t)}</span><small>${prizeOn&&ptop>0?(regSet.has(t.id)?wlTxt(t):'Sub · '+wlTxt(t)):sgn(t.diff)+' pts'}</small></button>`).join('')}</div>` : '';
   return `${seg}${podium}
     <p class="note">Tap a column title to show or hide that column. The Key below explains each one.</p>
     ${prizeBar}${prizeCard}
     <div class="tablewrap"><table class="st${podEnter?' enterrows':''}">
-      <thead><tr><th class="pcol" scope="col">Player</th>${prizeOn?`<th scope="col" class="prz vth"><span class="vt">Prize</span></th>`:''}${COLS.map(c=>{ const on=cols.includes(c); return `<th scope="col" class="vth${on?'':' off'}"><button type="button" class="thv" data-colt="${c.id}" aria-pressed="${on}" title="${esc(c.name)}: ${esc(c.help)}"><span class="vt">${esc(c.short||c.abbr)}</span></button></th>`; }).join('')}</tr></thead>
-      <tbody>${(()=>{ const SN=shortNames(rows.map(r=>r.id)); return rows.map(t=>`<tr class="${t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}" title="${esc(nameOf(t.id))}" aria-label="${esc(nameOf(t.id))}">${esc(SN[t.id])}</button></th>${prizeOn?`<td class="prz${t.prize===ptop?' top':''}">${fmtW(t.prize)}</td>`:''}${COLS.map(c=>cols.includes(c)?`<td${c.text?' class="txt"':''}>${c.val(t)}</td>`:'<td class="off" aria-hidden="true"></td>').join('')}</tr>`).join(''); })()}</tbody>
+      <thead><tr><th class="pcol" scope="col">Player</th>${prizeOn?`<th scope="col" class="prz vth"><span class="vt">Prize</span></th>`:''}${VC.map(c=>{ const on=cols.includes(c); return `<th scope="col" class="vth${on?'':' off'}"><button type="button" class="thv" data-colt="${c.id}" aria-pressed="${on}" title="${esc(c.name)}: ${esc(c.help)}"><span class="vt">${esc(c.short||c.abbr)}</span></button></th>`; }).join('')}</tr></thead>
+      <tbody>${(()=>{ const SN=shortNames(rows.map(r=>r.id)), line=(t,sub)=>`<tr class="${sub?'subrow':t.rank<=3?'top3':''}"><th class="pcol" scope="row"><span class="badge">${t.rank}</span><button type="button" class="namebtn" data-player="${t.id}" title="${esc(nameOf(t.id))}" aria-label="${esc(nameOf(t.id))}">${esc(SN[t.id])}</button></th>${prizeOn?`<td class="prz${t.pz===ptop&&ptop>0?' top':''}">${fmtW(t.pz)}</td>`:''}${VC.map(c=>cols.includes(c)?`<td${c.text?' class="txt"':''}>${c.id==='rk'||c.id==='miss'?(sub?'–':c.val(t)):c.val(t)}</td>`:'<td class="off" aria-hidden="true"></td>').join('')}</tr>`;
+        return regRows.map(t=>line(t,false)).join('')+(subRows.length?`<tr class="subhead"><th colspan="${2+VC.length+(prizeOn?1:0)}" scope="rowgroup">Subs · ranked on their own, not with the regulars</th></tr>`+subRows.map(t=>line(t,true)).join(''):''); })()}</tbody>
     </table></div>
-    <p class="note">Ranked by Win%, then +/−. Tap a name to see their games.</p>
+    <p class="note">${day?'Regulars ranked by Win%':'Regulars ranked by Rank% (missed days count against them)'}, then average margin. Subs are listed separately. Tap a name to see their games. <button type="button" class="linkbtn" data-act="help" data-help="rules">Rule book</button></p>
     <button type="button" class="btn" data-act="export">${IC.share}Save or share results</button>
     <details class="card key"><summary><span>Key: what each column means</span>${IC.chev}</summary>
-      <dl class="keylist"><div><dt>#</dt><dd>Rank. Players are ranked by Win%, then by +/−, then by PF.</dd></div>${prizeOn?`<div><dt>Prize</dt><dd><b>Prize wins.</b> ${esc(PRIZE_HELP)}</dd></div>`:''}${COLS.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
+      <dl class="keylist"><div><dt>#</dt><dd>Rank. Regulars are ranked by ${day?'Win%':'Rank%'}, then average margin, then points for. Subs are ranked on their own list.</dd></div>${prizeOn?`<div><dt>Prize</dt><dd><b>Prize points.</b> ${esc(oldRule?PRIZE_HELP_OLD:PRIZE_HELP)}</dd></div>`:''}${VC.map(c=>`<div><dt>${c.abbr}</dt><dd><b>${esc(c.name)}.</b> ${esc(c.help)}</dd></div>`).join('')}</dl>
     </details>`;
 }
 function needsWelcome(){ return !readOnly && !cfg.onboarded && !Object.keys(cfg.roster).length && !Object.values(sessions).some(x=>(x.rounds||[]).length); }
@@ -1525,6 +1590,72 @@ function nextGameCard(){
     </section>
     <a class="linkrow" href="${esc(cfg.invite.code)}" target="_blank" rel="noopener">Open replies page ${IC.go}</a>`;
 }
+
+/* ---------- help: how to use + rule book ---------- */
+const HELP_USE=`
+<section><h3>Before game day</h3><ol>
+<li><b>Setup › Schedule</b>: game days, weeks (Skip a holiday week), courts, start time and round length.</li>
+<li><b>Setup › Players</b>: your regular players. Tap a name to add or fix their email.</li>
+<li><b>Setup › Emails</b>: tap <b>Update sheet</b> after changing players or dates. Under <b>Next game</b>, approve the emails for the next game day.</li></ol></section>
+<section><h3>The day before: who’s coming</h3><ul>
+<li>Players get an email at 10 AM with a one-tap reply, and reminders at 3 PM and 6 PM if they haven’t answered (when you approve reminders).</li>
+<li><b>Players</b> tab: <b>✓ Replied yes</b> / <b>Replied no</b> come from the email button. If someone tells you another way, tap <b>Said yes</b>.</li>
+<li>Mark anyone who can’t come as out and add their sub “for” them. Subs never get emails.</li></ul></section>
+<section><h3>On game day</h3><ol>
+<li><b>Players</b>: mark everyone <b>Here</b> or <b>Out</b>, then build the schedule. To mix the pairings again, tap <b>Reshuffle</b> under the list (rounds with scores stay).</li>
+<li><b>Rounds</b>: tap the winning team, then the losing score. If time runs out level, tap <b>Tie</b>. Use the round timer, then <b>Save &amp; go</b> to the next round.</li>
+<li>Late arrival or a sub mid-session: use <b>Late arrival</b> or <b>Swap in a sub</b> on the Players tab. Only unplayed rounds change.</li>
+<li>Add or remove a round at the bottom of Rounds if you finish early or need one more.</li></ol></section>
+<section><h3>Results</h3><ul>
+<li><b>Standings › This week</b>: the day’s prize podium and table. <b>Whole session</b>: the running ranking of regulars.</li>
+<li>Tap a column title to show or hide it, or a name to see that player’s games.</li>
+<li><b>Save or share</b> makes a spreadsheet, PDF or text summary.</li>
+<li>Back up your data in <b>Setup › App</b> after each week.</li></ul></section>`;
+const HELP_RULES=`
+<section><h3>1. Schedule</h3><ul>
+<li>Doubles. Partners rotate so everyone plays with and against as many different people as possible.</li>
+<li>When there are more players than spots, sit-outs rotate fairly.</li>
+<li>Rounds are 12 minutes at most. A round can be added or removed on the day.</li></ul></section>
+<section><h3>2. Scoring a game</h3><ul>
+<li>Games are played to the target shown on the round (usually 11). “Win by 2” can be turned on for a round.</li>
+<li>If time runs out and the score is level, the game is a <b>tie</b>.</li></ul></section>
+<section><h3>3. Win%</h3><p>Win% = (wins + ½ × ties) ÷ games played. It is each player’s own record, using every game they played.</p>
+<p class="ex">6 wins, 1 loss, 1 tie in 8 games → (6 + 0.5) ÷ 8 = <b>81.3%</b></p></section>
+<section><h3>4. The day’s prize</h3><ul>
+<li>Everyone is judged on the <b>same number of games</b>: the fewest games played by anyone who was there for every round (playing or sitting out).</li>
+<li>Each player’s <b>first</b> games of the day up to that number count: a win is 1 point, a tie is ½. Later games still count for everything else.</li>
+<li>Late arrivals and early leavers don’t set the number and get no make-up credit. They are judged on the games they played.</li>
+<li>Subs can win the day’s prize.</li>
+<li>Alternative (switch on Standings): wins + ½ per tie + ½ for each round sat out.</li></ul>
+<p class="ex">Two sit-outs per round: some played 8, some 7 → everyone’s first 7 games count.</p></section>
+<section><h3>5. Session ranking (regulars)</h3><ul>
+<li>Regulars are ranked over the whole session by <b>Rank%</b>.</li>
+<li>Rank% = (wins + ½ × ties) ÷ (games played + missed-day losses).</li>
+<li>A <b>missed day</b> is a game day a regular was marked out, even if they found a sub. It counts as losses for <b>half of that day’s games</b>.</li>
+<li>Days before a regular’s first day in the session don’t count as missed.</li>
+<li>Win% stays as the player’s own record. Only Rank% decides the order.</li></ul>
+<p class="ex">24 wins in 32 games and one missed 8-game day → 24 ÷ (32 + 4) = <b>66.7%</b> (Win% is still 75%).</p></section>
+<section><h3>6. Tiebreakers</h3><ol><li>Average margin per game (point difference ÷ games played)</li><li>Points for</li></ol>
+<p>Average margin is used because it is fair when people played different numbers of games.</p></section>
+<section><h3>7. Subs</h3><ul>
+<li>Subs are real players for the day: their scores and records are kept.</li>
+<li>They are listed below the regulars and ranked only among themselves. They never change the regulars’ ranking.</li>
+<li>Subs don’t get emails.</li></ul></section>
+<section><h3>8. Emails</h3><ul>
+<li>Nothing goes to players until the organizer approves that game day.</li>
+<li>Players never see who else is coming or how many.</li>
+<li>Replying stops the reminders. The organizer is told if someone changes their answer.</li></ul></section>`;
+function openHelp(tab){
+  closeHelp(); const w=document.createElement('div'); w.className='helpwrap'; w.id='helpWrap';
+  const draw=t=>{ w.innerHTML=`<div class="helpsheet" role="dialog" aria-modal="true" aria-labelledby="helpT"><div class="helphead"><h2 id="helpT">Help</h2><button type="button" class="helpx" data-hx="1" aria-label="Close">×</button></div>
+    <div class="seg helptabs" role="tablist"><button type="button" role="tab" data-ht="use" aria-pressed="${t==='use'}" aria-selected="${t==='use'}">How to use</button><button type="button" role="tab" data-ht="rules" aria-pressed="${t==='rules'}" aria-selected="${t==='rules'}">Rule book</button></div>
+    <div class="helpbody">${t==='rules'?HELP_RULES:HELP_USE}</div></div>`; };
+  draw(tab==='rules'?'rules':'use');
+  w.addEventListener('click',e=>{ const b=e.target.closest('button'); if(e.target===w||(b&&b.dataset.hx)){ closeHelp(); return; } if(b&&b.dataset.ht){ draw(b.dataset.ht); } });
+  document.addEventListener('keydown',helpKey); document.body.appendChild(w); const x=w.querySelector('.helpx'); if(x) x.focus();
+}
+function helpKey(e){ if(e.key==='Escape') closeHelp(); }
+function closeHelp(){ const w=document.getElementById('helpWrap'); if(w) w.remove(); document.removeEventListener('keydown',helpKey); }
 
 /* ---------- history ---------- */
 const weeksOfSeason=S=>Object.values(sessions).filter(x=>sid(x)===S.id&&(x.rounds||[]).length).sort((a,b)=>a.date<b.date?-1:1);
@@ -2002,7 +2133,7 @@ document.addEventListener('click',e=>{
     case 'cols': ui.cols=!ui.cols; render(); return;
     case 'colsDone': ui.cols=false; render(); return;
     case 'colsReset': cfg.cols=COLS.filter(x=>x.def).map(x=>x.id); saveCfg(); render(); return;
-    case 'halfBye': { const s=sess(); s.halfBye=!s.halfBye; saveSession(); render(); toast(s.halfBye?'Prize column on: sit-outs count as ½ win.':'Prize column off.'); return; }
+    case 'halfBye': { const s=sess(); s.halfBye=!s.halfBye; saveSession(); render(); toast(s.halfBye?'Prize now counts ½ win per sit-out.':'Prize now counts the same number of games for everyone.'); return; }
     case 'closeHelp': ui.colHelp=null; render(); return;
     case 'addLate': addLate(); return;
     case 'subIn': subIn(); return;
@@ -2031,6 +2162,7 @@ document.addEventListener('click',e=>{
     case 'wBack': ui.wstep=Math.max(0,(ui.wstep||0)-1); render(); return;
     case 'wSkip': cfg.onboarded=true; saveCfg(); render(); return;
     case 'reset': ui.confirm='reset'; render(); return;
+    case 'help': openHelp(t.dataset.help); return;
     case 'reshuffle': ui.confirm='reshuffle'; render(); return;
     case 'reshuffleYes': { ui.confirm=null; if(hereIds(sess()).length<4){ toast('Mark at least 4 players Here first.'); render(); return; } snap(); const {f,total}=rebuild(); toast(f?`Rounds ${f+1}–${total} reshuffled`:'All rounds reshuffled',true); setTimeout(()=>goTab('today'),600); return; }
     case 'resetYes': ui.confirm=null; snap(); sess().rounds=[]; ui.pickMode=false; rebuild(); toast('This week was rebuilt from scratch',true); return;
