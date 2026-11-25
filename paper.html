@@ -768,7 +768,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.24-9';
+const APP_VERSION='2026.11.25-1';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1316,7 +1316,13 @@ function viewPlayers(){
       <button type="button" class="btn" data-act="subIn">Swap in the sub</button><p class="note">The sub takes that player's place in every unplayed round. Their scores count for the sub.</p></div>`:''}`;
   return `<div class="cardhead"><h2 style="font-size:23px">Who’s here</h2>${readOnly?'':'<button type="button" class="btn ghost small" data-act="pickMode">Change players</button>'}</div>
     <p class="note">${here} playing today. ${readOnly?'':'Tap Here or Out to change. Unplayed rounds update right away.'}</p>
-    <div class="plist">${rows}</div>${forms}`;
+    <div class="plist">${rows}</div>${readOnly?'':reshuffleBox(s)}${forms}`;
+}
+function reshuffleBox(s){
+  const f=lockedCount(s), total=s.rounds.length; if(f>=total) return '';
+  const range=f?`rounds ${f+1}–${total}`:`all ${total} rounds`;
+  if(ui.confirm==='reshuffle') return `<div class="confirm go"><b>Reshuffle ${range} with the ${hereIds(s).length} players marked Here?</b>${f?'<span class="note">Rounds with scores stay as they are.</span>':''}<div class="row2"><button type="button" class="btn small" data-act="reshuffleYes">Reshuffle</button><button type="button" class="btn ghost small" data-act="cancelConfirm">Cancel</button></div></div>`;
+  return `<button type="button" class="btn" data-act="reshuffle">${IC.swap}Reshuffle ${f?'the remaining rounds':'the rounds'}</button>`;
 }
 const EMAIL_RE=/[A-Za-z0-9._%+'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 function parseEntries(v){
@@ -2014,6 +2020,8 @@ document.addEventListener('click',e=>{
     case 'wBack': ui.wstep=Math.max(0,(ui.wstep||0)-1); render(); return;
     case 'wSkip': cfg.onboarded=true; saveCfg(); render(); return;
     case 'reset': ui.confirm='reset'; render(); return;
+    case 'reshuffle': ui.confirm='reshuffle'; render(); return;
+    case 'reshuffleYes': { ui.confirm=null; if(hereIds(sess()).length<4){ toast('Mark at least 4 players Here first.'); render(); return; } snap(); const {f,total}=rebuild(); toast(f?`Rounds ${f+1}–${total} reshuffled`:'All rounds reshuffled',true); setTimeout(()=>goTab('today'),600); return; }
     case 'resetYes': ui.confirm=null; snap(); sess().rounds=[]; ui.pickMode=false; rebuild(); toast('This week was rebuilt from scratch',true); return;
     case 'cancelConfirm': ui.confirm=null; render(); return;
     case 'newSeason': ui.modal='new'; render(); setTimeout(()=>{ const f=$('#nsName'); if(f){ f.focus(); f.select(); } },50); return;
