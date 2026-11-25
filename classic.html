@@ -183,6 +183,13 @@ details.key[open] .chev{transform:rotate(180deg)}
 .prizecard svg{color:var(--red);flex:none}
 table.st .prz{background:#FFF7E8;font-weight:700}
 table.st tr.top3 .prz{background:#FBE8D8}
+.rec{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:8px;text-align:center}
+.rec div{background:var(--line2);border-radius:14px;padding:10px 4px}.rec b{display:block;font-size:20px}.rec span{font-size:13px;color:var(--muted)}
+.wkchart{width:100%;height:auto;display:block}.wkchart .gl{stroke:var(--line2);stroke-width:1}.wkchart .ax{font-size:10px;fill:var(--muted)}
+.wkchart .bar{fill:var(--blue);opacity:.85}.wkchart .cum{fill:none;stroke:#E6B12A;stroke-width:2.5}.wkchart .cumd{fill:#E6B12A}.wkchart .mx{fill:var(--red);font-size:14px;font-weight:800}
+.lg{display:inline-block;width:12px;height:8px;border-radius:2px;vertical-align:middle}.lg.bar{background:var(--blue)}.lg.cum{background:#E6B12A;height:3px}
+.wktab{width:100%;border-collapse:collapse;font-size:15px}.wktab th,.wktab td{padding:6px 4px;text-align:right;border-top:1px solid var(--line2)}.wktab th:first-child,.wktab td:first-child{text-align:left}
+.wktab th{font-size:13px;color:var(--muted)}.wktab tr.miss td{color:var(--red)}
 table.st tr.subhead th{background:var(--line2)!important;color:var(--muted);font-size:13px;font-weight:800;text-align:left;padding:10px 12px;letter-spacing:.02em}
 table.st tr.subrow th,table.st tr.subrow td{background:#F6F3EC!important;color:#6B6F80}
 table.st tr.subrow .badge{background:#E4DED0;color:#6B5200}
@@ -796,7 +803,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.25-4';
+const APP_VERSION='2026.11.25-5';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1059,10 +1066,10 @@ function tally(list){
   }).sort((x,y)=>y.pct-x.pct||y.diff-x.diff||y.pf-x.pf||nameOf(x.id).localeCompare(nameOf(y.id)));
 }
 const COLS=[
+  {id:'rk',  abbr:'Rank%', name:'Ranking percentage', help:'Win% with each missed game day counted as losses for half of that day’s games. Regulars are ranked by this over the whole session. Shows only in Whole session.', def:1, val:t=>(t.g||t.pen)?pctTxt(t.rk):'–'},
   {id:'gp',  abbr:'GP',   name:'Games played', help:'Number of scored games the player played.', def:1, val:t=>t.g},
   {id:'wl',  abbr:'W/L',  name:'Wins / Losses / Ties', help:'Games won / lost, plus ties when there are any. 7/1 means 7 wins and 1 loss; 6/1/1 adds one tie.', def:1, val:t=>wlTxt(t)},
   {id:'pct', abbr:'Win%', name:'Win percentage', help:'Percent of games won, with a tie counting as half a win. 87.5 means 7 of 8; 6 wins, 1 loss and 1 tie is 81.3. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
-  {id:'rk',  abbr:'Rank%', name:'Ranking percentage', help:'Win% with each missed game day counted as losses for half of that day’s games. Regulars are ranked by this over the whole session. Shows only in Whole session.', def:1, val:t=>(t.g||t.pen)?pctTxt(t.rk):'–'},
   {id:'miss',abbr:'Miss', name:'Days missed', help:'Game days this regular was marked out (even with a sub), from the start of the session or from the day they were added to the regulars. Shows only in Whole session.', def:1, val:t=>t.miss||0},
   {id:'pf',  abbr:'PF',   name:'Points for', help:'Total points scored by the player’s teams.', def:1, val:t=>t.pf},
   {id:'pa',  abbr:'PA',   name:'Points against', help:'Total points scored against the player’s teams.', def:1, val:t=>t.pa},
@@ -1091,6 +1098,39 @@ function dayPrize(s){
   const N=full.length?Math.min(...full.map(cnt)):Math.max(0,...Object.keys(games).map(cnt));
   const score={}; Object.keys(seen).forEach(x=>{ score[x]=(games[x]||[]).slice(0,N).reduce((a,b)=>a+b,0); });
   return {N,score,full:new Set(full),rounds:R.length};
+}
+/* Standings split into regulars (ranked by Rank% over a session) and subs (ranked on their own). */
+function standData(list,day,S){
+  S=S||season(); const regSet=new Set(regularsOf(S)), raw=tally(list), mi=day?null:missedInfo(S,list);
+  if(mi) Object.entries(mi).forEach(([id,m])=>{ if(m.miss&&!raw.some(t=>t.id===id)) raw.push({id,w:0,l:0,t:0,pf:0,pa:0,g:0,pct:0,diff:0,avg:0,prize:0,sits:0,weeks:0,streak:'',best:null}); });
+  raw.forEach(t=>{ const m=mi&&mi[t.id]; t.miss=m?m.miss:0; t.pen=m?m.pen:0; t.rk=day?t.pct:((t.g+t.pen)?(t.w+0.5*t.t)/(t.g+t.pen):0); });
+  ANY_T=raw.some(t=>t.t); { const wc=COLS.find(c=>c.id==='wl'); if(wc) wc.abbr=ANY_T?'W/L/T':'W/L'; }
+  const regRows=ranked(raw.filter(t=>regSet.has(t.id)),1), subRows=ranked(raw.filter(t=>!regSet.has(t.id)),1);
+  return {regSet,regRows,subRows,rows:regRows.concat(subRows),mi};
+}
+/* A player's game days in a session: what they did each day, or that they missed it. */
+function playerWeeks(id,list,S){
+  S=S||season(); const isReg=regularsOf(S).includes(id), from=(S.joined&&S.joined[id])||'', out=[]; let cw=0,ct=0,cg=0;
+  list.filter(x=>liveRounds(x).length).sort((a,b)=>a.date<b.date?-1:1).forEach(d=>{
+    const here=(d.players||[]).includes(id)&&!(d.out||[]).includes(id), t=tally([d]).find(r=>r.id===id);
+    if(t&&t.g){ cw+=t.w; ct+=t.t; cg+=t.g; out.push({date:d.date,week:weekNoIn(S,d.date),played:true,w:t.w,l:t.l,t:t.t,g:t.g,pct:t.pct,diff:t.diff,cum:cg?(cw+0.5*ct)/cg:0}); }
+    else if(isReg&&!here&&d.date>=from) out.push({date:d.date,week:weekNoIn(S,d.date),played:false,missed:true,cum:cg?(cw+0.5*ct)/cg:null});
+  });
+  return out;
+}
+function weekChart(ws){
+  if(!ws.length) return '';
+  const W=320,H=150,L=30,R=8,T=12,B=26, n=ws.length, bw=Math.min(36,(W-L-R)/n*0.6), x=i=>L+(W-L-R)*(i+0.5)/n, y=v=>T+(H-T-B)*(1-v);
+  let g=`<svg class="wkchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Win% by game day">`;
+  [0,0.5,1].forEach(v=>{ g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" class="gl"/><text x="${L-4}" y="${y(v)+4}" class="ax" text-anchor="end">${v*100}</text>`; });
+  ws.forEach((w,i)=>{ const cx=x(i);
+    if(w.played) g+=`<rect x="${cx-bw/2}" y="${y(w.pct)}" width="${bw}" height="${Math.max(1,y(0)-y(w.pct))}" rx="4" class="bar"><title>${fmtDate(w.date,{month:'short',day:'numeric'})}: ${pctTxt(w.pct)}%</title></rect>`;
+    else g+=`<text x="${cx}" y="${y(0)-6}" class="mx" text-anchor="middle">✕</text>`;
+    g+=`<text x="${cx}" y="${H-8}" class="ax" text-anchor="middle">${w.week?'W'+w.week:esc(fmtDate(w.date,{month:'numeric',day:'numeric'}))}</text>`; });
+  const pts=ws.map((w,i)=>w.cum==null?null:[x(i),y(w.cum)]).filter(Boolean);
+  if(pts.length>1) g+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" class="cum"/>`;
+  pts.forEach(p=>{ g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" class="cumd"/>`; });
+  return g+'</svg><p class="note" style="margin:0"><span class="lg bar"></span> Win% that day · <span class="lg cum"></span> Win% so far · ✕ missed</p>';
 }
 /* Session ranking for regulars: a missed game day counts as losses for half of that day's games. */
 function missedInfo(S,list){
@@ -1123,20 +1163,18 @@ function playerGames(pid,list){
 }
 function viewStandings(){
   if(ui.sub==='history') return viewHistory();
-  const list=scopeList(), S=season(), day=ui.scope==='day', regSet=new Set(regularsOf(S)), raw=tally(list);
-  const mi=day?null:missedInfo(S,list);
-  if(mi) Object.entries(mi).forEach(([id,m])=>{ if(m.miss&&!raw.some(t=>t.id===id)) raw.push({id,w:0,l:0,t:0,pf:0,pa:0,g:0,pct:0,diff:0,avg:0,prize:0,sits:0,weeks:0,streak:'',best:null}); });
-  raw.forEach(t=>{ const m=mi&&mi[t.id]; t.miss=m?m.miss:0; t.pen=m?m.pen:0; t.rk=(t.g+t.pen)?(t.w+0.5*t.t)/(t.g+t.pen):0; });
-  ANY_T=raw.some(t=>t.t); { const wc=COLS.find(c=>c.id==='wl'); if(wc) wc.abbr=ANY_T?'W/L/T':'W/L'; }
-  const regRows=ranked(raw.filter(t=>regSet.has(t.id)),1), subRows=ranked(raw.filter(t=>!regSet.has(t.id)),1), rows=regRows.concat(subRows);
+  const list=scopeList(), S=season(), day=ui.scope==='day', {regSet,regRows,subRows,rows}=standData(list,day,S);
   const seg=`<div class="row2"><button type="button" class="btn ghost small" data-act="history">${IC.clock}History</button><button type="button" class="btn small" data-act="export">${IC.share}Save or share</button></div>`+`<div class="seg" role="group" aria-label="Range"><button type="button" data-scope="day" aria-pressed="${ui.scope==='day'}">This week</button><button type="button" data-scope="season" aria-pressed="${ui.scope==='season'}">Whole session</button></div>`;
   if(ui.player){
-    const gs=playerGames(ui.player,list), t=rows.find(r=>r.id===ui.player);
+    const gs=playerGames(ui.player,list), t=rows.find(r=>r.id===ui.player), isReg=regSet.has(ui.player), ws=day?[]:playerWeeks(ui.player,list,S);
     return `${seg}<button type="button" class="linkrow" data-act="closePlayer" style="color:var(--blue);font-weight:700">${IC.back}Back to standings</button>
-      <div class="card" style="gap:10px"><h2 style="font-size:24px">${esc(nameOf(ui.player))}</h2><p class="note">${ui.scope==='day'?'This week':esc(S.name)}${t?` · ranked #${t.rank}`:''}</p>
-        ${t?`<dl class="stats">${COLS.map(c=>`<div><dt>${c.name}</dt><dd>${c.val(t)}</dd></div>`).join('')}</dl>`:''}</div>
-      <div class="table"><ul class="games">${gs.length?gs.map(x=>{ const done=x.f!=null&&x.a!=null, w=done&&x.f>x.a;
-        return `<li><span class="when">${esc(fmtDate(x.date,{month:'short',day:'numeric'}))} · Round ${x.round}</span><span>with <b>${esc(nameOf(x.partner))}</b> vs ${esc(nameOf(x.opp[0]))} &amp; ${esc(nameOf(x.opp[1]))}</span><span class="res${w?' w':''}">${done?`${x.f}–${x.a} ${w?'W':'L'}`:'—'}</span></li>`; }).join(''):'<li><span class="muted">No games in this range.</span></li>'}</ul></div>`;
+      <div class="card" style="gap:10px"><h2 style="font-size:24px">${esc(nameOf(ui.player))}</h2><p class="note">${day?'This week':esc(S.name)} · ${isReg?'Regular':'Sub'}${t?` · #${t.rank} ${isReg?'among regulars':'among subs'}`:''}</p>
+        ${t?`<div class="rec"><div><b>${wlTxt(t)}</b><span>W/L${ANY_T?'/T':''}</span></div><div><b>${t.g?pctTxt(t.pct):'–'}</b><span>Win%</span></div><div><b>${sgn(t.diff)}</b><span>+/−</span></div>${!day&&isReg?`<div><b>${t.miss||0}</b><span>missed</span></div>`:''}</div>
+`:''}</div>
+      ${ws.length?`<div class="card" style="gap:8px"><h2 style="font-size:19px">Through the session</h2>${weekChart(ws)}
+        <table class="wktab"><thead><tr><th>Day</th><th>Games</th><th>W/L${ANY_T?'/T':''}</th><th>Win%</th><th>+/−</th></tr></thead><tbody>${ws.map(w=>`<tr${w.played?'':' class="miss"'}><td>${esc(fmtDate(w.date,{month:'short',day:'numeric'}))}</td>${w.played?`<td>${w.g}</td><td>${w.w}/${w.l}${ANY_T?'/'+w.t:''}</td><td>${pctTxt(w.pct)}</td><td>${sgn(w.diff)}</td>`:'<td colspan="4">Missed</td>'}</tr>`).join('')}</tbody></table></div>`:''}${t?`<div class="card" style="gap:10px"><h2 style="font-size:19px">All stats</h2><dl class="stats">${COLS.filter(c=>!(c.id==='rk'||c.id==='miss')||(!day&&isReg)).map(c=>`<div><dt>${c.name}</dt><dd>${c.val(t)}</dd></div>`).join('')}</dl></div>`:''}
+      <div class="table"><ul class="games">${gs.length?gs.map(x=>{ const done=x.f!=null&&x.a!=null, w=done&&x.f>x.a, tie=done&&x.f===x.a;
+        return `<li><span class="when">${esc(fmtDate(x.date,{month:'short',day:'numeric'}))} · Round ${x.round}</span><span>with <b>${esc(nameOf(x.partner))}</b> vs ${esc(nameOf(x.opp[0]))} &amp; ${esc(nameOf(x.opp[1]))}</span><span class="res${w?' w':''}">${done?`${x.f}–${x.a} ${tie?'T':w?'W':'L'}`:'—'}</span></li>`; }).join(''):'<li><span class="muted">No games in this range.</span></li>'}</ul></div>`;
   }
   if(!rows.length) return `${seg}<div class="card empty"><h2 style="font-size:22px">No scores yet</h2><p class="muted">${ui.scope==='day'?'Scores entered for this week will show up here.':'Scores from every week of '+esc(S.name)+' add up here.'}</p></div>`;
   const sd=sessions[sel], prizeOn=!!(day&&sd&&liveRounds(sd).length), oldRule=!!(sd&&sd.halfBye), DP=prizeOn?dayPrize(sd):null;
@@ -1601,16 +1639,22 @@ const HELP_USE=`
 <section><h3>The day before: who’s coming</h3><ul>
 <li>Players get an email at 10 AM with a one-tap reply, and reminders at 3 PM and 6 PM if they haven’t answered (when you approve reminders).</li>
 <li><b>Players</b> tab: <b>✓ Replied yes</b> / <b>Replied no</b> come from the email button. If someone tells you another way, tap <b>Said yes</b>.</li>
-<li>Mark anyone who can’t come as out and add their sub “for” them. Subs never get emails.</li></ul></section>
+<li>Mark anyone who can’t come as out and add their sub “for” them.</li></ul></section>
+<section><h3>How the emails work</h3><ul>
+<li>Nothing goes to players until you approve that game day (Setup › Emails › Next game, or the approval email you get the day before).</li>
+<li>Players never see who else is coming or how many.</li>
+<li>Replying stops the reminders. You get an email if someone changes their answer, and a summary at 6 PM.</li>
+<li>Subs don’t get the automatic emails. Contact them yourself by email or text.</li></ul></section>
 <section><h3>On game day</h3><ol>
 <li><b>Players</b>: mark everyone <b>Here</b> or <b>Out</b>, then build the schedule. To mix the pairings again, tap <b>Reshuffle</b> under the list (rounds with scores stay).</li>
 <li><b>Rounds</b>: tap the winning team, then the losing score. If time runs out level, tap <b>Tie</b>. Use the round timer, then <b>Save &amp; go</b> to the next round.</li>
 <li>Late arrival or a sub mid-session: use <b>Late arrival</b> or <b>Swap in a sub</b> on the Players tab. Only unplayed rounds change.</li>
 <li>Add or remove a round at the bottom of Rounds if you finish early or need one more.</li></ol></section>
 <section><h3>Results</h3><ul>
-<li><b>Standings › This week</b>: the day’s prize podium and table. <b>Whole session</b>: the running ranking of regulars.</li>
+<li><b>Standings › This week</b>: the day’s prize podium and table. <b>Whole session</b>: regulars ranked by Rank%, with subs listed below.</li>
+<li>Tap a player’s name to see their own record, a chart of each game day and the days they missed.</li>
 <li>Tap a column title to show or hide it, or a name to see that player’s games.</li>
-<li><b>Save or share</b> makes a spreadsheet, PDF or text summary.</li>
+<li><b>Save or share</b> makes a spreadsheet, PDF or text summary. The Whole session PDF includes a page of records for every regular and a short table for each sub.</li>
 <li>Back up your data in <b>Setup › App</b> after each week.</li></ul></section>`;
 const HELP_RULES=`
 <section><h3>1. Schedule</h3><ul>
@@ -1641,11 +1685,8 @@ const HELP_RULES=`
 <section><h3>7. Subs</h3><ul>
 <li>Subs are real players for the day: their scores and records are kept.</li>
 <li>They are listed below the regulars and ranked only among themselves. They never change the regulars’ ranking.</li>
-<li>Subs don’t get emails.</li></ul></section>
-<section><h3>8. Emails</h3><ul>
-<li>Nothing goes to players until the organizer approves that game day.</li>
-<li>Players never see who else is coming or how many.</li>
-<li>Replying stops the reminders. The organizer is told if someone changes their answer.</li></ul></section>`;
+<li>Subs don’t get the automatic emails.</li></ul></section>
+`;
 function openHelp(tab){
   closeHelp(); const w=document.createElement('div'); w.className='helpwrap'; w.id='helpWrap';
   const draw=t=>{ w.innerHTML=`<div class="helpsheet" role="dialog" aria-modal="true" aria-labelledby="helpT"><div class="helphead"><h2 id="helpT">Help</h2><button type="button" class="helpx" data-hx="1" aria-label="Close">×</button></div>
@@ -1722,10 +1763,12 @@ function gameRows(list){
   return out;
 }
 const GAME_HEAD=['Date','Session','Week','Round','Court','Playing to','Team 1 player A','Team 1 player B','Team 1 score','Team 2 score','Team 2 player A','Team 2 player B','Winner'];
-function standRows(list,withPrize){
-  return ranked(tally(list)).map(t=>{ const r=[t.rank,nameOf(t.id),t.g,t.w,t.l,t.t,t.g?Math.round(t.pct*1000)/10:'',t.pf,t.pa,t.diff,t.g?+(t.avg.toFixed(1)):'',t.sits,t.weeks]; if(withPrize) r.splice(2,0,t.prize); return r; });
+function standRows(list,withPrize,day){
+  const D=standData(list,day), dp=day&&list[0]?dayPrize(list[0]):null, pz=t=>list[0]&&list[0].halfBye?t.prize:(dp?dp.score[t.id]||0:0);
+  const row=(t,type)=>{ const r=[type,t.rank,nameOf(t.id),day||type==='Sub'?'':Math.round(t.rk*1000)/10,t.g,t.w,t.l,t.t,t.g?Math.round(t.pct*1000)/10:'',t.pf,t.pa,t.diff,t.g?+(t.avg.toFixed(1)):'',day||type==='Sub'?'':t.miss,t.sits,t.weeks]; if(withPrize) r.splice(3,0,pz(t)); return r; };
+  return D.regRows.map(t=>row(t,'Regular')).concat(D.subRows.map(t=>row(t,'Sub')));
 }
-const standHead=withPrize=>{ const h=['Rank','Player','GP','W','L','T','Win%','PF','PA','+/-','Avg margin','Sit-outs','Weeks']; if(withPrize) h.splice(2,0,'Prize wins'); return h; };
+const standHead=withPrize=>{ const h=['Type','Rank','Player','Rank%','GP','W','L','T','Win%','PF','PA','+/-','Avg margin','Missed','Sit-outs','Weeks']; if(withPrize) h.splice(3,0,'Prize'); return h; };
 function dayRows(list){
   return list.slice().sort((a,b)=>a.date<b.date?-1:1).map(x=>{ const S=seasonById(sid(x)), t=topWins([x],true);
     return [x.date,S.name,weekNoIn(S,x.date),x.players.length,x.rounds.reduce((m,r)=>m+r.games.filter(scored).length,0),t?t.names.join(', '):'',t?t.w:'']; });
@@ -1748,7 +1791,7 @@ const csvCell=v=>{ const t=String(v==null?'':v); return /[",\n]/.test(t)?'"'+t.r
 const pdfTxt=v=>String(v==null?'':v).replace(/[–−]/g,'-').replace(/[’]/g,"'").replace(/[“”]/g,'"');
 async function buildFile(scope,fmt){
   const list=exportList(scope); if(!list.length) throw {user:'There are no results to save for this choice yet.'};
-  const T=exportTitle(scope), prize= scope==='day' && list[0].halfBye;
+  const T=exportTitle(scope), prize= scope==='day' && liveRounds(list[0]).length>0;
   if(fmt==='csv'){
     const lines=[GAME_HEAD,...gameRows(list)].map(r=>r.map(csvCell).join(','));
     return {name:T.file+'-games.csv', blob:new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv'})};
@@ -1756,7 +1799,7 @@ async function buildFile(scope,fmt){
   if(fmt==='xlsx'){
     await loadLibs('xlsx'); const X=window.XLSX, wb=X.utils.book_new();
     const add=(name,head,rows,widths)=>{ const ws=X.utils.aoa_to_sheet([head,...rows]); ws['!cols']=(widths||head.map(h=>Math.max(8,String(h).length+2))).map(w=>({wch:w})); X.utils.book_append_sheet(wb,ws,name); };
-    add('Standings',standHead(prize),standRows(list,prize),[6,22,...standHead(prize).slice(2).map(h=>Math.max(7,h.length+2))]);
+    add('Standings',standHead(prize),standRows(list,prize,scope==='day'),[9,6,22,...standHead(prize).slice(3).map(h=>Math.max(7,h.length+2))]);
     add('Games',GAME_HEAD,gameRows(list),[11,14,6,6,6,9,18,18,9,9,18,18,30]);
     add('Days',DAY_HEAD,dayRows(list),[11,14,6,8,12,30,6]);
     const ps={}; list.forEach(x=>x.players.forEach(p=>{ ps[p]=(ps[p]||0)+1; }));
@@ -1772,18 +1815,63 @@ async function buildFile(scope,fmt){
   doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.text(pdfTxt(T.sub),M,82);
   doc.setDrawColor(...INK); doc.setLineWidth(1.2); doc.line(M,92,W-M,92);
   let y=110;
-  if(prize){ const t=topWins([list[0]].map(x=>x)); const rows=tally(list), top=Math.max(...rows.map(r=>r.prize)), names=rows.filter(r=>r.prize===top).map(r=>nameOf(r.id));
-    doc.setFillColor(251,236,236); doc.setDrawColor(...RED); doc.roundedRect(M,y,W-2*M,30,6,6,'FD');
-    doc.setFont('helvetica','bold'); doc.setTextColor(...INK); doc.setFontSize(11); doc.text('Most wins today',M+12,y+19);
-    doc.setFont('helvetica','normal'); doc.text(pdfTxt(` (sit-outs count as 1/2 win): ${names.join(', ')}, ${fmtW(top)}`),M+12+doc.getTextWidth('Most wins today'),y+19); y+=46; }
-  const H=(txt)=>{ doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...INK); doc.text(txt,M,y); y+=8; };
+  const day=scope==='day', S=season(), D=standData(list,day,S), PH=doc.internal.pageSize.getHeight(), GOLD=[230,177,42];
+  const need=h=>{ if(y+h>PH-50){ doc.addPage(); y=60; } };
+  if(prize){ const d0=list[0], old=!!d0.halfBye, dp=dayPrize(d0), sc=t=>old?t.prize:(dp.score[t.id]||0), top=Math.max(0,...D.rows.map(sc));
+    if(top>0){ const names=D.rows.filter(t=>sc(t)===top).map(t=>nameOf(t.id)+(D.regSet.has(t.id)?'':' (sub)'));
+      doc.setFillColor(251,236,236); doc.setDrawColor(...RED); doc.roundedRect(M,y,W-2*M,30,6,6,'FD');
+      doc.setFont('helvetica','bold'); doc.setTextColor(...INK); doc.setFontSize(11); doc.text("Today's prize",M+12,y+19);
+      const lw=doc.getTextWidth("Today's prize"); doc.setFont('helvetica','normal'); doc.text(pdfTxt(`${old?' (wins + 1/2 per tie + 1/2 per sit-out)':` (each player's first ${dp.N} games)`}: ${names.join(', ')}, ${fmtW(top)} pts`),M+14+lw,y+19,{maxWidth:W-2*M-30-lw}); y+=46; } }
+  const H=(txt,sub)=>{ need(40); doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...INK); doc.text(pdfTxt(txt),M,y);
+    if(sub){ doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...MUTE); doc.text(pdfTxt(sub),M+doc.getTextWidth(pdfTxt(txt))*13/9+10,y,{baseline:'bottom'}); doc.setFontSize(9); } y+=8; };
   const tbl=(head,body,opts)=>{ doc.autoTable(Object.assign({startY:y,head:[head],body:body.map(r=>r.map(pdfTxt)),margin:{left:M,right:M},theme:'grid',
       styles:{font:'helvetica',fontSize:9,cellPadding:4,textColor:INK,lineColor:[220,227,225],lineWidth:0.5},
       headStyles:{fillColor:SOFT,textColor:INK,fontStyle:'bold'},alternateRowStyles:{fillColor:[247,250,253]}},opts||{})); y=doc.lastAutoTable.finalY+22; };
-  const sh=standHead(prize).filter(h=>!['Avg margin','Weeks'].includes(h) || scope!=='day');
-  const sr=standRows(list,prize).map(r=>{ const full=standHead(prize); return full.map((h,i)=>[h,r[i]]).filter(([h])=>sh.includes(h)).map(([h,v])=>h==='Win%'&&v!==''?String(v):h==='+/-'&&v>0?'+'+v:v); });
-  H('Standings'); tbl(sh,sr,{columnStyles:{1:{fontStyle:'bold'}},didParseCell:d=>{ if(d.section==='body'&&+d.row.raw[0]<=3) d.cell.styles.fillColor=[251,244,244]; }});
-  if(scope!=='day'){ H('Game days'); tbl(DAY_HEAD,dayRows(list)); }
+  const wl=t=>`${fmtW(t.w)}/${t.l}${ANY_T?'/'+(t.t||0):''}`, WLH=ANY_T?'W/L/T':'W/L', pct=v=>pctTxt(v), sg=v=>v>0?'+'+v:String(v);
+  const dp0=prize?dayPrize(list[0]):null, pz=t=>list[0]&&list[0].halfBye?t.prize:(dp0?dp0.score[t.id]||0:0);
+  /* regulars */
+  const rh=day?['#','Player',...(prize?['Prize']:[]),'GP',WLH,'Win%','PF','PA','+/-','Avg']:['#','Player','Rank%','GP',WLH,'Win%','PF','PA','+/-','Avg','Missed'];
+  const rr=D.regRows.map(t=>day?[t.rank,nameOf(t.id),...(prize?[fmtW(pz(t))]:[]),t.g,wl(t),t.g?pct(t.pct):'-',t.pf,t.pa,sg(t.diff),t.g?t.avg.toFixed(1):'-']
+    :[t.rank,nameOf(t.id),(t.g||t.pen)?pct(t.rk):'-',t.g,wl(t),t.g?pct(t.pct):'-',t.pf,t.pa,sg(t.diff),t.g?t.avg.toFixed(1):'-',t.miss||0]);
+  if(rr.length){ H('Regular players',day?'ranked by Win%, then average margin':'ranked by Rank% (missed days count against them), then average margin');
+    tbl(rh,rr,{columnStyles:{1:{fontStyle:'bold'},2:day?{}:{fontStyle:'bold'}},didParseCell:d=>{ if(d.section==='body'&&+d.row.raw[0]<=3) d.cell.styles.fillColor=[251,244,244]; }}); }
+  /* subs */
+  const subFor=id=>[...new Set(list.map(x=>(x.subs||{})[id]).filter(v=>v&&v!=='none').map(nameOf))].join(', ');
+  const subDays=id=>list.filter(x=>(x.players||[]).includes(id)&&liveRounds(x).length).length;
+  if(D.subRows.length){ H('Subs','ranked among themselves; they do not affect the regulars');
+    tbl(['#','Player','Subbed for',...(prize?['Prize']:[]),...(day?[]:['Days']),'GP',WLH,'Win%','+/-'],
+      D.subRows.map(t=>[t.rank,nameOf(t.id),subFor(t.id)||'-',...(prize?[fmtW(pz(t))]:[]),...(day?[]:[subDays(t.id)]),t.g,wl(t),t.g?pct(t.pct):'-',sg(t.diff)]),
+      {columnStyles:{1:{fontStyle:'bold'}},styles:{font:'helvetica',fontSize:9,cellPadding:4,textColor:MUTE,lineColor:[220,227,225],lineWidth:0.5,fillColor:[246,243,236]},alternateRowStyles:{fillColor:[246,243,236]}}); }
+  if(!day){ H('Game days'); tbl(DAY_HEAD,dayRows(list));
+    /* one section per regular */
+    const chart=(x0,y0,w,h,ws)=>{ const L=24, n=ws.length, bw=Math.min(26,(w-L)/n*0.55), X=i=>x0+L+(w-L)*(i+0.5)/n, Y=v=>y0+h*(1-v);
+      doc.setDrawColor(225,229,236); doc.setLineWidth(0.5); doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...MUTE);
+      [0,0.5,1].forEach(v=>{ doc.line(x0+L,Y(v),x0+w,Y(v)); doc.text(String(v*100),x0+L-4,Y(v)+2.5,{align:'right'}); });
+      ws.forEach((q,i)=>{ const cx=X(i); if(q.played){ doc.setFillColor(...BLUE); doc.rect(cx-bw/2,Y(q.pct),bw,Math.max(0.8,Y(0)-Y(q.pct)),'F'); }
+        else { doc.setDrawColor(...RED); doc.setLineWidth(1.4); doc.line(cx-4,Y(0)-10,cx+4,Y(0)-2); doc.line(cx-4,Y(0)-2,cx+4,Y(0)-10); }
+        doc.setTextColor(...MUTE); doc.text(q.week?'W'+q.week:fmtDate(q.date,{month:'numeric',day:'numeric'}),cx,y0+h+10,{align:'center'}); });
+      const pts=ws.map((q,i)=>q.cum==null?null:[X(i),Y(q.cum)]).filter(Boolean);
+      doc.setDrawColor(...GOLD); doc.setLineWidth(1.6); for(let i=1;i<pts.length;i++) doc.line(pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]);
+      doc.setFillColor(...GOLD); pts.forEach(q=>doc.circle(q[0],q[1],2,'F')); };
+    if(D.regRows.length){ doc.addPage(); y=60; doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(...INK); doc.text('Player records',M,y); y+=8;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...MUTE); doc.text('Bars: Win% each game day. Gold line: Win% so far. X: missed day.',M,y+10); y+=28; }
+    D.regRows.forEach(t=>{ const ws=playerWeeks(t.id,list,S); need(130+14*ws.length);
+      doc.setFont('helvetica','bold'); doc.setFontSize(12.5); doc.setTextColor(...INK); doc.text(pdfTxt(`${t.rank}. ${nameOf(t.id)}`),M,y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...MUTE);
+      doc.text(pdfTxt(`Rank% ${(t.g||t.pen)?pct(t.rk):'-'}  |  Win% ${t.g?pct(t.pct):'-'}  |  ${WLH} ${wl(t)}  |  ${t.g} games  |  +/- ${sg(t.diff)}  |  missed ${t.miss||0}`),M,y+14); y+=24;
+      if(ws.length){ chart(M,y,(W-2*M)*0.48,78,ws);
+        doc.autoTable({startY:y-6,margin:{left:M+(W-2*M)*0.53,right:M},head:[['Day','GP',WLH,'Win%','+/-']],theme:'plain',
+          body:ws.map(q=>q.played?[fmtDate(q.date,{month:'short',day:'numeric'}),q.g,`${q.w}/${q.l}${ANY_T?'/'+q.t:''}`,pct(q.pct),sg(q.diff)]:[fmtDate(q.date,{month:'short',day:'numeric'}),{content:'Missed',colSpan:4,styles:{textColor:RED}}]),
+          styles:{font:'helvetica',fontSize:8,cellPadding:2,textColor:INK},headStyles:{textColor:MUTE,fontStyle:'bold'}});
+        y=Math.max(y+96,doc.lastAutoTable.finalY+8); }
+      doc.setDrawColor(230,233,240); doc.setLineWidth(0.6); doc.line(M,y,W-M,y); y+=20; });
+    /* a short table for each sub */
+    if(D.subRows.length){ need(60); H('Subs: game by game day');
+      D.subRows.forEach(t=>{ const ds=list.filter(x=>liveRounds(x).length&&(x.players||[]).includes(t.id)).sort((a,b)=>a.date<b.date?-1:1);
+        need(40+16*ds.length); doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(...INK); doc.text(pdfTxt(nameOf(t.id)),M,y+4); y+=10;
+        tbl(['Day','Subbing for','GP',WLH,'Win%','+/-'],ds.map(d=>{ const q=tally([d]).find(r=>r.id===t.id)||{g:0,w:0,l:0,t:0,pct:0,diff:0}; const f=(d.subs||{})[t.id];
+          return [fmtDate(d.date,{month:'short',day:'numeric'}),f&&f!=='none'?nameOf(f):'-',q.g,`${q.w}/${q.l}${ANY_T?'/'+(q.t||0):''}`,q.g?pct(q.pct):'-',sg(q.diff)]; }),{styles:{font:'helvetica',fontSize:8.5,cellPadding:3,textColor:MUTE,lineColor:[220,227,225],lineWidth:0.5}}); }); } }
+  if(!day){ doc.addPage(); y=60; }
   H('Games');
   const gr=gameRows(list).map(r=>[...(scope==='day'?[]:[fmtDate(r[0],{month:'short',day:'numeric'})]),'R'+r[3],r[4],`${r[6]} & ${r[7]}`,`${r[8]}-${r[9]}`,`${r[10]} & ${r[11]}`,r[12]]);
   const gh=[...(scope==='day'?[]:['Date']),'Round','Court','Team 1','Score','Team 2'];
@@ -1792,7 +1880,7 @@ async function buildFile(scope,fmt){
     didParseCell:d=>{ if(d.section!=='body') return; const raw=gr[d.row.index], w=raw[raw.length-1]; if((d.column.index===off+2&&w===raw[off+2])||(d.column.index===off+4&&w===raw[off+4])) d.cell.styles.fontStyle='bold'; }});
   const pages=doc.getNumberOfPages();
   for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...MUTE);
-    doc.text('Ranked by Win%, then point difference. Winning team in bold.'+(prize?' Prize wins count each sit-out as 1/2 win and do not affect the ranking.':''),M,doc.internal.pageSize.getHeight()-24,{maxWidth:W-2*M-60});
+    doc.text((day?'Regulars ranked by Win%, then average margin.':'Regulars ranked by Rank% (a missed day counts as losses for half that day\'s games), then average margin.')+' Subs ranked separately. A tie counts as 1/2 win. Winning team in bold.',M,doc.internal.pageSize.getHeight()-24,{maxWidth:W-2*M-60});
     doc.text(`Page ${i} of ${pages}`,W-M,doc.internal.pageSize.getHeight()-24,{align:'right'}); }
   return {name:T.file+'.pdf', blob:doc.output('blob')};
 }
