@@ -796,7 +796,7 @@ function migrate(c){
   delete c.startDate; delete c.weeks; return c;
 }
 
-const APP_VERSION='2026.11.25-3';
+const APP_VERSION='2026.11.25-4';
 const THEME= window.__THEME==='dink' ? 'dink' : window.__THEME==='paper' ? 'paper' : 'classic';
 const PAPER= THEME==='paper' && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 let updateReady=false;
@@ -1063,7 +1063,7 @@ const COLS=[
   {id:'wl',  abbr:'W/L',  name:'Wins / Losses / Ties', help:'Games won / lost, plus ties when there are any. 7/1 means 7 wins and 1 loss; 6/1/1 adds one tie.', def:1, val:t=>wlTxt(t)},
   {id:'pct', abbr:'Win%', name:'Win percentage', help:'Percent of games won, with a tie counting as half a win. 87.5 means 7 of 8; 6 wins, 1 loss and 1 tie is 81.3. Standings are ranked by this first.', def:1, val:t=>t.g?pctTxt(t.pct):'–'},
   {id:'rk',  abbr:'Rank%', name:'Ranking percentage', help:'Win% with each missed game day counted as losses for half of that day’s games. Regulars are ranked by this over the whole session. Shows only in Whole session.', def:1, val:t=>(t.g||t.pen)?pctTxt(t.rk):'–'},
-  {id:'miss',abbr:'Miss', name:'Days missed', help:'Game days this regular was marked out (even with a sub), counting from their first day in the session. Shows only in Whole session.', def:1, val:t=>t.miss||0},
+  {id:'miss',abbr:'Miss', name:'Days missed', help:'Game days this regular was marked out (even with a sub), from the start of the session or from the day they were added to the regulars. Shows only in Whole session.', def:1, val:t=>t.miss||0},
   {id:'pf',  abbr:'PF',   name:'Points for', help:'Total points scored by the player’s teams.', def:1, val:t=>t.pf},
   {id:'pa',  abbr:'PA',   name:'Points against', help:'Total points scored against the player’s teams.', def:1, val:t=>t.pa},
   {id:'diff',abbr:'+/−',  name:'Point difference', help:'Points for minus points against.', def:1, val:t=>sgn(t.diff)},
@@ -1095,9 +1095,9 @@ function dayPrize(s){
 /* Session ranking for regulars: a missed game day counts as losses for half of that day's games. */
 function missedInfo(S,list){
   const regs=regularsOf(S), out={}, days=list.filter(x=>liveRounds(x).length).sort((a,b)=>a.date<b.date?-1:1);
-  regs.forEach(id=>{ let joined=false, miss=0, pen=0;
-    days.forEach(d=>{ const here=(d.players||[]).includes(id)&&!(d.out||[]).includes(id);
-      if(here){ joined=true; return; } if(!joined) return; miss++; pen+=dayPrize(d).N/2; });
+  regs.forEach(id=>{ const from=(S.joined&&S.joined[id])||''; let miss=0, pen=0;
+    days.forEach(d=>{ if(d.date<from) return; const here=(d.players||[]).includes(id)&&!(d.out||[]).includes(id);
+      if(here) return; miss++; pen+=dayPrize(d).N/2; });
     out[id]={miss,pen}; });
   return out;
 }
@@ -1215,7 +1215,8 @@ function regularsOf(S){
   if(!out.length){ const prev=seasonsSorted().filter(x=>x.startDate<S.startDate&&Array.isArray(x.regulars)).pop(); out= prev?prev.regulars.slice():rosterIds(); }
   return out;
 }
-function setRegulars(S,ids){ S.regulars=[...new Set(ids)]; saveCfg(); }
+function setRegulars(S,ids){ const old=new Set(S.regulars||[]), t=todayISO(); S.regulars=[...new Set(ids)];
+  if(t>S.startDate){ S.joined=S.joined||{}; S.regulars.forEach(id=>{ if(!old.has(id)&&!S.joined[id]) S.joined[id]=t; }); } saveCfg(); }
 function pickSet(){
   if(!ui.pick[sel]){ const s=sessions[sel];
     if(s&&s.players.length){ ui.pick[sel]=s.players.filter(id=>!isSub(s,id)); ui.pickSubs[sel]=s.players.filter(id=>isSub(s,id));
@@ -1632,7 +1633,7 @@ const HELP_RULES=`
 <li>Regulars are ranked over the whole session by <b>Rank%</b>.</li>
 <li>Rank% = (wins + ½ × ties) ÷ (games played + missed-day losses).</li>
 <li>A <b>missed day</b> is a game day a regular was marked out, even if they found a sub. It counts as losses for <b>half of that day’s games</b>.</li>
-<li>Days before a regular’s first day in the session don’t count as missed.</li>
+<li>Every game day with scores counts, from the start of the session. For a regular added later, only days after they were added count.</li>
 <li>Win% stays as the player’s own record. Only Rank% decides the order.</li></ul>
 <p class="ex">24 wins in 32 games and one missed 8-game day → 24 ÷ (32 + 4) = <b>66.7%</b> (Win% is still 75%).</p></section>
 <section><h3>6. Tiebreakers</h3><ol><li>Average margin per game (point difference ÷ games played)</li><li>Points for</li></ol>
